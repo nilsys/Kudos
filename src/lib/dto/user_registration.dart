@@ -16,15 +16,15 @@ class UserRegistration {
     @required this.imageUrl,
   });
 
-  factory UserRegistration.fromUser(UserModel x) {
+  factory UserRegistration.fromModel(UserModel model) {
     return UserRegistration._(
-      name: x.name,
-      email: x.email,
-      imageUrl: _getOriginalImageUrl(x.imageUrl),
+      name: model.name,
+      email: model.email,
+      imageUrl: _getOriginalImageUrl(model.imageUrl),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       "name": name,
       "email": email,

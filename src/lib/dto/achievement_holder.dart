@@ -1,30 +1,39 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudosapp/dto/user_reference.dart';
+import 'package:kudosapp/models/user_model.dart';
 
 /// Achievement collection -> Holders subcollection
 @immutable
 class AchievementHolder extends Equatable {
-  final Timestamp date;
+  final DateTime date;
   final UserReference recipient;
 
-  AchievementHolder({
+  AchievementHolder._({
     @required this.date,
     @required this.recipient,
   });
 
-  factory AchievementHolder.fromDocument(DocumentSnapshot x) {
-    return AchievementHolder(
-      date: x.data["date"],
-      recipient: UserReference.fromMap(x.data["recipient"]),
+  factory AchievementHolder.fromModel(UserModel model) {
+    return AchievementHolder._(
+      date: DateTime.now(),
+      recipient: UserReference.fromModel(model),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  factory AchievementHolder.fromJson(Map<String, dynamic> json) {
+    return json == null
+        ? null
+        : AchievementHolder._(
+            date: json["date"].toDate(),
+            recipient: UserReference.fromJson(json["recipient"], null),
+          );
+  }
+
+  Map<String, dynamic> toJson() {
     return {
       "date": date,
-      "recipient": recipient.toMap(),
+      "recipient": recipient.toJson(),
     };
   }
 

@@ -1,34 +1,41 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudosapp/models/user_model.dart';
 
 /// Teams collection -> team_members array
 @immutable
-class TeamMember {
+class TeamMember extends Equatable {
   final String id;
   final String name;
 
-  factory TeamMember.fromModel(UserModel user) {
-    return TeamMember._(user.id, user.name);
-  }
+  TeamMember._(
+    this.id,
+    this.name,
+  );
 
-  factory TeamMember.fromDocument(DocumentSnapshot x) {
-    return TeamMember._(x.documentID, x.data["name"]);
-  }
-
-  factory TeamMember.fromMap(Map<String, dynamic> map) {
+  factory TeamMember.fromModel(UserModel model) {
     return TeamMember._(
-      map["id"],
-      map["name"],
+      model.id,
+      model.name,
     );
   }
 
-  TeamMember._(this.id, this.name);
+  factory TeamMember.fromJson(Map<String, dynamic> json, String id) {
+    return json == null
+        ? null
+        : TeamMember._(
+            id ?? json["id"],
+            json["name"],
+          );
+  }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       "id": id,
       "name": name,
     };
   }
+
+  @override
+  List<Object> get props => [id];
 }

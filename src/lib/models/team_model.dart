@@ -36,8 +36,10 @@ class TeamModel {
       description: team.description,
       imageUrl: team.imageUrl,
       imageName: team.imageName,
-      members: team.members.map((tm) => UserModel.fromTeamMember(tm)).toList(),
-      owners: team.owners.map((tm) => UserModel.fromTeamMember(tm)).toList(),
+      members:
+          team.teamMembers.map((tm) => UserModel.fromTeamMember(tm)).toList(),
+      owners:
+          team.teamOwners.map((tm) => UserModel.fromTeamMember(tm)).toList(),
     );
   }
 
@@ -58,4 +60,7 @@ class TeamModel {
     members = team.members;
     owners = team.owners;
   }
+
+  bool canBeModifiedByUser(String userId) =>
+      owners.firstWhere((x) => x.id == userId, orElse: () => null) != null;
 }

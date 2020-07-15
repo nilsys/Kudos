@@ -48,7 +48,7 @@ dependencies:
 
   intl: ^0.16.1
 
-  sprintf: "^4.0.0"
+  sprintf: ^4.0.0
 
   # auth
   google_sign_in: ^4.4.4
@@ -74,6 +74,9 @@ flutter_intl:
   enabled: true
 
 flutter_icons:
-  image_path: "assets/icons/app_icon.png" 
+  image_path_ios: "assets/icons/app_icon.png" 
+  image_path_android: "assets/icons/app_icon.png"
+  adaptive_icon_foreground: "assets/icons/app_icon_transparent.png" 
+  adaptive_icon_background: "assets/icons/app_icon_gradient.png"
   android: true
   ios: true

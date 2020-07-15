@@ -1,22 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/dto/team_reference.dart';
 import 'package:kudosapp/dto/user_reference.dart';
-import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/achievement_model.dart';
+import 'package:kudosapp/models/achievement_owner_model.dart';
 
 /// Achievements collection
 @immutable
-class Achievement {
+class Achievement extends Equatable {
   final String id;
   final String name;
   final String description;
   final String imageUrl;
-  final TeamReference teamReference;
-  final UserReference userReference;
   final String imageName;
-  final bool canBeModifiedByCurrentUser;
-  final bool canBeSentByCurrentUser;
+  final TeamReference team;
+  final UserReference user;
+  final Set<String> members;
+  final Set<String> owners;
   final bool isActive;
 
   Achievement._({
@@ -24,116 +24,110 @@ class Achievement {
     @required this.name,
     @required this.description,
     @required this.imageUrl,
-    @required this.teamReference,
-    @required this.userReference,
+    @required this.team,
+    @required this.user,
     @required this.imageName,
-    @required this.canBeModifiedByCurrentUser,
-    @required this.canBeSentByCurrentUser,
     @required this.isActive,
+    @required this.members,
+    @required this.owners,
   });
 
-  static bool _contains(List<dynamic> list, value) {
-    if (list == null) {
-      return false;
-    }
-
-    return List<String>.from(list).contains(value);
+  factory Achievement.fromJson(Map<String, dynamic> json, String id) {
+    return json == null
+        ? null
+        : Achievement._(
+            id: id ?? json["id"],
+            name: json["name"],
+            description: json["description"],
+            imageUrl: json["image_url"],
+            imageName: json["image_name"],
+            team: TeamReference.fromJson(json["team"], null),
+            user: UserReference.fromJson(json["user"], null),
+            owners: json["owners"] == null
+                ? null
+                : Set<String>.from(json["owners"]),
+            members: json["members"] == null
+                ? null
+                : Set<String>.from(json["members"]),
+            isActive: json["is_active"],
+          );
   }
 
-  factory Achievement.fromDocument(DocumentSnapshot x, String userId) {
-    var isActive = x.data["is_active"];
-    var members = x.data["members"];
-    var userReference = UserReference.fromMap(x.data["user"]);
-    var owners = x.data["owners"];
-    var ownedByUser = userReference?.id == userId;
-    var canBeModifiedByCurrentUser =
-        isActive && (ownedByUser || _contains(owners, userId));
-    var canBeSentByCurrentUser = canBeModifiedByCurrentUser ||
-        (isActive && (ownedByUser || _contains(members, userId)));
+  factory Achievement.fromModel(
+    AchievementModel model, {
+    bool isActive,
+    AchievementOwnerModel newOwner,
+  }) {
+    UserReference userReference;
+    TeamReference teamReference;
+    Set<String> members;
+    Set<String> owners;
+
+    if (newOwner != null) {
+      userReference =
+          newOwner.user != null ? UserReference.fromModel(newOwner.user) : null;
+      teamReference =
+          newOwner.team != null ? TeamReference.fromModel(newOwner.team) : null;
+      members = newOwner.team?.members?.map((u) => u.id)?.toSet();
+      owners = newOwner.team?.owners?.map((u) => u.id)?.toSet();
+    } else {
+      userReference = model.owner.user != null
+          ? UserReference.fromModel(model.owner.user)
+          : null;
+      teamReference = model.owner.team != null
+          ? TeamReference.fromModel(model.owner.team)
+          : null;
+      members = model.owner?.team?.members?.map((u) => u.id)?.toSet();
+      owners = model.owner?.team?.owners?.map((u) => u.id)?.toSet();
+    }
 
     return Achievement._(
-      id: x.documentID,
-      name: x.data["name"],
-      description: x.data["description"],
-      imageUrl: x.data["image_url"],
-      imageName: x.data["image_name"],
-      teamReference: TeamReference.fromMap(x.data["team"]),
-      userReference: userReference,
-      canBeModifiedByCurrentUser: canBeModifiedByCurrentUser,
-      canBeSentByCurrentUser: canBeSentByCurrentUser,
-      isActive: isActive,
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      imageUrl: model.imageUrl,
+      imageName: model.imageName,
+      team: teamReference,
+      user: userReference,
+      members: members,
+      owners: owners,
+      isActive: isActive ?? true,
     );
   }
 
-  Map<String, dynamic> toMap(Team team) {
-    final map = {
-      "name": name,
-      "description": description,
-      "image_url": imageUrl,
-      "team": teamReference == null ? null : teamReference.toMap(),
-      "user": userReference == null ? null : userReference.toMap(),
-      "image_name": imageName,
-      "is_active": isActive,
-    };
-
-    if (team != null) {
-      map["members"] = team.members.map((x) => x.id).toList();
-      map["owners"] = team.owners.map((x) => x.id).toList();
-    }
-
-    return map;
-  }
-
-  static Map<String, dynamic> createMap({
-    String name,
-    String description,
-    String imageUrl,
-    String imageName,
-    TeamReference teamReference,
-    UserReference userReference,
-    bool isActive,
-    TeamModel team,
+  Map<String, dynamic> toJson({
+    bool addAll,
+    bool addMetadata = false,
+    bool addImage = false,
+    bool addOwner = false,
+    bool addIsActive = false,
   }) {
-    var map = Map<String, dynamic>();
+    final map = new Map<String, Object>();
 
-    if (name != null) {
-      map["name"] = name;
+    if (addAll || addMetadata) {
+      map.putIfAbsent("name", () => this.name);
+      map.putIfAbsent("description", () => this.description);
     }
 
-    if (imageUrl != null) {
-      map["image_url"] = imageUrl;
+    if (addAll || addImage) {
+      map.putIfAbsent("image_url", () => this.imageUrl);
+      map.putIfAbsent("image_name", () => this.imageName);
     }
 
-    if (imageName != null) {
-      map["image_name"] = imageName;
+    if (addAll || addOwner) {
+      map.putIfAbsent("team", () => team == null ? null : team.toJson());
+      map.putIfAbsent("user", () => user == null ? null : user.toJson());
+      map.putIfAbsent("members", () => this.members?.toList());
+      map.putIfAbsent("owners", () => this.owners?.toList());
     }
 
-    if (description != null) {
-      map["description"] = description;
-    }
-
-    if (isActive != null) {
-      map["is_active"] = isActive;
-    }
-
-    if (teamReference != null) {
-      map["user"] = null;
-      map["team"] = teamReference.toMap();
-
-      if (team != null) {
-        map["members"] = team.members.map((x) => x.id).toList();
-        map["owners"] = team.owners.map((x) => x.id).toList();
-      }
-    }
-
-    if (userReference != null) {
-      map["team"] = null;
-      map["user"] = userReference.toMap();
-
-      map["members"] = null;
-      map["owners"] = null;
+    if (addAll || addIsActive) {
+      map.putIfAbsent("is_active", () => this.isActive);
     }
 
     return map;
   }
+
+  @override
+  List<Object> get props => [id];
 }
