@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+env:
+  flutter_version: "1.17.5"
+
 jobs:
   build:
     runs-on: macos-latest
@@ -13,14 +16,14 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
-    - name: Cache Flutter Dependencies
+    - name: Cache Flutter dependencies
       uses: actions/cache@v1
       with:
         path: /opt/hostedtoolcache/flutter
-        key: ${{ runner.os }}-flutter
+        key: ${{ runner.os }}-flutter-${{ env.flutter_version }}
     - uses: subosito/flutter-action@v1
       with:
-        channel: 'stable'
+        flutter-version: ${{ env.flutter_version }}
     - name: Install dependencies
       run: flutter pub get
       working-directory: src
