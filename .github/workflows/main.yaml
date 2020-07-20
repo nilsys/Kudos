@@ -49,3 +49,10 @@ jobs:
     - name: Build Android app
       run: flutter build apk
       working-directory: src
+    - name: Upload apk to App Center
+      uses: wzieba/AppCenter-Github-Action@v1.1.1
+      with:
+        appName: softeqdevelopment/Kudos.Android
+        token: ${{secrets.app_center_android}}
+        group: Dev Team
+        file: src/build/app/outputs/apk/release/app-release.apk
