@@ -17,7 +17,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ env.java_version }}
-    - name: Cache Flutter dependencies
+    - name: Cache flutter dependencies
       uses: actions/cache@v1
       with:
         path: /opt/hostedtoolcache/flutter
@@ -25,7 +25,7 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         flutter-version: ${{ env.flutter_version }}
-    - name: Install dependencies
+    - name: Install app dependencies
       run: flutter pub get
       working-directory: src
     - name: Add google-services.json
