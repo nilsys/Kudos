@@ -46,6 +46,12 @@ jobs:
         contents: |
           echo ${{secrets.android_key}} | base64 --decode
         write-mode: overwrite
+    - name: Display list
+      run: |
+        pwd
+        cd src && ls -al
+        shasum key.jks
+      shell: bash
     - name: Build Android app
       run: flutter build apk
       working-directory: src
