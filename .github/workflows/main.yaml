@@ -39,13 +39,12 @@ jobs:
         path: src/android/key.properties
         contents: ${{secrets.android_key_properties}}
         write-mode: overwrite
-    - name: Add key.jks
-      uses: DamianReeves/write-file-action@v1.0
-      with:
-        path: src/android/key.jks
-        contents: |
-          echo ${{secrets.android_key}} | base64 --decode
-        write-mode: overwrite
+    - name: XXX
+      run: |
+        echo "$KEY" | base64 --decode > src/android/key.jks
+      env:
+        KEY: ${{secrets.android_key}}
+      shell: bash
     - name: Display list
       run: |
         pwd
