@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/viewmodels/people_viewmodel.dart';
+import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/list_of_people_widget.dart';
-import 'package:provider/provider.dart';
-import 'package:kudosapp/pages/profile_page.dart';
-import 'package:kudosapp/viewmodels/people_viewmodel.dart';
-import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
 import 'package:kudosapp/widgets/search_input_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:sprintf/sprintf.dart';
 
 class PeoplePageRoute extends MaterialPageRoute {
@@ -74,8 +74,7 @@ class PeoplePage extends StatelessWidget {
                           builder: (context, viewModel, child) {
                             return StreamBuilder<List<UserModel>>(
                               stream: viewModel.peopleStream,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<List<UserModel>> snapshot) {
+                              builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   if (snapshot.data.isEmpty) {
                                     return _buildEmpty();
