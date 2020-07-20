@@ -13,8 +13,18 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
+    - name: Cache Flutter Dependencies
+      uses: actions/cache@v1
+      with:
+        path: /opt/hostedtoolcache/flutter
+        key: ${{ runner.os }}-flutter
     - uses: subosito/flutter-action@v1
       with:
         channel: 'stable'
-    - run: flutter pub get
-    - run: flutter build apk
+    - name: Install dependencies
+      run: flutter pub get
+      working-directory: src
+    - name: Build Android app
+      run: flutter build apk
+      working-directory: src
+
