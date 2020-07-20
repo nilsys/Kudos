@@ -27,6 +27,13 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
       working-directory: src
+    - name: Add google-services.json
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: src/android/app/google-services.json
+        contents:
+          ${{secrets.android_google_services}}
+        write-mode: overwrite
     - name: Build Android app
       run: flutter build apk
       working-directory: src
