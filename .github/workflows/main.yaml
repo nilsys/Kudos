@@ -31,8 +31,20 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: src/android/app/google-services.json
-        contents:
-          ${{secrets.android_google_services}}
+        contents: ${{secrets.android_google_services}}
+        write-mode: overwrite
+    - name: Add key.properties
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: src/android/key.properties
+        contents: ${{secrets.android_key_properties}}
+        write-mode: overwrite
+    - name: Add key.jks
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: src/android/key.jks
+        contents: |
+          echo ${{secrets.android_key}} | base64 --decode
         write-mode: overwrite
     - name: Build Android app
       run: flutter build apk
