@@ -73,7 +73,9 @@ class _EditTeamPageState extends State<_EditTeamPage> {
                     TextFormField(
                       controller: _nameController,
                       validator: (x) {
-                        return x.isEmpty ? localizer().requiredField : null;
+                        return x.trim().isEmpty
+                            ? localizer().requiredField
+                            : null;
                       },
                       style: KudosTheme.descriptionTextStyle,
                       cursorColor: KudosTheme.accentColor,
