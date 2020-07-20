@@ -49,7 +49,7 @@ jobs:
     - name: Display list
       run: |
         pwd
-        cd src && ls -al
+        cd src/android && ls -al
         shasum key.jks
       shell: bash
     - name: Build Android app
