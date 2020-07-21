@@ -5,8 +5,8 @@ admin.initializeApp();
 const db = admin.firestore();
 
 /**
- * Trigger updates information about team in achievements collection
- * when team name changes
+ * Trigger updates information about Team in achievements collection
+ * when Team name changes
  */
 export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdate(async (snapshot, context) => {
     const oldData = snapshot.before.data();
@@ -84,8 +84,8 @@ export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdat
 });
 
 /**
- * Trigger updates information about achievement in achievement_references collection
- * when achievement image_url changes
+ * Trigger updates information about Achievement in achievement_references collection
+ * when Achievement image_url or name changes
  */
 export const updateAchievement = functions.firestore.document('achievements/{achievementId}').onUpdate(async (snapshot, context) => {
     const oldData = snapshot.before.data();
@@ -95,10 +95,13 @@ export const updateAchievement = functions.firestore.document('achievements/{ach
         return;
     }
 
-    const oldValue: string = oldData.image_url;
-    const newValue: string = newData.image_url;
+    const oldUrl: string = oldData.image_url;
+    const newUrl: string = newData.image_url;
 
-    if (oldValue === newValue) {
+    const oldName: string = oldData.name;
+    const newName: string = newData.name;
+
+    if (oldUrl === newUrl && oldName === newName) {
         return;
     }
 
@@ -109,13 +112,11 @@ export const updateAchievement = functions.firestore.document('achievements/{ach
         return;
     }
 
-    const achievementName = newData.name;
-
     const data = {
         achievement: {
             id: achievementId,
-            name: achievementName,
-            image_url: newValue,
+            name: newName,
+            image_url: newUrl,
         },
     };
 
@@ -129,8 +130,54 @@ export const updateAchievement = functions.firestore.document('achievements/{ach
 });
 
 /**
- * Trigger updates received achievements count in users collection
- * and sends push notification to user when he gets a new achievement
+ * Trigger updates information about User in achievements/holders subcollection
+ * when User image_url or name changes
+ */
+export const updateUser = functions.firestore.document('users/{userId}').onUpdate(async (snapshot, context) => {
+    const oldData = snapshot.before.data();
+    const newData = snapshot.after.data();
+
+    if (!oldData || !newData) {
+        return;
+    }
+
+    const oldUrl: string = oldData.image_url;
+    const newUrl: string = newData.image_url;
+
+    const oldName: string = oldData.name;
+    const newName: string = newData.name;
+
+    if (oldUrl === newUrl && oldName === newName) {
+        return;
+    }
+
+    const userId: string = context.params.userId;
+
+    const qs = await db.collectionGroup('holders').where('recipient.id', "==", userId).get();
+    if (qs.docs.length === 0) {
+        return;
+    }
+
+    const data = {
+        recipient: {
+            id: userId,
+            name: newName,
+            image_url: newUrl,
+        },
+    };
+
+    const batch = db.batch();
+
+    qs.docs.forEach((x) => {
+        batch.set(x.ref, data, { merge: true });
+    });
+
+    await batch.commit();
+});
+
+/**
+ * Trigger updates received Achievements count in users collection
+ * and sends push notification to User when he gets a new achievement
  */
 export const onCreateAchievementReferences = functions.firestore.document('/users/{userId}/achievement_references/{referenceId}').onCreate(async (snapshot, context) => {
     const documentData = snapshot.data();
