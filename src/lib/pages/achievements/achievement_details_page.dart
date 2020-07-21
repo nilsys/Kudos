@@ -333,6 +333,7 @@ class _AchievementHoldersWidget extends StatelessWidget {
         alignment: Alignment.topLeft,
         child: Wrap(
             children: _buildListItems(context, _achievementHolders),
+            runSpacing: 10,
             spacing: 10),
       );
     }
