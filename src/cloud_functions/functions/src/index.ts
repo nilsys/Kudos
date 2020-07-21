@@ -143,7 +143,7 @@ export const onCreateAchievementReferences = functions.firestore.document('/user
 
     // start update received achievements count in users collection
     await db.collection('users').doc(userId).
-        update({ received_achievements_count : admin.firestore.FieldValue.increment(1) });
+        update({ received_achievements_count: admin.firestore.FieldValue.increment(1) });
     // end update received achievements count in users collection
 
     const qs = await db.collection(`/users/${userId}/push_tokens`).get();
@@ -232,6 +232,54 @@ export const cleanupStorage = functions.https.onRequest(async (request, response
     response.send({ deleted_files: deletedFiles });
 });
 
+export const addUsers = functions.https.onRequest(async (request, response) => {
+    const json = JSON.parse(JSON.stringify(request.body));
+    const users: Array<User> = json.users;
+
+    const batch = db.batch();
+
+    users.forEach(x => {
+        const userId = x.email.split('@')[0];
+        const ref = db.collection('users').doc(userId);
+        const data = {
+            email: x.email,
+            name: x.name
+        };
+        batch.set(ref, data, { merge: true });
+    });
+
+    await batch.commit();
+
+    response.status(200).send();
+});
+
+export const onCreateUser = functions.firestore.document('/users/{userId}').onCreate(async (snapshot, context) => {
+    const documentData = snapshot.data();
+
+    if (!documentData) {
+        return;
+    }
+
+    const userId: string = context.params.userId;
+    const softeqTeam = await db.collection('teams').doc('1OXbbvRAI9QL7Vv8aD8B').get();
+    const softeqTeamData = softeqTeam.data();
+
+    if (!softeqTeamData) {
+        return;
+    }
+
+    const members: Array<any> = softeqTeamData.team_members;
+    members.push({
+        id: userId,
+        name: documentData.name
+    });
+
+    const visibleFor: Array<any> = softeqTeamData.visible_for;
+    visibleFor.push(userId);
+
+    await softeqTeam.ref.set({ team_members: members, visible_for: visibleFor }, { merge: true });
+});
+
 function arraysEquals(array1: Array<String>, array2: Array<String>): boolean {
     if (array1.length !== array2.length) {
         return false;
@@ -259,4 +307,14 @@ function stringComparer(value1: String, value2: String) {
     }
 
     return 0;
+}
+
+class User {
+    name: String;
+    email: String;
+
+    constructor(name: String, email: String) {
+        this.name = name;
+        this.email = email;
+    }
 }
