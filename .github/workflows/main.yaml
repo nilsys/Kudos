@@ -8,6 +8,7 @@ on:
 env:
   flutter_version: "1.17.5"
   java_version: "12.x"
+  appcenter_cli_version: "2.6.3"
 
 jobs:
   build:
@@ -56,10 +57,21 @@ jobs:
     - name: Build Android app
       run: flutter build apk
 
-    - name: Upload apk to App Center
-      uses: wzieba/AppCenter-Github-Action@v1.1.1
+    - name: Cache NPM dependencies (App Center)
+      uses: actions/cache@v1
       with:
-        appName: softeqdevelopment/Kudos.Android
-        token: ${{secrets.app_center_android}}
-        group: Dev Team
-        file: build/app/outputs/apk/release/app-release.apk
+        path: node_modules
+        key: ${{ runner.OS }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-npm-
+
+    - name: Deploy to App Center
+      run: |
+        npm install appcenter-cli@${{ env.appcenter_cli_version}}
+        npx appcenter distribute release \
+          --token "${{ secrets.app_center_android }}" \
+          --app "softeqdevelopment/Kudos.Android" \
+          --group "Dev Team" \
+          --file "build/app/outputs/apk/release/app-release.apk" \
+          --release-notes "New release" \
+          --debug
