@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  flutter_version: "1.17.5"
+  java_version: "12.x"
+
+jobs:
+  build_android:
+    name: Build Android
+    defaults:
+      run:
+        working-directory: src
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: ${{ env.java_version }}
+
+    - name: Cache flutter
+      uses: actions/cache@v1
+      with:
+        path: /Users/runner/hostedtoolcache/flutter
+        key: ${{ runner.os }}-flutter-${{ env.flutter_version }}
+
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: ${{ env.flutter_version }}
+
+    - name: Install app dependencies
+      run: flutter pub get
+
+    - name: Add google-services.json
+      run: |
+        echo "$FIREBASE_CONFIG" > android/app/google-services.json
+      env:
+        FIREBASE_CONFIG: ${{ secrets.android_google_services }}
+
+    - name: Build Android app
+      run: flutter build apk --debug
+
+  build_ios:
+    name: Build iOS
+    defaults:
+      run:
+        working-directory: src
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: ${{ env.java_version }}
+
+    - name: Cache flutter
+      uses: actions/cache@v1
+      with:
+        path: /Users/runner/hostedtoolcache/flutter
+        key: ${{ runner.os }}-flutter-${{ env.flutter_version }}
+
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: ${{ env.flutter_version }}
+
+    - name: Install app dependencies
+      run: flutter pub get
+
+    - name: Add GoogleService-Info.plist
+      run: |
+        echo "$FIREBASE_CONFIG" > ios/Runner/GoogleService-Info.plist
+      env:
+        FIREBASE_CONFIG: ${{ secrets.ios_google_services }}
+
+    - name: Build
+      run: flutter build ios --debug --no-codesign
