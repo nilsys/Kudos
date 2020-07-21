@@ -192,19 +192,39 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
             content: TextField(
               controller: _inputController,
               autofocus: true,
+              style: KudosTheme.descriptionTextStyle,
+              cursorColor: KudosTheme.accentColor,
               decoration: InputDecoration(
                 labelText: localizer().writeAComment,
+                labelStyle: TextStyle(
+                  color: KudosTheme.mainGradientEndColor,
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: KudosTheme.accentColor),
+                ),
               ),
             ),
             actions: <Widget>[
               FlatButton(
-                child: Text(localizer().cancel),
+                child: Text(
+                  localizer().cancel,
+                  style: TextStyle(
+                    color: KudosTheme.mainGradientStartColor,
+                  ),
+                ),
+                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               FlatButton(
-                child: Text(localizer().send),
+                child: Text(
+                  localizer().send,
+                  style: TextStyle(
+                    color: KudosTheme.mainGradientStartColor,
+                  ),
+                ),
+                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
                 onPressed: () {
                   accepted = true;
                   Navigator.of(context).pop();

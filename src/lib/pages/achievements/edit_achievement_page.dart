@@ -464,8 +464,8 @@ class _TextInputWidgetState extends State<_TextInputWidget> {
                       cursorColor: KudosTheme.accentColor,
                       decoration: InputDecoration(
                         focusedBorder: UnderlineInputBorder(
-                            borderSide:
-                                BorderSide(color: KudosTheme.accentColor)),
+                          borderSide: BorderSide(color: KudosTheme.accentColor),
+                        ),
                       ),
                     ),
                   ),
