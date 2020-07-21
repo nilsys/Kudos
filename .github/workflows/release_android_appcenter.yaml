@@ -1,9 +1,11 @@
-name: Build and deploy
+name: Release Android
 
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      - 'releases/**'
+    tags:
+      - release_**
 
 env:
   flutter_version: "1.17.5"
