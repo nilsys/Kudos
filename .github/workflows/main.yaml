@@ -11,9 +11,12 @@ env:
 
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: src
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ env.java_version }}
@@ -27,32 +30,30 @@ jobs:
         flutter-version: ${{ env.flutter_version }}
     - name: Install app dependencies
       run: flutter pub get
-      working-directory: src
     - name: Add google-services.json
       run: |
-        echo "$FIREBASE_CONFIG" > src/android/app/google-services.json
+        echo "$FIREBASE_CONFIG" > android/app/google-services.json
       env:
         FIREBASE_CONFIG: ${{secrets.android_google_services}}
       shell: bash
     - name: Add key.properties
       run: |
-        echo "$KEY_PROPS" > src/android/key.properties
+        echo "$KEY_PROPS" > android/key.properties
       env:
         KEY_PROPS: ${{secrets.android_key_properties}}
       shell: bash
     - name: Add key
       run: |
-        echo "$KEYSTORE" | base64 --decode > src/android/key.jks
+        echo "$KEYSTORE" | base64 --decode > android/key.jks
       env:
         KEYSTORE: ${{secrets.android_key}}
       shell: bash
     - name: Build Android app
       run: flutter build apk
-      working-directory: src
     - name: Upload apk to App Center
       uses: wzieba/AppCenter-Github-Action@v1.1.1
       with:
         appName: softeqdevelopment/Kudos.Android
         token: ${{secrets.app_center_android}}
         group: Dev Team
-        file: src/build/app/outputs/apk/release/app-release.apk
+        file: build/app/outputs/apk/release/app-release.apk
