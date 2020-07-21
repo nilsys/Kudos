@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:kudosapp/dto/user_registration.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -6,32 +7,42 @@ import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/push_notifications_service.dart';
 
 class PeopleService {
+  static List<UserModel> _cachedUsers;
+
   final _authService = locator<BaseAuthService>();
   final _pushNotificationsService = locator<PushNotificationsService>();
   final _usersDatabaseService = locator<UsersDatabaseService>();
-  final _cachedUsers = List<UserModel>();
+  final _initUsersMemoizer = AsyncMemoizer<List<UserModel>>();
 
   PeopleService() {
-    _usersDatabaseService.getUsersStream().listen((users) {
-      users.sort((x, y) => x.name.compareTo(y.name));
+    _usersDatabaseService.usersStream.listen((users) {
       _cachedUsers.clear();
-      _cachedUsers.addAll(users.map((u) => UserModel.fromUser(u)));
+      _cachedUsers.addAll(users);
     });
   }
 
-  Future<int> getUsersCount() => Future.value(_cachedUsers.length);
+  Future<int> getUsersCount() async {
+    final users = await _getAllUsers();
+    return users.length;
+  }
 
-  Future<List<UserModel>> getAllUsers() => _getAllUsers();
+  Future<List<UserModel>> getAllUsers() {
+    return _getAllUsers();
+  }
 
   Future<void> tryRegisterCurrentUser() async {
     final user = _authService.currentUser;
     final token = await _pushNotificationsService.subscribeForNotifications();
 
     _usersDatabaseService.registerUser(
-        user.id, UserRegistration.fromModel(user), token);
+      user.id,
+      UserRegistration.fromModel(user),
+      token,
+    );
   }
 
   Future<void> unsubscribeFromNotifications() {
+    _usersDatabaseService.stopListenUsers();
     return _pushNotificationsService.unsubscribeFromNotifications();
   }
 
@@ -61,7 +72,19 @@ class PeopleService {
     return user;
   }
 
-  Future<List<UserModel>> _getAllUsers() => Future.value(_cachedUsers);
+  Future<List<UserModel>> _getAllUsers() async {
+    if (_cachedUsers != null) {
+      _usersDatabaseService.updateUsersListenerIfNeeded();
+      return _cachedUsers;
+    }
+
+    _cachedUsers = await _initUsersMemoizer.runOnce(() {
+      return _usersDatabaseService.getAllUsers();
+    });
+
+    _usersDatabaseService.updateUsersListenerIfNeeded();
+    return _cachedUsers;
+  }
 }
 
 class _UserFilter {

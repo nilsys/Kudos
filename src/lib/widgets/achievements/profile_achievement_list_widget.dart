@@ -128,31 +128,6 @@ class ProfileAchievementsListWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildFancyGrid(
-    List<UserAchievementCollection> achievementCollections,
-    bool isMyProfile,
-  ) {
-    return GridView.builder(
-        padding: EdgeInsets.only(
-          top: TopDecorator.height + 10,
-          bottom: BottomDecorator.height,
-          left: 8,
-          right: 8,
-        ),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 30,
-          childAspectRatio: 0.86,
-          mainAxisSpacing: 20,
-        ),
-        itemBuilder: (context, index) => _buildGridItem(
-              context,
-              achievementCollections[index],
-              isMyProfile,
-            ),
-        itemCount: achievementCollections.length);
-  }
-
   Widget _buildView(
     List<UserAchievementCollection> achievementCollections,
     bool isMyProfile,
@@ -187,10 +162,8 @@ class ProfileAchievementsListWidget extends StatelessWidget {
         achievementCollection.userAchievements[0].achievement;
     return LayoutBuilder(
       builder: (context, constraints) {
-        var width = constraints.maxWidth;
-        var height = constraints.maxHeight;
-
-        var children = <Widget>[];
+        final width = constraints.maxWidth;
+        final children = <Widget>[];
 
         children.add(
           Positioned.directional(

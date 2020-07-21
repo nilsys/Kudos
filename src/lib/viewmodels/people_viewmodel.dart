@@ -4,11 +4,10 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/people_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:rxdart/rxdart.dart';
 
 class PeopleViewModel extends BaseViewModel {
-  final PeopleService _peopleService = locator<PeopleService>();
-  final List<UserModel> _peopleList = [];
+  final _peopleService = locator<PeopleService>();
+  final _peopleList = List<UserModel>();
   final Set<String> _excludedUserIds;
 
   StreamController<String> _streamController;
@@ -22,23 +21,35 @@ class PeopleViewModel extends BaseViewModel {
     _initialize();
   }
 
+  void filterByName(String query) {
+    _streamController.add(query);
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
+  }
+
   void _initialize() async {
     await _loadPeopleList();
     filterByName("");
   }
 
-  void filterByName(String query) => _streamController.add(query);
-
   void _initFilter() {
     _streamController = StreamController<String>();
+    _peopleStream = _streamController.stream.transform(
+      StreamTransformer<String, List<UserModel>>.fromHandlers(
+        handleData: (query, sink) {
+          if (_peopleList.length == 0) {
+            return;
+          }
 
-    _peopleStream = _streamController.stream
-        .debounceTime(Duration(milliseconds: 100))
-        .distinct()
-        .transform(StreamTransformer<String, List<UserModel>>.fromHandlers(
-          handleData: (query, sink) => sink.add(
-              query.isEmpty ? _peopleList : _filterByName(_peopleList, query)),
-        ));
+          sink.add(
+              query.isEmpty ? _peopleList : _filterByName(_peopleList, query));
+        },
+      ),
+    );
   }
 
   Future<void> _loadPeopleList() async {
