@@ -237,7 +237,7 @@ export const cleanupStorage = functions.https.onRequest(async (request, response
  * Automatically add users to the system
  * request sample:
  * 
- * curl --location --request POST 'https://us-central1-softeq-kudos.cloudfunctions.net/addUsers' \
+ * curl --location --request POST '[url]' \
  * --header 'Content-Type: application/json' \
  * --data-raw '{
  *     "users": [
