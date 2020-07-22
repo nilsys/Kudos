@@ -40,16 +40,15 @@ class ProfilePage extends StatelessWidget {
         floatingActionButton: viewModel.showSendButton
             ? FloatingActionButton(
                 child: KudosTheme.sendIcon,
-                onPressed: () => _sendTapped(context),
+                onPressed: () => _sendTapped(context, viewModel),
               )
             : null,
       );
     });
   }
 
-  void _sendTapped(BuildContext context) async {
+  void _sendTapped(BuildContext context, ProfileViewModel viewModel) async {
     try {
-      var viewModel = Provider.of<ProfileViewModel>(context, listen: false);
       await viewModel.sendAchievement(context);
     } catch (error) {
       _snackBarNotifier.showGeneralErrorMessage(
