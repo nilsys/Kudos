@@ -14,6 +14,7 @@ env:
 
 jobs:
   tests:
+    if: ${{ false }} # disabled
     name: Tests
     defaults:
       run:
@@ -46,11 +47,10 @@ jobs:
 
   build_android:
     name: Build Android
-    needs: [tests]
     defaults:
       run:
         working-directory: src
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
@@ -62,7 +62,7 @@ jobs:
     - name: Cache flutter
       uses: actions/cache@v1
       with:
-        path: /Users/runner/hostedtoolcache/flutter
+        path: /opt/hostedtoolcache/flutter
         key: ${{ runner.os }}-flutter-${{ env.flutter_version }}
 
     - name: Use flutter
@@ -83,6 +83,7 @@ jobs:
       run: flutter build apk --debug
 
   build_ios:
+    if: ${{ false }} # disabled
     name: Build iOS
     needs: [tests]
     defaults:
