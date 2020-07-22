@@ -130,56 +130,10 @@ export const updateAchievement = functions.firestore.document('achievements/{ach
 });
 
 /**
- * Trigger updates information about User in achievements/holders subcollection
- * when User image_url or name changes
- */
-export const updateUser = functions.firestore.document('users/{userId}').onUpdate(async (snapshot, context) => {
-    const oldData = snapshot.before.data();
-    const newData = snapshot.after.data();
-
-    if (!oldData || !newData) {
-        return;
-    }
-
-    const oldUrl: string = oldData.image_url;
-    const newUrl: string = newData.image_url;
-
-    const oldName: string = oldData.name;
-    const newName: string = newData.name;
-
-    if (oldUrl === newUrl && oldName === newName) {
-        return;
-    }
-
-    const userId: string = context.params.userId;
-
-    const qs = await db.collectionGroup('holders').where('recipient.id', "==", userId).get();
-    if (qs.docs.length === 0) {
-        return;
-    }
-
-    const data = {
-        recipient: {
-            id: userId,
-            name: newName,
-            image_url: newUrl,
-        },
-    };
-
-    const batch = db.batch();
-
-    qs.docs.forEach((x) => {
-        batch.set(x.ref, data, { merge: true });
-    });
-
-    await batch.commit();
-});
-
-/**
  * Trigger updates received Achievements count in users collection
  * and sends push notification to User when he gets a new achievement
  */
-export const onCreateAchievementReferences = functions.firestore.document('/users/{userId}/achievement_references/{referenceId}').onCreate(async (snapshot, context) => {
+export const createAchievementReferences = functions.firestore.document('/users/{userId}/achievement_references/{referenceId}').onCreate(async (snapshot, context) => {
     const documentData = snapshot.data();
 
     if (!documentData) {
@@ -279,6 +233,25 @@ export const cleanupStorage = functions.https.onRequest(async (request, response
     response.send({ deleted_files: deletedFiles });
 });
 
+/**
+ * Automatically add users to the system
+ * request sample:
+ * 
+ * curl --location --request POST 'https://us-central1-softeq-kudos.cloudfunctions.net/addUsers' \
+ * --header 'Content-Type: application/json' \
+ * --data-raw '{
+ *     "users": [
+ *         {
+ *             "email": "test.user1@softeq.com",
+ *             "name": "Test User1"
+ *         },
+ *         {
+ *             "email": "test.user2@softeq.com",
+ *             "name": "Test User2"
+ *         }
+ *     ]
+ * }'
+ */
 export const addUsers = functions.https.onRequest(async (request, response) => {
     const json = JSON.parse(JSON.stringify(request.body));
     const users: Array<User> = json.users;
@@ -300,7 +273,10 @@ export const addUsers = functions.https.onRequest(async (request, response) => {
     response.status(200).send();
 });
 
-export const onCreateUser = functions.firestore.document('/users/{userId}').onCreate(async (snapshot, context) => {
+/**
+ * Trigger add added user to the Softeq team
+ */
+export const createUser = functions.firestore.document('/users/{userId}').onCreate(async (snapshot, context) => {
     const documentData = snapshot.data();
 
     if (!documentData) {
@@ -325,6 +301,52 @@ export const onCreateUser = functions.firestore.document('/users/{userId}').onCr
     visibleFor.push(userId);
 
     await softeqTeam.ref.set({ team_members: members, visible_for: visibleFor }, { merge: true });
+});
+
+/**
+ * Trigger updates information about User in achievements/holders subcollection
+ * when User image_url or name changes
+ */
+export const updateUser = functions.firestore.document('users/{userId}').onUpdate(async (snapshot, context) => {
+    const oldData = snapshot.before.data();
+    const newData = snapshot.after.data();
+
+    if (!oldData || !newData) {
+        return;
+    }
+
+    const oldUrl: string = oldData.image_url;
+    const newUrl: string = newData.image_url;
+
+    const oldName: string = oldData.name;
+    const newName: string = newData.name;
+
+    if (oldUrl === newUrl && oldName === newName) {
+        return;
+    }
+
+    const userId: string = context.params.userId;
+
+    const qs = await db.collectionGroup('holders').where('recipient.id', '==', userId).get();
+    if (qs.docs.length === 0) {
+        return;
+    }
+
+    const data = {
+        recipient: {
+            id: userId,
+            name: newName,
+            image_url: newUrl,
+        },
+    };
+
+    const batch = db.batch();
+
+    qs.docs.forEach(x => {
+        batch.set(x.ref, data, { merge: true });
+    });
+
+    await batch.commit();
 });
 
 function arraysEquals(array1: Array<String>, array2: Array<String>): boolean {
