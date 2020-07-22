@@ -31,20 +31,20 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      body: Consumer<ProfileViewModel>(
-        builder: (context, viewModel, child) {
-          return CustomScrollView(
-            slivers: _buildSlivers(context, viewModel).toList(),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: KudosTheme.sendIcon,
-        onPressed: () => _sendTapped(context),
-      ),
-    );
+    return Consumer<ProfileViewModel>(builder: (context, viewModel, child) {
+      return Scaffold(
+        key: _scaffoldKey,
+        body: CustomScrollView(
+          slivers: _buildSlivers(context, viewModel).toList(),
+        ),
+        floatingActionButton: viewModel.showSendButton
+            ? FloatingActionButton(
+                child: KudosTheme.sendIcon,
+                onPressed: () => _sendTapped(context),
+              )
+            : null,
+      );
+    });
   }
 
   void _sendTapped(BuildContext context) async {

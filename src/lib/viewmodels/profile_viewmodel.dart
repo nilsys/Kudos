@@ -30,6 +30,8 @@ class ProfileViewModel extends BaseViewModel with Disposable {
 
   String get imageUrl => user.imageUrl;
   String get userName => user.name ?? "";
+  bool get showSendButton =>
+      user != null && user.id != _authService.currentUser.id;
 
   ProfileViewModel(this.user) {
     _initialize();
