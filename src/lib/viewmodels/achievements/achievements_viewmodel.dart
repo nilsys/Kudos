@@ -25,10 +25,12 @@ class AchievementsViewModel extends BaseViewModel {
   StreamSubscription _achievementTransferredSubscription;
 
   final achievements = ListNotifier<AchievementModel>();
+  final bool Function(AchievementModel) _achievementFilter;
 
   UserModel get currentUser => _authService.currentUser;
 
-  AchievementsViewModel() {
+  AchievementsViewModel({bool Function(AchievementModel) achievementsFilter})
+      : _achievementFilter = achievementsFilter {
     _initialize();
   }
 
@@ -39,8 +41,10 @@ class AchievementsViewModel extends BaseViewModel {
     final teamsAchievements = await _achievementsService.getAchievements();
 
     achievements.items.clear();
-    achievements.items.addAll(myAchievements);
-    achievements.items.addAll(teamsAchievements);
+    achievements.items.addAll(myAchievements
+        .where((element) => _achievementFilter?.call(element) ?? true));
+    achievements.items.addAll(teamsAchievements
+        .where((element) => _achievementFilter?.call(element) ?? true));
     achievements.notifyListeners();
 
     _achievementUpdatedSubscription?.cancel();

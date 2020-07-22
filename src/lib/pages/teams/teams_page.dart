@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
@@ -8,52 +9,43 @@ import 'package:kudosapp/viewmodels/profile/my_teams_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
-import 'package:kudosapp/widgets/teams/list_of_teams_widget.dart';
+import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
 import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
 import 'package:kudosapp/widgets/search_input_widget.dart';
 
-class TeamsPageRoute extends MaterialPageRoute {
+class TeamsPageRoute extends MaterialPageRoute<TeamModel> {
   TeamsPageRoute({
+    @required SelectionAction selectionAction,
+    @required bool showAddButton,
     Set<String> excludedTeamIds,
     Icon selectorIcon,
-    void Function(BuildContext, TeamModel) onItemSelected,
-    bool showAddButton,
   }) : super(
           builder: (context) => TeamsPage(
-              excludedTeamIds: excludedTeamIds,
-              selectorIcon: selectorIcon,
-              onItemSelected: onItemSelected,
-              showAddButton: showAddButton),
+            selectionAction: selectionAction,
+            showAddButton: showAddButton,
+            excludedTeamIds: excludedTeamIds,
+            selectorIcon: selectorIcon,
+          ),
           fullscreenDialog: true,
         );
 }
 
 class TeamsPage extends StatelessWidget {
-  static final Icon defaultSelectorIcon = Icon(
-    Icons.arrow_forward_ios,
-    size: 16.0,
-    color: KudosTheme.accentColor,
-  );
-  static final void Function(BuildContext, TeamModel) defaultItemSelector =
-      (context, team) => Navigator.of(context).push(
-            ManageTeamRoute(team),
-          );
-
   final Set<String> _excludedTeamIds;
-  final void Function(BuildContext, TeamModel) _onItemSelected;
+  final SelectionAction _selectionAction;
   final Icon _selectorIcon;
   final bool _showAddButton;
 
   TeamsPage({
+    @required SelectionAction selectionAction,
+    @required bool showAddButton,
     Set<String> excludedTeamIds,
     Icon selectorIcon,
-    Function(BuildContext, TeamModel) onItemSelected,
-    bool showAddButton,
   })  : _excludedTeamIds = excludedTeamIds,
-        _selectorIcon = selectorIcon ?? defaultSelectorIcon,
-        _onItemSelected = onItemSelected ?? defaultItemSelector,
-        _showAddButton = showAddButton ?? true;
+        _selectorIcon = selectorIcon ?? KudosTheme.defaultSelectorIcon,
+        _selectionAction = selectionAction,
+        _showAddButton = showAddButton;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +97,7 @@ class TeamsPage extends StatelessWidget {
                             onPressed: () {
                               Navigator.of(context).push(EditTeamRoute());
                             },
-                            child: Icon(Icons.add),
+                            child: KudosTheme.addIcon,
                           ),
                         ),
                       ),
@@ -118,6 +110,17 @@ class TeamsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onItemSelected(BuildContext context, TeamModel team) {
+    switch (_selectionAction) {
+      case SelectionAction.OpenDetails:
+        Navigator.of(context).push(ManageTeamRoute(team));
+        break;
+      case SelectionAction.Pop:
+        Navigator.of(context).pop(team);
+        break;
+    }
   }
 
   Widget _buildSearchBar() {
@@ -151,12 +154,24 @@ class TeamsPage extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context, List<TeamModel> teams) {
-    return ListOfTeamsWidget(
+    return ListView.builder(
       padding: EdgeInsets.only(
-          top: TopDecorator.height, bottom: BottomDecorator.height),
-      onItemSelected: (team) => _onItemSelected?.call(context, team),
-      teams: teams,
-      selectorIcon: _selectorIcon,
+        top: TopDecorator.height,
+        bottom: BottomDecorator.height,
+      ),
+      itemCount: teams.length,
+      itemBuilder: (context, index) {
+        var team = teams[index];
+        return SimpleListItem(
+          title: team.name,
+          onTap: () => _onItemSelected(context, team),
+          selectorIcon: _selectorIcon,
+          imageShape: ImageShape.square(56, 4),
+          imageUrl: team.imageUrl,
+          useTextPlaceholder: true,
+          addHeroAnimation: true,
+        );
+      },
     );
   }
 }

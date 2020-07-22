@@ -47,11 +47,11 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
             actions: viewModel.canEdit
                 ? <Widget>[
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: KudosTheme.editIcon,
                       onPressed: () => viewModel.editTeam(context),
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete_forever),
+                      icon: KudosTheme.deleteIcon,
                       onPressed: () {
                         viewModel.deleteTeam(context);
                       },
@@ -63,7 +63,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
           floatingActionButton: viewModel.canEdit
               ? FloatingActionButton(
                   onPressed: () => viewModel.createAchievement(context),
-                  child: Icon(Icons.add),
+                  child: KudosTheme.addIcon,
                 )
               : null,
         );
@@ -136,7 +136,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
           physics: NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             final data = viewModel.achievements[index];
-            return AchievementListItemWidget(data, _achievementTapped);
+            return AchievementListItemWidget(data, _achievementTapped, null);
           },
           itemCount: viewModel.achievements?.length ?? 0,
         ),
@@ -193,7 +193,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: KudosTheme.editIcon,
                   color: KudosTheme.accentColor,
                   disabledColor: Colors.transparent,
                   onPressed: canEdit ? editUsers : null,

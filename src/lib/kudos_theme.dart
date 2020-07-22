@@ -161,4 +161,36 @@ class KudosTheme {
     color: Color.fromARGB(180, 0, 0, 0),
     fontWeight: FontWeight.w500,
   );
+
+  static final _addIconData = Icons.add;
+  static final _editIconData = Icons.edit;
+  static final _sendIconData = Icons.send;
+  static final _saveIconData = Icons.save;
+  static final _deleteIconData = Icons.delete_forever;
+  static final _transferIconData = Icons.transfer_within_a_station;
+  static final _defaultSelectorIconData = Icons.arrow_forward_ios;
+
+  static final addIcon = Icon(_addIconData);
+  static final editIcon = Icon(_editIconData);
+  static final sendIcon = Icon(_sendIconData);
+  static final saveIcon = Icon(_saveIconData);
+  static final deleteIcon = Icon(_deleteIconData);
+  static final transferIcon = Icon(_transferIconData);
+
+  static final sendSelectorIcon = Icon(
+    _sendIconData,
+    color: KudosTheme.accentColor,
+  );
+
+  static final transferSelectorIcon = Icon(
+    _transferIconData,
+    size: 24.0,
+    color: KudosTheme.accentColor,
+  );
+
+  static final defaultSelectorIcon = Icon(
+    _defaultSelectorIconData,
+    size: 16.0,
+    color: KudosTheme.accentColor,
+  );
 }

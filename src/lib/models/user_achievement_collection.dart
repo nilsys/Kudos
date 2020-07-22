@@ -1,6 +1,6 @@
 import 'package:kudosapp/models/user_achievement_model.dart';
 
-class UserAchievementCollection {
+class UserAchievementCollection implements Comparable {
   final List<UserAchievementModel> userAchievements;
   final String imageUrl;
   final String name;
@@ -37,5 +37,13 @@ class UserAchievementCollection {
         .toSet()
         .toList()
         .join(", ");
+  }
+
+  @override
+  int compareTo(other) {
+    if (other == null) {
+      return 1;
+    }
+    return other.latestDateTime.compareTo(this.latestDateTime);
   }
 }

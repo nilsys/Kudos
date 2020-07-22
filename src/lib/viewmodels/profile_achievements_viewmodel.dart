@@ -1,17 +1,27 @@
+import 'dart:async';
+
+import 'package:event_bus/event_bus.dart';
+import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:sortedmap/sortedmap.dart';
 
 class ProfileAchievementsViewModel extends BaseViewModel {
+  final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
   final _achievementsService = locator<AchievementsService>();
 
   final String _userId;
-  final achievements = List<UserAchievementCollection>();
+  final _achievementsMap =
+      SortedMap<String, UserAchievementCollection>(Ordering.byValue());
 
+  StreamSubscription<AchievementSentMessage> _achievementReceivedSubscription;
+
+  bool get hasAchievements => _achievementsMap.isNotEmpty;
   bool get isMyProfile => _userId == _authService.currentUser.id;
 
   ProfileAchievementsViewModel(this._userId) {
@@ -24,27 +34,42 @@ class ProfileAchievementsViewModel extends BaseViewModel {
     final allUserAchievements =
         await _achievementsService.getReceivedAchievements(_userId);
 
-    achievements.clear();
-    achievements.addAll(_merge(allUserAchievements));
-    achievements.sort((x, y) => y.latestDateTime.compareTo(x.latestDateTime));
+    for (final userAchievement in allUserAchievements) {
+      _addUserAchievementToMap(userAchievement);
+    }
+
+    _achievementReceivedSubscription?.cancel();
+    _achievementReceivedSubscription =
+        _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
 
     isBusy = false;
   }
 
-  Iterable<UserAchievementCollection> _merge(
-    List<UserAchievementModel> userAchievements,
-  ) {
-    final Map<String, UserAchievementCollection> _map = {};
+  List<UserAchievementCollection> getAchievements() =>
+      _achievementsMap.values.toList();
 
-    for (final x in userAchievements) {
-      final id = x.achievement.id;
-      if (_map.containsKey(id)) {
-        _map[id] = _map[id].addAchievement(x);
-      } else {
-        _map[id] = UserAchievementCollection.single(x);
-      }
+  void _addUserAchievementToMap(UserAchievementModel userAchievement) {
+    final id = userAchievement.achievement.id;
+    if (_achievementsMap.containsKey(id)) {
+      _achievementsMap[id] =
+          _achievementsMap[id].addAchievement(userAchievement);
+    } else {
+      _achievementsMap[id] = UserAchievementCollection.single(userAchievement);
+    }
+  }
+
+  void _onAchievementReceived(AchievementSentMessage event) {
+    if (event.recipient.id != _userId) {
+      return;
     }
 
-    return _map.values;
+    _addUserAchievementToMap(event.userAchievement);
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _achievementReceivedSubscription.cancel();
+    super.dispose();
   }
 }

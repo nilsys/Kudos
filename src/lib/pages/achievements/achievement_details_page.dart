@@ -6,7 +6,6 @@ import 'package:kudosapp/models/statistics_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
-import 'package:kudosapp/pages/user_picker_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/snack_bar_notifier_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
@@ -38,7 +37,6 @@ class _AchievementDetailsPage extends StatefulWidget {
 }
 
 class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
-  final _inputController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _snackBarNotifier = locator<SnackBarNotifierService>();
 
@@ -53,11 +51,11 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
             actions: viewModel.canEdit()
                 ? <Widget>[
                     IconButton(
-                        icon: Icon(Icons.transfer_within_a_station),
+                        icon: KudosTheme.transferIcon,
                         onPressed: () =>
                             viewModel.transferAchievement(context)),
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: KudosTheme.editIcon,
                       onPressed: () {
                         Navigator.of(context).push(
                           EditAchievementRoute.editAchievement(
@@ -67,7 +65,7 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
                       },
                     ),
                     IconButton(
-                        icon: Icon(Icons.delete_forever),
+                        icon: KudosTheme.deleteIcon,
                         onPressed: () => viewModel.deleteAchievement(context))
                   ]
                 : null,
@@ -75,8 +73,8 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
           body: _buildBody(viewModel),
           floatingActionButton: viewModel.canSend()
               ? FloatingActionButton(
-                  child: Icon(Icons.send),
-                  onPressed: _sendTapped,
+                  child: KudosTheme.sendIcon,
+                  onPressed: () => _sendTapped(viewModel),
                 )
               : null,
         );
@@ -152,99 +150,13 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
     );
   }
 
-  Future<void> _sendTapped() async {
-    var user = await Navigator.of(context).push(
-      UserPickerRoute(
-        allowMultipleSelection: false,
-        allowCurrentUser: false,
-        trailingBuilder: (context) {
-          return Icon(Icons.send, color: KudosTheme.accentColor);
-        },
-      ),
-    );
-    if (user != null && user.isNotEmpty) {
-      await _sendAchievementToUser(user.first);
-    }
-  }
-
-  Future<void> _sendAchievementToUser(UserModel user) async {
+  void _sendTapped(AchievementDetailsViewModel viewModel) async {
     try {
-      var commentText = await _putCommentDialog();
-      if (commentText != null) {
-        var viewModel =
-            Provider.of<AchievementDetailsViewModel>(context, listen: false);
-        await viewModel.sendTo(user, commentText);
-      }
+      await viewModel.sendAchievement(context);
     } catch (error) {
       _snackBarNotifier.showGeneralErrorMessage(
           _scaffoldKey.currentContext, _scaffoldKey.currentState);
     }
-  }
-
-  Future<String> _putCommentDialog() async {
-    bool accepted = false;
-
-    await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            content: TextField(
-              controller: _inputController,
-              autofocus: true,
-              style: KudosTheme.descriptionTextStyle,
-              cursorColor: KudosTheme.accentColor,
-              decoration: InputDecoration(
-                labelText: localizer().writeAComment,
-                labelStyle: TextStyle(
-                  color: KudosTheme.mainGradientEndColor,
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: KudosTheme.accentColor),
-                ),
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  localizer().cancel,
-                  style: TextStyle(
-                    color: KudosTheme.mainGradientStartColor,
-                  ),
-                ),
-                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child: Text(
-                  localizer().send,
-                  style: TextStyle(
-                    color: KudosTheme.mainGradientStartColor,
-                  ),
-                ),
-                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
-                onPressed: () {
-                  accepted = true;
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-
-    var result = accepted ? _inputController.text : null;
-
-    _inputController.text = "";
-
-    return result;
-  }
-
-  @override
-  void dispose() {
-    _inputController.dispose();
-    super.dispose();
   }
 }
 
