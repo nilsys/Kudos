@@ -41,10 +41,12 @@ class AchievementsViewModel extends BaseViewModel {
     final teamsAchievements = await _achievementsService.getAchievements();
 
     achievements.items.clear();
-    achievements.items.addAll(myAchievements
-        .where((element) => _achievementFilter?.call(element) ?? true));
-    achievements.items.addAll(teamsAchievements
-        .where((element) => _achievementFilter?.call(element) ?? true));
+    achievements.items.addAll(_achievementFilter == null
+        ? myAchievements
+        : myAchievements.where(_achievementFilter));
+    achievements.items.addAll(_achievementFilter == null
+        ? teamsAchievements
+        : teamsAchievements.where(_achievementFilter));
     achievements.notifyListeners();
 
     _achievementUpdatedSubscription?.cancel();
