@@ -52,24 +52,27 @@ class AchievementDetailsViewModel extends BaseViewModel {
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    var loadedAchievement =
-        await _achievementsService.getAchievement(achievement.id);
-    achievement.updateWithModel(loadedAchievement);
+      var loadedAchievement =
+          await _achievementsService.getAchievement(achievement.id);
+      achievement.updateWithModel(loadedAchievement);
 
-    _achievementReceivedSubscription?.cancel();
-    _achievementReceivedSubscription =
-        _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
+      _achievementReceivedSubscription?.cancel();
+      _achievementReceivedSubscription =
+          _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
 
-    _achievementUpdatedSubscription?.cancel();
-    _achievementUpdatedSubscription =
-        _eventBus.on<AchievementUpdatedMessage>().listen(_onAchievementUpdated);
+      _achievementUpdatedSubscription?.cancel();
+      _achievementUpdatedSubscription = _eventBus
+          .on<AchievementUpdatedMessage>()
+          .listen(_onAchievementUpdated);
 
-    // TODO YP: move to separate widgets
-    await _loadStatistics();
-
-    isBusy = false;
+      // TODO YP: move to separate widgets
+      await _loadStatistics();
+    } finally {
+      isBusy = false;
+    }
   }
 
   bool canEdit() =>
@@ -99,18 +102,20 @@ class AchievementDetailsViewModel extends BaseViewModel {
     }
 
     // Send achievement to selected user with comment
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    var userAchievement = UserAchievementModel.createNew(
-        _authService.currentUser, achievement, comment);
+      var userAchievement = UserAchievementModel.createNew(
+          _authService.currentUser, achievement, comment);
 
-    await _achievementsService.sendAchievement(
-        selectedUsers.first, userAchievement);
+      await _achievementsService.sendAchievement(
+          selectedUsers.first, userAchievement);
 
-    _eventBus
-        .fire(AchievementSentMessage(selectedUsers.first, userAchievement));
-
-    isBusy = false;
+      _eventBus
+          .fire(AchievementSentMessage(selectedUsers.first, userAchievement));
+    } finally {
+      isBusy = false;
+    }
   }
 
   Future<void> transferAchievement(BuildContext context) async {
