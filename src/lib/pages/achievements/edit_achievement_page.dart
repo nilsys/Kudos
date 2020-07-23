@@ -58,7 +58,7 @@ class _EditAchievementPage extends StatelessWidget {
     return Scaffold(
       appBar: GradientAppBar(title: viewModel.pageTitle),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.save),
+        child: KudosTheme.saveIcon,
         onPressed: () => _onSavePressed(context),
       ),
       body: Consumer<EditAchievementViewModel>(

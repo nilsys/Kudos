@@ -1,0 +1,4 @@
+enum SelectionAction {
+  OpenDetails,
+  Pop,
+}

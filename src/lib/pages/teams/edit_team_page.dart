@@ -128,7 +128,7 @@ class _EditTeamPageState extends State<_EditTeamPage> {
           }
         },
         label: Text(localizer().save),
-        icon: Icon(Icons.save),
+        icon: KudosTheme.saveIcon,
       ),
     );
   }

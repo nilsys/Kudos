@@ -50,6 +50,8 @@ dependencies:
 
   sprintf: ^4.0.0
 
+  sortedmap: ^0.4.2+1
+
   # auth
   google_sign_in: ^4.4.4
 

@@ -30,9 +30,9 @@ class ProfileAchievementsListWidget extends StatelessWidget {
       },
       child: Consumer<ProfileAchievementsViewModel>(
         builder: (context, viewModel, child) {
-          if (!viewModel.isBusy && viewModel.achievements.isNotEmpty) {
+          if (!viewModel.isBusy && viewModel.hasAchievements) {
             return _buildView(
-              viewModel.achievements,
+              viewModel.getAchievements(),
               viewModel.isMyProfile,
             );
           }
@@ -56,7 +56,7 @@ class ProfileAchievementsListWidget extends StatelessWidget {
     if (viewModel.isBusy) {
       return _buildLoading();
     }
-    if (viewModel.achievements.isEmpty) {
+    if (!viewModel.hasAchievements) {
       return _buildEmpty();
     }
     return _buildError(localizer().generalErrorMessage);
@@ -178,19 +178,6 @@ class ProfileAchievementsListWidget extends StatelessWidget {
             ),
           ),
         );
-
-        // children.add(
-        //   Positioned.fill(
-        //     child: Image(
-        //       image: AssetImage(
-        //           'assets/icons/medal_cropped_placeholder_blured_white.png'),
-        //       width: width,
-        //       height: height,
-        //       fit: BoxFit.fitWidth,
-        //       alignment: Alignment.bottomCenter,
-        //     ),
-        //   ),
-        // );
 
         if (achievementCollection.count > 1) {
           children.add(

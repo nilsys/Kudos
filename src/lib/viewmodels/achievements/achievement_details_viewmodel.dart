@@ -7,8 +7,10 @@ import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
 import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
+import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
 import 'package:kudosapp/models/messages/achievement_updated_message.dart';
+import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/statistics_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
@@ -17,6 +19,7 @@ import 'package:kudosapp/pages/people_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/pages/teams/teams_page.dart';
+import 'package:kudosapp/pages/user_picker_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
@@ -34,7 +37,8 @@ class AchievementDetailsViewModel extends BaseViewModel {
   final _dialogsService = locator<DialogService>();
   final _achievementsService = locator<AchievementsService>();
 
-  StreamSubscription<AchievementUpdatedMessage> _subscription;
+  StreamSubscription<AchievementUpdatedMessage> _achievementUpdatedSubscription;
+  StreamSubscription<AchievementSentMessage> _achievementReceivedSubscription;
 
   final AchievementModel achievement;
   final achievementHolders = new ListNotifier<UserModel>();
@@ -48,38 +52,70 @@ class AchievementDetailsViewModel extends BaseViewModel {
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    var loadedAchievement =
-        await _achievementsService.getAchievement(achievement.id);
-    achievement.updateWithModel(loadedAchievement);
+      var loadedAchievement =
+          await _achievementsService.getAchievement(achievement.id);
+      achievement.updateWithModel(loadedAchievement);
 
-    _subscription?.cancel();
-    _subscription =
-        _eventBus.on<AchievementUpdatedMessage>().listen(_onAchievementUpdated);
+      _achievementReceivedSubscription?.cancel();
+      _achievementReceivedSubscription =
+          _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
 
-    // TODO YP: move to separate widgets
-    await _loadStatistics();
+      _achievementUpdatedSubscription?.cancel();
+      _achievementUpdatedSubscription = _eventBus
+          .on<AchievementUpdatedMessage>()
+          .listen(_onAchievementUpdated);
 
-    isBusy = false;
+      // TODO YP: move to separate widgets
+      await _loadStatistics();
+    } finally {
+      isBusy = false;
+    }
   }
 
   bool canEdit() =>
       achievement.canBeModifiedByUser(_authService.currentUser.id);
   bool canSend() => achievement.canBeSentByUser(_authService.currentUser.id);
 
-  Future<void> sendTo(UserModel recipient, String comment) async {
-    isBusy = true;
+  Future<void> sendAchievement(BuildContext context) async {
+    // Pick user
+    var selectedUsers = await Navigator.of(context).push(
+      UserPickerRoute(
+        allowMultipleSelection: false,
+        allowCurrentUser: false,
+        trailingBuilder: (context) {
+          return KudosTheme.sendSelectorIcon;
+        },
+      ),
+    );
 
-    var userAchievement = UserAchievementModel.createNew(
-        _authService.currentUser, achievement, comment);
+    if (selectedUsers == null || selectedUsers.isEmpty) {
+      return;
+    }
 
-    await _achievementsService.sendAchievement(recipient, userAchievement);
+    // Add comment
+    var comment = await _dialogsService.showCommentDialog(context: context);
+    if (comment == null) {
+      return;
+    }
 
-    // TODO PS: try not to reload everything here
-    await _loadStatistics();
+    // Send achievement to selected user with comment
+    try {
+      isBusy = true;
 
-    isBusy = false;
+      var userAchievement = UserAchievementModel.createNew(
+          _authService.currentUser, achievement, comment);
+
+      await _achievementsService.sendAchievement(
+          selectedUsers.first, userAchievement);
+
+      _eventBus
+          .fire(AchievementSentMessage(selectedUsers.first, userAchievement));
+    } finally {
+      isBusy = false;
+    }
   }
 
   Future<void> transferAchievement(BuildContext context) async {
@@ -99,11 +135,12 @@ class AchievementDetailsViewModel extends BaseViewModel {
               achievement.owner.type == AchievementOwnerType.user
                   ? {achievement.owner.id}
                   : null;
-          Navigator.of(context).push(PeoplePageRoute(
-              excludedUserIds: excludedUserIds,
-              selectorIcon: Icon(Icons.transfer_within_a_station,
-                  size: 24.0, color: KudosTheme.accentColor),
-              onItemSelected: _onUserSelected));
+          var user = await Navigator.of(context).push(PeoplePageRoute(
+            selectionAction: SelectionAction.Pop,
+            excludedUserIds: excludedUserIds,
+            selectorIcon: KudosTheme.transferSelectorIcon,
+          ));
+          _onUserSelected(context, user);
           break;
         }
       case 2:
@@ -112,19 +149,22 @@ class AchievementDetailsViewModel extends BaseViewModel {
               achievement.owner.type == AchievementOwnerType.team
                   ? {achievement.owner.id}
                   : null;
-          Navigator.of(context).push(TeamsPageRoute(
-            excludedTeamIds: excludedTeamIds,
-            selectorIcon: Icon(Icons.transfer_within_a_station,
-                size: 24.0, color: KudosTheme.accentColor),
-            onItemSelected: _onTeamSelected,
+          var team = await Navigator.of(context).push(TeamsPageRoute(
+            selectionAction: SelectionAction.Pop,
             showAddButton: false,
+            excludedTeamIds: excludedTeamIds,
+            selectorIcon: KudosTheme.transferSelectorIcon,
           ));
+          _onTeamSelected(context, team);
           break;
         }
     }
   }
 
   Future<void> _onUserSelected(BuildContext context, UserModel user) async {
+    if (user == null) {
+      return;
+    }
     if (await _dialogsService.showOkCancelDialog(
       context: context,
       title: sprintf(localizer().transferAchievementToUserTitle, [user.name]),
@@ -144,6 +184,9 @@ class AchievementDetailsViewModel extends BaseViewModel {
   }
 
   Future<void> _onTeamSelected(BuildContext context, TeamModel team) async {
+    if (team == null) {
+      return;
+    }
     if (await _dialogsService.showOkCancelDialog(
       context: context,
       title: sprintf(localizer().transferAchievementToTeamTitle, [team.name]),
@@ -231,9 +274,30 @@ class AchievementDetailsViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void _onAchievementReceived(AchievementSentMessage event) {
+    if (event.userAchievement.achievement.id != achievement.id) {
+      return;
+    }
+
+    if (!achievementHolders.items
+        .any((user) => user.id == event.recipient.id)) {
+      achievementHolders.add(event.recipient);
+
+      allUsersStatistics.positiveUsersCount++;
+      if (_teamUsersStatistics != null &&
+          achievement.owner.team.members
+              .any((user) => user.id == event.recipient.id)) {
+        _teamUsersStatistics.positiveUsersCount++;
+      }
+    }
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
-    _subscription.cancel();
+    _achievementUpdatedSubscription.cancel();
+    _achievementReceivedSubscription.cancel();
     super.dispose();
   }
 }

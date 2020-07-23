@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -13,42 +14,33 @@ import 'package:kudosapp/widgets/search_input_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:sprintf/sprintf.dart';
 
-class PeoplePageRoute extends MaterialPageRoute {
+class PeoplePageRoute extends MaterialPageRoute<UserModel> {
   PeoplePageRoute({
+    @required SelectionAction selectionAction,
     Set<String> excludedUserIds,
     Icon selectorIcon,
-    void Function(BuildContext, UserModel) onItemSelected,
   }) : super(
           builder: (context) => PeoplePage(
-              excludedUserIds: excludedUserIds,
-              selectorIcon: selectorIcon,
-              onItemSelected: onItemSelected),
+            selectionAction: selectionAction,
+            excludedUserIds: excludedUserIds,
+            selectorIcon: selectorIcon,
+          ),
           fullscreenDialog: true,
         );
 }
 
 class PeoplePage extends StatelessWidget {
-  static final Icon defaultSelectorIcon = Icon(
-    Icons.arrow_forward_ios,
-    size: 16.0,
-    color: KudosTheme.accentColor,
-  );
-  static final void Function(BuildContext, UserModel) defaultItemSelector =
-      (context, user) => Navigator.of(context).push(
-            ProfileRoute(user),
-          );
-
   final Set<String> _excludedUserIds;
-  final void Function(BuildContext, UserModel) _onItemSelected;
+  final SelectionAction _selectionAction;
   final Icon _selectorIcon;
 
   PeoplePage({
+    @required SelectionAction selectionAction,
     Set<String> excludedUserIds,
     Icon selectorIcon,
-    Function(BuildContext, UserModel) onItemSelected,
   })  : _excludedUserIds = excludedUserIds,
-        _selectorIcon = selectorIcon ?? defaultSelectorIcon,
-        _onItemSelected = onItemSelected ?? defaultItemSelector;
+        _selectorIcon = selectorIcon ?? KudosTheme.defaultSelectorIcon,
+        _selectionAction = selectionAction;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +93,17 @@ class PeoplePage extends StatelessWidget {
     );
   }
 
+  void _onItemSelected(BuildContext context, UserModel user) {
+    switch (_selectionAction) {
+      case SelectionAction.OpenDetails:
+        Navigator.of(context).push(ProfileRoute(user));
+        break;
+      case SelectionAction.Pop:
+        Navigator.of(context).pop(user);
+        break;
+    }
+  }
+
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(gradient: KudosTheme.mainGradient),
@@ -139,7 +142,7 @@ class PeoplePage extends StatelessWidget {
         top: TopDecorator.height,
         bottom: BottomDecorator.height,
       ),
-      itemSelector: (user) => _onItemSelected?.call(context, user),
+      itemSelector: (user) => _onItemSelected(context, user),
       users: users,
       trailingWidget: _selectorIcon,
     );

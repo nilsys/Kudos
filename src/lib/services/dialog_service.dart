@@ -100,17 +100,18 @@ class DialogService {
               title: title == null ? null : Text(title),
               content: content == null ? null : Text(content),
               actions: <Widget>[
-                Align(alignment: Alignment.centerLeft, child:
-                FlatButton(
-                    child: Text(firstButtonTitle,
-                        style: TextStyle(
-                          color: firstButtonColor,
-                        )),
-                    splashColor: firstButtonColor.withAlpha(30),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      result = 1;
-                    })),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: FlatButton(
+                        child: Text(firstButtonTitle,
+                            style: TextStyle(
+                              color: firstButtonColor,
+                            )),
+                        splashColor: firstButtonColor.withAlpha(30),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          result = 1;
+                        })),
                 FlatButton(
                     child: Text(
                       secondButtonTitle,
@@ -177,5 +178,64 @@ class DialogService {
         firstButtonTitle: localizer().delete,
         secondButtonTitle: localizer().cancel,
         firstButtonColor: KudosTheme.destructiveButtonColor);
+  }
+
+  Future<String> showCommentDialog({@required BuildContext context}) async {
+    bool accepted = false;
+    var inputController = new TextEditingController();
+
+    await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            content: TextField(
+              controller: inputController,
+              autofocus: true,
+              style: KudosTheme.descriptionTextStyle,
+              cursorColor: KudosTheme.accentColor,
+              decoration: InputDecoration(
+                labelText: localizer().writeAComment,
+                labelStyle: TextStyle(
+                  color: KudosTheme.mainGradientEndColor,
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: KudosTheme.accentColor),
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  localizer().cancel,
+                  style: TextStyle(
+                    color: KudosTheme.mainGradientStartColor,
+                  ),
+                ),
+                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text(
+                  localizer().send,
+                  style: TextStyle(
+                    color: KudosTheme.mainGradientStartColor,
+                  ),
+                ),
+                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
+                onPressed: () {
+                  accepted = true;
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+
+    var result = accepted ? inputController.text : null;
+    inputController.dispose();
+    return result;
   }
 }
