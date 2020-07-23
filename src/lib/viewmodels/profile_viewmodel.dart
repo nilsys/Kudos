@@ -5,10 +5,12 @@ import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/selection_action.dart';
+import 'package:kudosapp/models/team_access_level.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/achievements_page.dart';
+import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
@@ -80,6 +82,19 @@ class ProfileViewModel extends BaseViewModel with Disposable {
       _eventBus.fire(AchievementSentMessage(user, userAchievement));
     } finally {
       isBusy = false;
+    }
+  }
+
+  void openTeamDetails(BuildContext context, TeamModel team) {
+    if (team.accessLevel == TeamAccessLevel.private &&
+        !team.canBeViewedByUser(_authService.currentUser.id)) {
+      _dialogsService.showOkDialog(
+        context: context,
+        title: localizer().accessDenied,
+        content: localizer().privateTeam,
+      );
+    } else {
+      Navigator.of(context).push(ManageTeamRoute(team));
     }
   }
 }

@@ -7,10 +7,11 @@ import 'package:provider/provider.dart';
 class FancyListWidget<T> extends StatelessWidget {
   final ListNotifier<T> _items;
   final String Function(T) _getItemTitle;
-  final Function(T) _onItemClicked;
+  final void Function(T) _onItemClicked;
   final String _emptyPlaceholder;
 
-  FancyListWidget(this._items, this._getItemTitle, this._emptyPlaceholder, [this._onItemClicked]);
+  FancyListWidget(this._items, this._getItemTitle, this._emptyPlaceholder,
+      [this._onItemClicked]);
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class FancyListWidget<T> extends StatelessWidget {
   }
 
   Widget _buildMember(T item) {
-    return FancyItemWidget(_getItemTitle(item), () => _onItemClicked?.call(item));
+    return FancyItemWidget(
+        _getItemTitle(item), () => _onItemClicked?.call(item));
   }
 }

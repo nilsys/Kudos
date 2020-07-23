@@ -4,7 +4,7 @@ import 'package:kudosapp/kudos_theme.dart';
 
 class FancyItemWidget extends StatelessWidget {
   final String _title;
-  final Function() _onTap;
+  final void Function() _onTap;
 
   FancyItemWidget(this._title, [this._onTap]);
 

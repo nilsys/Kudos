@@ -69,5 +69,8 @@
     "softeq": "Softeq",
     "people_progress": "%i of %i people",
     "user_picker_empty_message": "Select at least one user",
-    "searchEmptyPlaceholder": "No search results"
+    "searchEmptyPlaceholder": "No search results",
+    "accessDenied": "Access denied",
+    "privateTeam": "This team is private",
+    "private": "Private"
 }

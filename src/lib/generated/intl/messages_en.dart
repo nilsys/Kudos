@@ -21,6 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
+    "accessDenied" : MessageLookupByLibrary.simpleMessage("Access denied"),
     "achievementHoldersEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("No one has ever received this achievement"),
     "achievementHoldersTitle" : MessageLookupByLibrary.simpleMessage("Holders"),
     "achievementOwnerTitle" : MessageLookupByLibrary.simpleMessage("Owner"),
@@ -62,6 +63,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "people" : MessageLookupByLibrary.simpleMessage("People"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("People"),
     "people_progress" : MessageLookupByLibrary.simpleMessage("%i of %i people"),
+    "private" : MessageLookupByLibrary.simpleMessage("Private"),
+    "privateTeam" : MessageLookupByLibrary.simpleMessage("This team is private"),
     "profileAchievementsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("No achievements yet"),
     "profileTabName" : MessageLookupByLibrary.simpleMessage("Profile"),
     "receivedAchievements" : MessageLookupByLibrary.simpleMessage("Received achievements: %i"),

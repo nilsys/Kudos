@@ -4,6 +4,7 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:kudosapp/helpers/image_loading.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
+import 'package:kudosapp/models/team_access_level.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/teams_service.dart';
@@ -34,6 +35,14 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   File get imageFile => _team.imageFile;
 
   String get imageUrl => _team.imageUrl;
+
+  bool get isPrivate => _team.accessLevel == TeamAccessLevel.private;
+
+  set isPrivate(bool value) {
+    _team.accessLevel =
+        value ? TeamAccessLevel.private : TeamAccessLevel.public;
+    notifyListeners();
+  }
 
   void pickFile(BuildContext context) async {
     if (isImageLoading) {
