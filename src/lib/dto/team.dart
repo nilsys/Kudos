@@ -14,6 +14,7 @@ class Team extends Equatable {
   final String description;
   final List<TeamMember> teamOwners;
   final List<TeamMember> teamMembers;
+  final int accessLevel;
   final bool isActive;
 
   Team._({
@@ -24,6 +25,7 @@ class Team extends Equatable {
     this.description,
     this.teamOwners,
     this.teamMembers,
+    this.accessLevel,
     this.isActive,
   });
 
@@ -45,6 +47,7 @@ class Team extends Equatable {
       teamOwners: (newOwners ?? model.owners)
           ?.map((um) => TeamMember.fromModel(um))
           ?.toList(),
+      accessLevel: model.accessLevel.index,
       isActive: isActive ?? true,
     );
   }
@@ -61,8 +64,9 @@ class Team extends Equatable {
             imageUrl: json["image_url"],
             imageName: json["image_name"],
             description: json["description"],
-            teamOwners: getMembers(json["team_owners"]),
-            teamMembers: getMembers(json["team_members"]),
+            teamOwners: _getMembers(json["team_owners"]),
+            teamMembers: _getMembers(json["team_members"]),
+            accessLevel: json["access_level"] ?? 0,
             isActive: json["is_active"],
           );
   }
@@ -73,6 +77,7 @@ class Team extends Equatable {
     bool addImage = false,
     bool addMembers = false,
     bool addOwners = false,
+    bool addAccessLevel = false,
     bool addIsActive = false,
   }) {
     final map = new Map<String, Object>();
@@ -105,14 +110,18 @@ class Team extends Equatable {
       map["visible_for"] = visibleFor;
     }
 
+    if (addAll || addAccessLevel) {
+      map["access_level"] = this.accessLevel;
+    }
+
     if (addAll || addIsActive) {
-      map.putIfAbsent("is_active", () => this.isActive);
+      map["is_active"] = this.isActive;
     }
 
     return map;
   }
 
-  static List<TeamMember> getMembers(List<dynamic> members) {
+  static List<TeamMember> _getMembers(List<dynamic> members) {
     if (members == null) {
       return List<TeamMember>();
     }

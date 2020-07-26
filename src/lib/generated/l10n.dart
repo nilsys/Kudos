@@ -742,6 +742,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Access denied`
+  String get accessDenied {
+    return Intl.message(
+      'Access denied',
+      name: 'accessDenied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This team is private`
+  String get privateTeam {
+    return Intl.message(
+      'This team is private',
+      name: 'privateTeam',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Private`
+  String get private {
+    return Intl.message(
+      'Private',
+      name: 'private',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
