@@ -91,6 +91,7 @@ class ProfilePage extends StatelessWidget {
                 viewModel.userTeams,
                 (team) => team.name,
                 localizer().userTeamsEmptyPlaceholder,
+                (team) => viewModel.openTeamDetails(context, team),
               ),
               SizedBox(height: 30),
               SectionHeaderWidget(localizer().achievements),

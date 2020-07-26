@@ -28,7 +28,6 @@ class ManageTeamViewModel extends BaseViewModel {
   final _achievementsService = locator<AchievementsService>();
 
   final TeamModel _team;
-  bool _canEdit;
 
   List<AchievementModel> achievements;
   ListNotifier<UserModel> members;
@@ -45,38 +44,41 @@ class ManageTeamViewModel extends BaseViewModel {
 
   bool get canEdit => _team.owners == null
       ? false
-      : _canEdit ??
-          (_canEdit = _team.canBeModifiedByUser(_authService.currentUser.id));
+      : _team.canBeModifiedByUser(_authService.currentUser.id);
 
   ManageTeamViewModel(this._team) {
     _initialize();
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    final loadedTeam = await _teamsService.getTeam(_team.id);
-    _team.updateWithModel(loadedTeam);
-    members = new ListNotifier<UserModel>.wrap(loadedTeam.members);
-    admins = new ListNotifier<UserModel>.wrap(_team.owners);
+      final loadedTeam = await _teamsService.getTeam(_team.id);
+      _team.updateWithModel(loadedTeam);
+      members = new ListNotifier<UserModel>.wrap(_team.members);
+      admins = new ListNotifier<UserModel>.wrap(_team.owners);
 
-    achievements = await _achievementsService.getTeamAchievements(_team.id) ??
-        new List<AchievementModel>();
+      achievements = await _achievementsService.getTeamAchievements(_team.id) ??
+          new List<AchievementModel>();
 
-    _achievementUpdatedSubscription?.cancel();
-    _achievementUpdatedSubscription =
-        _eventBus.on<AchievementUpdatedMessage>().listen(_onAchievementUpdated);
+      _achievementUpdatedSubscription?.cancel();
+      _achievementUpdatedSubscription = _eventBus
+          .on<AchievementUpdatedMessage>()
+          .listen(_onAchievementUpdated);
 
-    _achievementDeletedSubscription?.cancel();
-    _achievementDeletedSubscription =
-        _eventBus.on<AchievementDeletedMessage>().listen(_onAchievementDeleted);
+      _achievementDeletedSubscription?.cancel();
+      _achievementDeletedSubscription = _eventBus
+          .on<AchievementDeletedMessage>()
+          .listen(_onAchievementDeleted);
 
-    _achievementTransferredSubscription?.cancel();
-    _achievementTransferredSubscription = _eventBus
-        .on<AchievementTransferredMessage>()
-        .listen(_onAchievementTransferred);
-
-    isBusy = false;
+      _achievementTransferredSubscription?.cancel();
+      _achievementTransferredSubscription = _eventBus
+          .on<AchievementTransferredMessage>()
+          .listen(_onAchievementTransferred);
+    } finally {
+      isBusy = false;
+    }
   }
 
   void editAdmins(BuildContext context) async {
@@ -93,7 +95,12 @@ class ManageTeamViewModel extends BaseViewModel {
         selectedUserIds: admins.items.map((x) => x.id).toList(),
       ),
     );
-    _replaceAdmins(users);
+
+    if (users != null && users.isNotEmpty) {
+      admins.replace(users);
+      _teamsService.updateTeamMembers(_team, users, members.items);
+      notifyListeners();
+    }
   }
 
   void editMembers(BuildContext context) async {
@@ -109,7 +116,12 @@ class ManageTeamViewModel extends BaseViewModel {
         selectedUserIds: members.items.map((x) => x.id).toList(),
       ),
     );
-    _replaceMembers(users);
+
+    if (users != null) {
+      members.replace(users);
+      _teamsService.updateTeamMembers(_team, admins.items, users);
+      notifyListeners();
+    }
   }
 
   void editTeam(BuildContext context) async {
@@ -139,26 +151,6 @@ class ManageTeamViewModel extends BaseViewModel {
         isBusy = false;
       }
     }
-  }
-
-  void _replaceMembers(Iterable<UserModel> users) {
-    if (users == null) {
-      return;
-    }
-
-    members.replace(users);
-
-    _teamsService.updateTeamMembers(_team, admins.items, users);
-  }
-
-  void _replaceAdmins(Iterable<UserModel> users) {
-    if (users == null || users.isEmpty) {
-      return;
-    }
-
-    admins.replace(users);
-
-    _teamsService.updateTeamMembers(_team, users, members.items);
   }
 
   void _onAchievementUpdated(AchievementUpdatedMessage event) {

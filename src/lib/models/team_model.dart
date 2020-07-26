@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/dto/team_reference.dart';
+import 'package:kudosapp/models/team_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 
 class TeamModel {
@@ -14,6 +15,7 @@ class TeamModel {
   File imageFile;
   List<UserModel> owners;
   List<UserModel> members;
+  TeamAccessLevel accessLevel;
 
   TeamModel._({
     this.id,
@@ -23,6 +25,7 @@ class TeamModel {
     this.imageName,
     this.members,
     this.owners,
+    this.accessLevel,
   });
 
   factory TeamModel.empty() {
@@ -40,6 +43,7 @@ class TeamModel {
           team.teamMembers.map((tm) => UserModel.fromTeamMember(tm)).toList(),
       owners:
           team.teamOwners.map((tm) => UserModel.fromTeamMember(tm)).toList(),
+      accessLevel: (TeamAccessLevel.values[team.accessLevel]),
     );
   }
 
@@ -59,8 +63,12 @@ class TeamModel {
     imageFile = team.imageFile;
     members = team.members;
     owners = team.owners;
+    accessLevel = team.accessLevel;
   }
 
   bool canBeModifiedByUser(String userId) =>
-      owners.firstWhere((x) => x.id == userId, orElse: () => null) != null;
+      owners.any((user) => user.id == userId);
+
+  bool canBeViewedByUser(String userId) =>
+      members.any((user) => user.id == userId) || canBeModifiedByUser(userId);
 }

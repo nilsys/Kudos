@@ -5,6 +5,7 @@ import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
+import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/achievement_list_item_widget.dart';
@@ -208,6 +209,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
             users,
             (user) => user.name,
             localizer().addPeople,
+            (userModel) => Navigator.of(context).push(ProfileRoute(userModel)),
           ),
           visible: usersExpanded,
         ),

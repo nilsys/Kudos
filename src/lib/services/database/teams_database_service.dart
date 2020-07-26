@@ -38,6 +38,7 @@ class TeamsDatabaseService {
     bool updateImage = false,
     bool updateMembers = false,
     bool updateOwners = false,
+    bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
   }) {
@@ -47,6 +48,7 @@ class TeamsDatabaseService {
       addImage: updateImage,
       addMembers: updateMembers,
       addOwners: updateOwners,
+      addAccessLevel: updateAccessLevel,
       addIsActive: updateIsActive,
     );
     if (batch == null) {

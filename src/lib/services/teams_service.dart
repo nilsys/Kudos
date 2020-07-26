@@ -44,8 +44,12 @@ class TeamsService {
     }
 
     return _teamsDatabaseService
-        .updateTeam(Team.fromModel(teamModel),
-            updateMetadata: true, updateImage: updateImage)
+        .updateTeam(
+          Team.fromModel(teamModel),
+          updateMetadata: true,
+          updateAccessLevel: true,
+          updateImage: updateImage,
+        )
         .then((t) => TeamModel.fromTeam(t));
   }
 
