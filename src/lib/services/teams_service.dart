@@ -68,17 +68,21 @@ class TeamsService {
     var team = Team.fromModel(teamModel, isActive: false);
 
     _databaseService.batchUpdate(
+      [
         (batch) => _teamsDatabaseService.updateTeam(team,
-            updateIsActive: true, batch: batch), (batch) {
-      if (achievements != null) {
-        for (var achievementModel in achievements) {
-          var achievement =
-              Achievement.fromModel(achievementModel, isActive: false);
-          _achievementsDatabaseService.updateAchievement(achievement,
-              updateIsActive: true, batch: batch);
-        }
-      }
-    });
+            updateIsActive: true, batch: batch),
+        (batch) {
+          if (achievements != null) {
+            for (var achievementModel in achievements) {
+              var achievement =
+                  Achievement.fromModel(achievementModel, isActive: false);
+              _achievementsDatabaseService.updateAchievement(achievement,
+                  updateIsActive: true, batch: batch);
+            }
+          }
+        },
+      ],
+    );
   }
 
   Future<List<TeamModel>> getTeams([String userId]) {

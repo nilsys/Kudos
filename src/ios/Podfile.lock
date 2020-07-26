@@ -569,7 +569,7 @@ SPEC CHECKSUMS:
   abseil: 6c8eb7892aefa08d929b39f9bb108e5367e3228f
   AppAuth: 73574f3013a1e65b9601a3ddc8b3158cce68c09d
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
-  cloud_firestore: 56ea1a42d4a4b3c9cf22e0e0f73140b5d07376a8
+  cloud_firestore: 2a4f8f802fb0b701cf809b283b6bec7477ebaa6f
   cloud_firestore_web: 9ec3dc7f5f98de5129339802d491c1204462bfec
   Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   DKImagePickerController: 4a3e7948a848c4348e600b3fe5ce41478835fa10

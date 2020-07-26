@@ -59,17 +59,19 @@ class AchievementsService {
     final userAchievement = UserAchievement.fromModel(userAcheivementModel);
 
     return _databaseService.batchUpdate(
-      // add an achievement to user's achievements
-      (batch) => _achievementsDatabaseService
-          .createUserAchievement(recipient.id, userAchievement, batch: batch),
-      // add a user to achievements
-      (batch) => _achievementsDatabaseService.createAchievementHolder(
-          userAcheivementModel.achievement.id,
-          AchievementHolder.fromModel(recipient),
-          batch: batch),
-      // increment received_achievements_count
-      f3: (batch) => _usersDatabaseService
-          .incrementRecievedAchievementsCount(recipient.id, batch: batch),
+      [
+        // add an achievement to user's achievements
+        (batch) => _achievementsDatabaseService
+            .createUserAchievement(recipient.id, userAchievement, batch: batch),
+        // add a user to achievements
+        (batch) => _achievementsDatabaseService.createAchievementHolder(
+            userAcheivementModel.achievement.id,
+            AchievementHolder.fromModel(recipient),
+            batch: batch),
+        // increment received_achievements_count
+        (batch) => _usersDatabaseService
+            .incrementRecievedAchievementsCount(recipient.id, batch: batch),
+      ],
     );
   }
 
