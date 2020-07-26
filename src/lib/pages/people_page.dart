@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/user_model.dart';
-import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/people_viewmodel.dart';
 import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
@@ -50,8 +49,10 @@ class PeoplePage extends StatelessWidget {
         create: (context) => SearchInputViewModel(),
         child:
             ChangeNotifierProxyProvider<SearchInputViewModel, PeopleViewModel>(
-          create: (context) =>
-              PeopleViewModel(excludedUserIds: _excludedUserIds),
+          create: (context) => PeopleViewModel(
+            _selectionAction,
+            excludedUserIds: _excludedUserIds,
+          ),
           update: (context, searchViewModel, peopleViewModel) =>
               peopleViewModel..filterByName(searchViewModel.query),
           child: Column(
@@ -71,7 +72,8 @@ class PeoplePage extends StatelessWidget {
                                   if (snapshot.data.isEmpty) {
                                     return _buildEmpty();
                                   }
-                                  return _buildList(context, snapshot.data);
+                                  return _buildList(
+                                      context, viewModel, snapshot.data);
                                 }
                                 if (snapshot.hasError) {
                                   return _buildError(snapshot.error);
@@ -91,17 +93,6 @@ class PeoplePage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _onItemSelected(BuildContext context, UserModel user) {
-    switch (_selectionAction) {
-      case SelectionAction.OpenDetails:
-        Navigator.of(context).push(ProfileRoute(user));
-        break;
-      case SelectionAction.Pop:
-        Navigator.of(context).pop(user);
-        break;
-    }
   }
 
   Widget _buildSearchBar() {
@@ -136,13 +127,14 @@ class PeoplePage extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<UserModel> users) {
+  Widget _buildList(
+      BuildContext context, PeopleViewModel viewModel, List<UserModel> users) {
     return ListOfPeopleWidget(
       padding: EdgeInsets.only(
         top: TopDecorator.height,
         bottom: BottomDecorator.height,
       ),
-      itemSelector: (user) => _onItemSelected(context, user),
+      itemSelector: (user) => viewModel.onItemClicked(context, user),
       users: users,
       trailingWidget: _selectorIcon,
     );

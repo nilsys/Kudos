@@ -130,8 +130,7 @@ export const updateAchievement = functions.firestore.document('achievements/{ach
 });
 
 /**
- * Trigger updates received Achievements count in users collection
- * and sends push notification to User when he gets a new achievement
+ * Trigger sends push notification to User when he gets a new achievement
  */
 export const createAchievementReferences = functions.firestore.document('/users/{userId}/achievement_references/{referenceId}').onCreate(async (snapshot, context) => {
     const documentData = snapshot.data();
@@ -141,11 +140,6 @@ export const createAchievementReferences = functions.firestore.document('/users/
     }
 
     const userId: string = context.params.userId;
-
-    // start update received achievements count in users collection
-    await db.collection('users').doc(userId).
-        update({ received_achievements_count: admin.firestore.FieldValue.increment(1) });
-    // end update received achievements count in users collection
 
     const qs = await db.collection(`/users/${userId}/push_tokens`).get();
     if (qs.docs.length === 0) {
