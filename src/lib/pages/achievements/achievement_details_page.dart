@@ -120,7 +120,7 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
             value: viewModel.achievementHolders,
             child: Consumer<ListNotifier<UserModel>>(
               builder: (context, notifier, child) {
-                return _AchievementHoldersWidget(
+                return _UsersListWidget(
                   viewModel.achievementHolders,
                 );
               },
@@ -204,7 +204,7 @@ class _PopularityWidget extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerRight,
             child: Text(
-              sprintf(localizer().people_progress, [
+              sprintf(localizer().peopleProgress, [
                 _popularityStatistics.positiveUsersCount,
                 _popularityStatistics.allUsersCount
               ]),
@@ -240,16 +240,16 @@ class _AchievementOwnerWidget extends StatelessWidget {
   }
 }
 
-class _AchievementHoldersWidget extends StatelessWidget {
-  final ListNotifier<UserModel> _achievementHolders;
+class _UsersListWidget extends StatelessWidget {
+  final ListNotifier<UserModel> _users;
 
-  _AchievementHoldersWidget(this._achievementHolders);
+  _UsersListWidget(this._users);
 
   @override
   Widget build(BuildContext context) {
     Widget content;
 
-    if (_achievementHolders == null || _achievementHolders.length == 0) {
+    if (_users == null || _users.length == 0) {
       content = Align(
         alignment: Alignment.topLeft,
         child: Padding(
@@ -264,7 +264,7 @@ class _AchievementHoldersWidget extends StatelessWidget {
       content = Align(
         alignment: Alignment.topLeft,
         child: Wrap(
-            children: _buildListItems(context, _achievementHolders),
+            children: _buildListItems(context, _users),
             runSpacing: 10,
             spacing: 10),
       );

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/achievement_model.dart';
-import 'package:kudosapp/helpers/list_notifier.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/achievement_list_item_widget.dart';
-import 'package:kudosapp/widgets/common/fancy_list_widget.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
@@ -35,7 +33,6 @@ class _ManageTeamPage extends StatefulWidget {
 }
 
 class _ManageTeamPageState extends State<_ManageTeamPage> {
-  bool _adminsExpanded = false;
   bool _membersExpanded = false;
 
   @override
@@ -99,21 +96,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
       children.add(
         Padding(
           padding: EdgeInsets.only(left: 16.0, right: 8.0),
-          child: _buildUsersList(
-            localizer().admins,
-            viewModel.admins,
-            _adminsExpanded,
-            _toggleAdminsExpanded,
-            viewModel.canEdit,
-            () => viewModel.editAdmins(context),
-          ),
-        ),
-      );
-      children.add(SizedBox(height: 8.0));
-      children.add(
-        Padding(
-          padding: EdgeInsets.only(left: 16.0, right: 8.0),
-          child: _buildUsersList(
+          child: _buildMembersList(
             localizer().members,
             viewModel.members,
             _membersExpanded,
@@ -162,9 +145,9 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
     });
   }
 
-  Widget _buildUsersList(
+  Widget _buildMembersList(
       String title,
-      ListNotifier<UserModel> users,
+      Iterable<TeamMemberModel> members,
       bool usersExpanded,
       void Function() toggleUsersExpanded,
       bool canEdit,
@@ -205,20 +188,11 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
         ),
         SizedBox(height: usersExpanded ? 10.0 : 0.0),
         Visibility(
-          child: FancyListWidget<UserModel>(
-            users,
-            (user) => user.name,
-            localizer().addPeople,
-            (userModel) => Navigator.of(context).push(ProfileRoute(userModel)),
-          ),
+          child: _TeamMembersListWidget(members),
           visible: usersExpanded,
         ),
       ],
     );
-  }
-
-  void _toggleAdminsExpanded() {
-    setState(() => _adminsExpanded = !_adminsExpanded);
   }
 
   void _toggleMembersExpanded() {
@@ -227,5 +201,46 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
 
   void _achievementTapped(AchievementModel achievement) {
     Navigator.of(context).push(AchievementDetailsRoute(achievement));
+  }
+}
+
+class _TeamMembersListWidget extends StatelessWidget {
+  final Iterable<TeamMemberModel> _teamMembers;
+
+  _TeamMembersListWidget(this._teamMembers);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Wrap(
+          children: _buildListItems(context, _teamMembers),
+          runSpacing: 10,
+          spacing: 10),
+    );
+  }
+
+  List<Widget> _buildListItems(
+      BuildContext context, Iterable<TeamMemberModel> items) {
+    return items == null
+        ? new List<Widget>()
+        : items.map((user) => _buildUserAvatar(context, user)).toList();
+  }
+
+  Widget _buildUserAvatar(BuildContext context, TeamMemberModel teamMember) {
+    return Tooltip(
+      message: teamMember.user.name,
+      child: GestureDetector(
+        child: RoundedImageWidget.circular(
+          size: 60,
+          imageUrl: teamMember.user.imageUrl,
+          title: teamMember.user.name,
+        ),
+        onTap: () => Navigator.of(context).push(ProfileRoute(teamMember.user)),
+      ),
+      decoration: KudosTheme.tooltipDecoration,
+      textStyle: KudosTheme.tooltipTextStyle,
+      verticalOffset: 33,
+    );
   }
 }

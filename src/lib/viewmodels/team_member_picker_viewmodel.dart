@@ -1,30 +1,31 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:kudosapp/helpers/queue_handler.dart';
+import 'package:kudosapp/models/team_member_model.dart';
+import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/people_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
-class UserPickerViewModel extends BaseViewModel {
+class TeamMemberPickerViewModel extends BaseViewModel {
   final _peopleService = locator<PeopleService>();
   final _dialogService = locator<DialogService>();
+  final _teamsService = locator<TeamsService>();
 
-  final List<String> _selectedUserIds;
-  final bool _allowCurrentUser;
-  final bool _allowEmptyResult;
-
+  final Map<String, TeamMemberModel> _teamMembers;
+  final TeamModel _team;
   final users = List<UserModel>();
-  final selectedUsers = List<UserModel>();
 
   bool _searchPerformed;
   QueueHandler<List<UserModel>, String> _searchQueueHandler;
   StreamSubscription<List<UserModel>> _searchStreamSubscription;
 
-  UserPickerViewModel(
-      this._selectedUserIds, this._allowCurrentUser, this._allowEmptyResult) {
+  TeamMemberPickerViewModel(this._team)
+      : _teamMembers = Map.from(_team.members) {
     _initialize();
   }
 
@@ -33,10 +34,6 @@ class UserPickerViewModel extends BaseViewModel {
     _searchQueueHandler = QueueHandler<List<UserModel>, String>(_findPeople);
     _searchStreamSubscription =
         _searchQueueHandler.responseStream.listen(_updateSearchResults);
-    if (_selectedUserIds != null && _selectedUserIds.isNotEmpty) {
-      var users = await _peopleService.getUsersByIds(_selectedUserIds);
-      selectedUsers.addAll(users);
-    }
     requestSearch("");
   }
 
@@ -45,34 +42,57 @@ class UserPickerViewModel extends BaseViewModel {
     _searchQueueHandler.addRequest(x);
   }
 
-  bool isUserSelected(UserModel x) {
-    return selectedUsers.contains(x);
-  }
-
-  void toggleUserSelection(UserModel x) {
-    isUserSelected(x) ? selectedUsers.remove(x) : selectedUsers.add(x);
+  void onUserClicked(UserModel user) {
+    if (!_teamMembers.containsKey(user.id)) {
+      _teamMembers[user.id] =
+          TeamMemberModel.fromUserModel(user, UserAccessLevel.member);
+    } else if (_teamMembers[user.id].accessLevel == UserAccessLevel.member) {
+      _teamMembers[user.id].accessLevel = UserAccessLevel.admin;
+    } else {
+      _teamMembers.remove(user.id);
+    }
     notifyListeners();
   }
 
-  bool trySaveResult(BuildContext context) {
-    if (!_allowEmptyResult && selectedUsers.isEmpty) {
+  int getUserState(UserModel user) {
+    if (!_teamMembers.containsKey(user.id)) {
+      return 0; // not a member
+    } else if (_teamMembers[user.id].accessLevel == UserAccessLevel.member) {
+      return 1; // member
+    } else {
+      return 2; // admin
+    }
+  }
+
+  void saveChanges(BuildContext context) async {
+    if (_teamMembers.isEmpty) {
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,
           content: localizer().userPickerEmptyMessage);
-      return false;
     }
 
-    return true;
+    try {
+      isBusy = true;
+
+      await _teamsService.updateTeamMembers(
+          _team, _teamMembers.values.toList());
+
+      _team.members.clear();
+      _team.members.addEntries(_teamMembers.entries);
+
+      Navigator.of(context).pop();
+    } finally {
+      isBusy = false;
+    }
   }
 
   Future<List<UserModel>> _findPeople(String request) async {
-    var result = await _peopleService.find(request, _allowCurrentUser);
-    if (selectedUsers.isNotEmpty) {
-      var addedIds = selectedUsers.map((x) => x.id);
+    var result = await _peopleService.find(request, true);
+    if (_teamMembers.isNotEmpty) {
       result.sort((x, y) {
-        var xSelected = addedIds.contains(x.id);
-        var ySelected = addedIds.contains(y.id);
+        var xSelected = _teamMembers.containsKey(x.id);
+        var ySelected = _teamMembers.containsKey(y.id);
         return xSelected == ySelected
             ? x.name.compareTo(y.name)
             : (xSelected ? -1 : 1);

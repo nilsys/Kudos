@@ -67,10 +67,12 @@
     "peopleTabName": "Люди",
     "achievementsTabName": "Награды",
     "softeq": "Softeq",
-    "people_progress": "%i из %i людей",
-    "user_picker_empty_message": "Выберите хотя бы одного пользователя",
+    "peopleProgress": "%i из %i людей",
+    "userPickerEmptyMessage": "Выберите хотя бы одного пользователя",
     "searchEmptyPlaceholder": "Нет результатов поиска",
     "accessDenied": "Доступ запрещён",
     "privateTeam": "Это частная команда",
-    "private": "Частная"
+    "private": "Частная",
+    "myTeams": "Мои Команды",
+    "otherTeams": "Другие Команды"
 }

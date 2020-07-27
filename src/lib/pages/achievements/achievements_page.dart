@@ -4,6 +4,7 @@ import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
 import 'package:kudosapp/helpers/list_notifier.dart';
+import 'package:kudosapp/models/group_list_item.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -85,7 +86,7 @@ class AchievementsPage extends StatelessWidget {
                               );
                             }
 
-                            return _AchievementListWidget.from(
+                            return _AchievementListWidget(
                               notifier.items,
                               (achievement) => _onItemClicked(
                                   context, viewModel, achievement),
@@ -137,14 +138,14 @@ class AchievementsPage extends StatelessWidget {
 }
 
 class _AchievementListWidget extends StatelessWidget {
-  final List<Widget> _items;
+  final _items = new List<Widget>();
 
-  factory _AchievementListWidget.from(
-    List<AchievementModel> input,
+  _AchievementListWidget(
+    List<AchievementModel> achievements,
     void Function(AchievementModel) onAchievementClicked,
     Icon selectorIcon,
   ) {
-    final sortedList = input.toList();
+    final sortedList = achievements.toList();
     sortedList.sortThen(
       (x, y) {
         if (x.owner.type != AchievementOwnerType.team &&
@@ -168,7 +169,6 @@ class _AchievementListWidget extends StatelessWidget {
     );
 
     final myAchievementsText = localizer().myAchievements;
-    final listItems = List<Widget>();
     String groupName;
 
     for (var i = 0; i < sortedList.length; i++) {
@@ -178,16 +178,12 @@ class _AchievementListWidget extends StatelessWidget {
           : item.owner.name;
       if (groupName != itemGroup) {
         groupName = itemGroup;
-        listItems.add(_GroupListItem(itemGroup));
+        _items.add(GroupListItem(itemGroup));
       }
-      listItems.add(
+      _items.add(
           AchievementListItemWidget(item, onAchievementClicked, selectorIcon));
     }
-
-    return _AchievementListWidget._(listItems);
   }
-
-  _AchievementListWidget._(this._items);
 
   @override
   Widget build(BuildContext context) {
@@ -199,29 +195,6 @@ class _AchievementListWidget extends StatelessWidget {
       padding: EdgeInsets.only(
         top: TopDecorator.height,
         bottom: BottomDecorator.height,
-      ),
-    );
-  }
-}
-
-class _GroupListItem extends StatelessWidget {
-  final String name;
-
-  _GroupListItem(this.name);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16.0,
-        top: 16.0,
-        bottom: 16.0,
-      ),
-      child: Text(
-        name,
-        style: KudosTheme.listGroupTitleTextStyle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }

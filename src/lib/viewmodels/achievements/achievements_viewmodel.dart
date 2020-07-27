@@ -35,34 +35,34 @@ class AchievementsViewModel extends BaseViewModel {
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    final myAchievements = await _achievementsService.getMyAchievements();
-    final teamsAchievements = await _achievementsService.getAchievements();
+      final loadedAchievements = await _achievementsService.getAchievements();
 
-    achievements.items.clear();
-    achievements.items.addAll(_achievementFilter == null
-        ? myAchievements
-        : myAchievements.where(_achievementFilter));
-    achievements.items.addAll(_achievementFilter == null
-        ? teamsAchievements
-        : teamsAchievements.where(_achievementFilter));
-    achievements.notifyListeners();
+      achievements.items.clear();
+      achievements.items.addAll(_achievementFilter == null
+          ? loadedAchievements
+          : loadedAchievements.where(_achievementFilter));
+      achievements.notifyListeners();
 
-    _achievementUpdatedSubscription?.cancel();
-    _achievementUpdatedSubscription =
-        _eventBus.on<AchievementUpdatedMessage>().listen(_onAchievementUpdated);
+      _achievementUpdatedSubscription?.cancel();
+      _achievementUpdatedSubscription = _eventBus
+          .on<AchievementUpdatedMessage>()
+          .listen(_onAchievementUpdated);
 
-    _achievementDeletedSubscription?.cancel();
-    _achievementDeletedSubscription =
-        _eventBus.on<AchievementDeletedMessage>().listen(_onAchievementDeleted);
+      _achievementDeletedSubscription?.cancel();
+      _achievementDeletedSubscription = _eventBus
+          .on<AchievementDeletedMessage>()
+          .listen(_onAchievementDeleted);
 
-    _achievementTransferredSubscription?.cancel();
-    _achievementTransferredSubscription = _eventBus
-        .on<AchievementTransferredMessage>()
-        .listen(_onAchievementTransferred);
-
-    isBusy = false;
+      _achievementTransferredSubscription?.cancel();
+      _achievementTransferredSubscription = _eventBus
+          .on<AchievementTransferredMessage>()
+          .listen(_onAchievementTransferred);
+    } finally {
+      isBusy = false;
+    }
   }
 
   void onAchievementClicked(

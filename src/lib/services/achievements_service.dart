@@ -22,8 +22,17 @@ class AchievementsService {
   final _achievementsDatabaseService = locator<AchievementsDatabaseService>();
 
   Future<List<AchievementModel>> getAchievements() async {
-    return _achievementsDatabaseService.getTeamsAchievements().then((list) =>
-        list.map((a) => AchievementModel.fromAchievement(a)).toList());
+    var teamsAchievements =
+        await _achievementsDatabaseService.getTeamsAchievements();
+
+    var myAchievements = await _achievementsDatabaseService
+        .getUserAchievements(_authService.currentUser.id);
+
+    var achievementsSet = Set.from(teamsAchievements);
+    achievementsSet.addAll(myAchievements);
+    return achievementsSet
+        .map((a) => AchievementModel.fromAchievement(a))
+        .toList();
   }
 
   Future<AchievementModel> createAchievement(
@@ -128,10 +137,10 @@ class AchievementsService {
             list.map((a) => AchievementModel.fromAchievement(a)).toList());
   }
 
-  Future<List<AchievementModel>> getMyAchievements() {
-    return _achievementsDatabaseService
-        .getUserAchievements(_authService.currentUser.id)
-        .then((list) =>
-            list.map((a) => AchievementModel.fromAchievement(a)).toList());
-  }
+  // Future<List<AchievementModel>> getMyAchievements() {
+  //   return _achievementsDatabaseService
+  //       .getUserAchievements(_authService.currentUser.id)
+  //       .then((list) =>
+  //           list.map((a) => AchievementModel.fromAchievement(a)).toList());
+  // }
 }

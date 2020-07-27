@@ -1,8 +1,8 @@
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/models/achievement_model.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
@@ -23,9 +23,6 @@ class TeamsService {
       teamModel.imageUrl = imageData.url;
       teamModel.imageName = imageData.name;
     }
-
-    teamModel.members = [_authService.currentUser];
-    teamModel.owners = [_authService.currentUser];
 
     var team = Team.fromModel(teamModel);
 
@@ -53,13 +50,12 @@ class TeamsService {
         .then((t) => TeamModel.fromTeam(t));
   }
 
-  Future<TeamModel> updateTeamMembers(TeamModel teamModel,
-      List<UserModel> newOwners, List<UserModel> newMembers) {
-    var team =
-        Team.fromModel(teamModel, newOwners: newOwners, newMembers: newMembers);
+  Future<TeamModel> updateTeamMembers(
+      TeamModel teamModel, List<TeamMemberModel> newMembers) {
+    var team = Team.fromModel(teamModel, newMembers: newMembers);
 
     return _teamsDatabaseService
-        .updateTeam(team, updateOwners: true, updateMembers: true)
+        .updateTeam(team, updateMembers: true)
         .then((t) => TeamModel.fromTeam(t));
   }
 
@@ -89,12 +85,15 @@ class TeamsService {
     );
   }
 
-  Future<List<TeamModel>> getTeams([String userId]) {
+  Future<List<TeamModel>> getTeams([String userId]) async {
     userId = userId ?? _authService.currentUser.id;
 
-    return _teamsDatabaseService
-        .getUserTeams(userId)
-        .then((list) => list.map((t) => TeamModel.fromTeam(t)).toList());
+    var userTeams = await _teamsDatabaseService.getUserTeams(userId);
+    var publicTeams = await _teamsDatabaseService.getPublicTeams();
+
+    var teamsSet = Set.from(userTeams);
+    teamsSet.addAll(publicTeams);
+    return teamsSet.map((t) => TeamModel.fromTeam(t)).toList();
   }
 
   Future<TeamModel> getTeam(String teamId) {

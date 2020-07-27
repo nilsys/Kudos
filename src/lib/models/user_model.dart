@@ -50,6 +50,7 @@ class UserModel {
     return UserModel._(
       id: teamMember.id,
       name: teamMember.name,
+      imageUrl: teamMember.imageUrl,
     );
   }
 

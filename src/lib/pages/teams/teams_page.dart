@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/group_list_item.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/profile/my_teams_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
@@ -54,9 +55,9 @@ class TeamsPage extends StatelessWidget {
       body: ChangeNotifierProvider<SearchInputViewModel>(
         create: (context) => SearchInputViewModel(),
         child:
-            ChangeNotifierProxyProvider<SearchInputViewModel, MyTeamsViewModel>(
+            ChangeNotifierProxyProvider<SearchInputViewModel, TeamsViewModel>(
           create: (context) =>
-              MyTeamsViewModel(excludedTeamIds: _excludedTeamIds),
+              TeamsViewModel(excludedTeamIds: _excludedTeamIds),
           update: (context, searchViewModel, teamsViewModel) =>
               teamsViewModel..filterByName(searchViewModel.query),
           child: Column(
@@ -67,7 +68,7 @@ class TeamsPage extends StatelessWidget {
                   Stack(
                     children: <Widget>[
                       Positioned.fill(
-                        child: Consumer<MyTeamsViewModel>(
+                        child: Consumer<TeamsViewModel>(
                           builder: (context, viewModel, child) {
                             return StreamBuilder<List<TeamModel>>(
                               stream: viewModel.teamsStream,
@@ -80,7 +81,8 @@ class TeamsPage extends StatelessWidget {
                                   return _buildEmpty(
                                       viewModel.isAllTeamsListEmpty);
                                 } else {
-                                  return _buildList(context, snapshot.data);
+                                  return _buildList(
+                                      context, viewModel, snapshot.data);
                                 }
                               },
                             );
@@ -153,25 +155,67 @@ class TeamsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<TeamModel> teams) {
+  Widget _buildList(
+      BuildContext context, TeamsViewModel viewModel, List<TeamModel> teams) {
+    return _TeamsListWidget(
+      teams,
+      (team) => _onItemSelected(context, team),
+      _selectorIcon,
+      viewModel.currentUser.id,
+    );
+  }
+}
+
+class _TeamsListWidget extends StatelessWidget {
+  final _items = new List<Widget>();
+  final Icon _selectorIcon;
+  final void Function(TeamModel) _onTeamClicked;
+
+  _TeamsListWidget(
+    List<TeamModel> teams,
+    this._onTeamClicked,
+    this._selectorIcon,
+    String userId,
+  ) {
+    final myTeamsText = localizer().myTeams;
+    final otherTeamsText = localizer().otherTeams;
+    String groupName;
+
+    for (var i = 0; i < teams.length; i++) {
+      final item = teams[i];
+      final itemGroup =
+          item.isTeamMember(userId) ? myTeamsText : otherTeamsText;
+      if (groupName != itemGroup) {
+        groupName = itemGroup;
+        _items.add(GroupListItem(itemGroup));
+      }
+      _items.add(_buildListItem(item));
+    }
+  }
+
+  Widget _buildListItem(TeamModel team) {
+    return SimpleListItem(
+      title: team.name,
+      onTap: () => _onTeamClicked(team),
+      selectorIcon: _selectorIcon,
+      imageShape: ImageShape.square(56, 4),
+      imageUrl: team.imageUrl,
+      useTextPlaceholder: true,
+      addHeroAnimation: true,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
+      itemBuilder: (context, index) {
+        return _items[index];
+      },
+      itemCount: _items.length,
       padding: EdgeInsets.only(
         top: TopDecorator.height,
         bottom: BottomDecorator.height,
       ),
-      itemCount: teams.length,
-      itemBuilder: (context, index) {
-        var team = teams[index];
-        return SimpleListItem(
-          title: team.name,
-          onTap: () => _onItemSelected(context, team),
-          selectorIcon: _selectorIcon,
-          imageShape: ImageShape.square(56, 4),
-          imageUrl: team.imageUrl,
-          useTextPlaceholder: true,
-          addHeroAnimation: true,
-        );
-      },
     );
   }
 }

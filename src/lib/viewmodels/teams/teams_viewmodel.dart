@@ -4,17 +4,21 @@ import 'package:event_bus/event_bus.dart';
 import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:sorted_list/sorted_list.dart';
 
-class MyTeamsViewModel extends BaseViewModel {
-  final List<TeamModel> _teamsList = [];
-  final Set<String> _excludedTeamIds;
-
+class TeamsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
+  static final _authService = locator<BaseAuthService>();
+
+  final _teamsList = new SortedList<TeamModel>(_sortFunc);
+  final Set<String> _excludedTeamIds;
 
   StreamController<String> _streamController;
   Stream<List<TeamModel>> _teamsStream;
@@ -23,13 +27,26 @@ class MyTeamsViewModel extends BaseViewModel {
   StreamSubscription _teamDeletedSubscription;
 
   Stream<List<TeamModel>> get teamsStream => _teamsStream;
-
+  UserModel get currentUser => _authService.currentUser;
   bool get isAllTeamsListEmpty => _teamsList.isEmpty;
 
-  MyTeamsViewModel({Set<String> excludedTeamIds})
+  TeamsViewModel({Set<String> excludedTeamIds})
       : _excludedTeamIds = excludedTeamIds {
     _initFilter();
     _initialize();
+  }
+
+  static int _sortFunc(TeamModel x, TeamModel y) {
+    var userId = _authService.currentUser.id;
+
+    int xAccess = x.isTeamAdmin(userId) ? 2 : x.isTeamMember(userId) ? 1 : 0;
+    int yAccess = y.isTeamAdmin(userId) ? 2 : y.isTeamMember(userId) ? 1 : 0;
+
+    if (xAccess == yAccess) {
+      return x.name.toLowerCase().compareTo(y.name.toLowerCase());
+    } else {
+      return yAccess.compareTo(xAccess);
+    }
   }
 
   void _initialize() async {

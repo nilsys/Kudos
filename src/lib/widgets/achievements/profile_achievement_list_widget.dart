@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
-import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
-import 'package:kudosapp/pages/profile/received_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/profile_achievements_viewmodel.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
@@ -31,10 +29,7 @@ class ProfileAchievementsListWidget extends StatelessWidget {
       child: Consumer<ProfileAchievementsViewModel>(
         builder: (context, viewModel, child) {
           if (!viewModel.isBusy && viewModel.hasAchievements) {
-            return _buildView(
-              viewModel.getAchievements(),
-              viewModel.isMyProfile,
-            );
+            return _buildView(viewModel);
           }
           return _buildAdaptiveChild(viewModel);
         },
@@ -93,7 +88,7 @@ class ProfileAchievementsListWidget extends StatelessWidget {
 
   Widget _buildList(
     List<UserAchievementCollection> achievementCollections,
-    bool isMyProfile,
+    ProfileAchievementsViewModel viewModel,
   ) {
     return ListView.builder(
       padding: EdgeInsets.only(
@@ -110,17 +105,8 @@ class ProfileAchievementsListWidget extends StatelessWidget {
               sprintf(localizer().from, [achievementCollection.senders]),
           imageUrl: achievementCollection.imageUrl,
           imageCounter: achievementCollection.count,
-          onTap: () {
-            if (isMyProfile) {
-              Navigator.of(context).push(
-                ReceivedAchievementRoute(achievementCollection),
-              );
-            } else {
-              Navigator.of(context).push(
-                AchievementDetailsRoute(relatedAchievement),
-              );
-            }
-          },
+          onTap: () =>
+              viewModel.openAchievementDetails(context, achievementCollection),
           imageShape: ImageShape.circle(60),
           addHeroAnimation: true,
         );
@@ -128,10 +114,8 @@ class ProfileAchievementsListWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildView(
-    List<UserAchievementCollection> achievementCollections,
-    bool isMyProfile,
-  ) {
+  Widget _buildView(ProfileAchievementsViewModel viewModel) {
+    final userAcihevements = viewModel.getAchievements();
     if (_buildSliver) {
       return SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -142,24 +126,22 @@ class ProfileAchievementsListWidget extends StatelessWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) => _buildGridItem(
             context,
-            achievementCollections[index],
-            isMyProfile,
+            userAcihevements[index],
+            viewModel,
           ),
-          childCount: achievementCollections.length,
+          childCount: userAcihevements.length,
         ),
       );
     }
 
-    return _buildList(achievementCollections, isMyProfile);
+    return _buildList(userAcihevements, viewModel);
   }
 
   Widget _buildGridItem(
     BuildContext context,
     UserAchievementCollection achievementCollection,
-    bool isMyProfile,
+    ProfileAchievementsViewModel viewModel,
   ) {
-    final relatedAchievement =
-        achievementCollection.userAchievements[0].achievement;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -194,17 +176,8 @@ class ProfileAchievementsListWidget extends StatelessWidget {
           child: Stack(
             children: children,
           ),
-          onTap: () {
-            if (isMyProfile) {
-              Navigator.of(context).push(
-                ReceivedAchievementRoute(achievementCollection),
-              );
-            } else {
-              Navigator.of(context).push(
-                AchievementDetailsRoute(relatedAchievement),
-              );
-            }
-          },
+          onTap: () =>
+              viewModel.openAchievementDetails(context, achievementCollection),
         );
       },
     );
