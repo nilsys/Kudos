@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
+import 'package:flutter/material.dart';
+import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
+import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
@@ -15,54 +18,52 @@ import 'package:sorted_list/sorted_list.dart';
 class TeamsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
-  static final _authService = locator<BaseAuthService>();
+  final _authService = locator<BaseAuthService>();
 
-  final _teamsList = new SortedList<TeamModel>(_sortFunc);
+  final _selectionAction;
+  final _teamsList = new SortedList<GrouppedListItem<TeamModel>>(_sortFunc);
   final Set<String> _excludedTeamIds;
 
   StreamController<String> _streamController;
-  Stream<List<TeamModel>> _teamsStream;
+  Stream<List<GrouppedListItem<TeamModel>>> _teamsStream;
 
   StreamSubscription _teamUpdatedSubscription;
   StreamSubscription _teamDeletedSubscription;
 
-  Stream<List<TeamModel>> get teamsStream => _teamsStream;
-  UserModel get currentUser => _authService.currentUser;
+  Stream<List<GrouppedListItem<TeamModel>>> get teamsStream => _teamsStream;
   bool get isAllTeamsListEmpty => _teamsList.isEmpty;
 
-  TeamsViewModel({Set<String> excludedTeamIds})
+  TeamsViewModel(this._selectionAction, {Set<String> excludedTeamIds})
       : _excludedTeamIds = excludedTeamIds {
     _initFilter();
     _initialize();
   }
 
-  static int _sortFunc(TeamModel x, TeamModel y) {
-    var userId = _authService.currentUser.id;
-
-    int xAccess = x.isTeamAdmin(userId) ? 2 : x.isTeamMember(userId) ? 1 : 0;
-    int yAccess = y.isTeamAdmin(userId) ? 2 : y.isTeamMember(userId) ? 1 : 0;
-
-    if (xAccess == yAccess) {
-      return x.name.toLowerCase().compareTo(y.name.toLowerCase());
+  static int _sortFunc(
+      GrouppedListItem<TeamModel> x, GrouppedListItem<TeamModel> y) {
+    if (x.sortIndex == y.sortIndex) {
+      return x.item.name.toLowerCase().compareTo(y.item.name.toLowerCase());
     } else {
-      return yAccess.compareTo(xAccess);
+      return y.sortIndex.compareTo(x.sortIndex);
     }
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    await _loadTeamsList();
+      await _loadTeamsList();
 
-    _teamUpdatedSubscription?.cancel();
-    _teamUpdatedSubscription =
-        _eventBus.on<TeamUpdatedMessage>().listen(_onTeamUpdated);
+      _teamUpdatedSubscription?.cancel();
+      _teamUpdatedSubscription =
+          _eventBus.on<TeamUpdatedMessage>().listen(_onTeamUpdated);
 
-    _teamDeletedSubscription?.cancel();
-    _teamDeletedSubscription =
-        _eventBus.on<TeamDeletedMessage>().listen(_onTeamDeleted);
-
-    isBusy = false;
+      _teamDeletedSubscription?.cancel();
+      _teamDeletedSubscription =
+          _eventBus.on<TeamDeletedMessage>().listen(_onTeamDeleted);
+    } finally {
+      isBusy = false;
+    }
   }
 
   void filterByName(String query) => _streamController.add(query);
@@ -71,35 +72,63 @@ class TeamsViewModel extends BaseViewModel {
     return _teamsService.getTeam(id);
   }
 
+  void onTeamClicked(BuildContext context, TeamModel team) {
+    switch (_selectionAction) {
+      case SelectionAction.OpenDetails:
+        Navigator.of(context).push(ManageTeamRoute(team));
+        break;
+      case SelectionAction.Pop:
+        Navigator.of(context).pop(team);
+        break;
+    }
+  }
+
   void _initFilter() {
     _streamController = StreamController<String>();
 
     _teamsStream = _streamController.stream
         .debounceTime(Duration(milliseconds: 100))
         .distinct()
-        .transform(StreamTransformer<String, List<TeamModel>>.fromHandlers(
-          handleData: (query, sink) => sink.add(
-              query.isEmpty ? _teamsList : _filterByName(_teamsList, query)),
+        .transform(StreamTransformer<String,
+            List<GrouppedListItem<TeamModel>>>.fromHandlers(
+          handleData: (query, sink) => sink.add(_filterByName(query)),
         ));
   }
 
-  List<TeamModel> _filterByName(List<TeamModel> teams, String query) {
-    final filteredTeams = teams
-        .where((x) => x.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-    return filteredTeams;
+  List<GrouppedListItem> _filterByName(String query) {
+    if (query.isEmpty) {
+      return _teamsList;
+    } else {
+      final filteredTeams = _teamsList
+          .where((x) => x.item.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      return filteredTeams;
+    }
   }
 
   Future<void> _loadTeamsList() async {
     var teams = await _teamsService.getTeams();
     _teamsList.clear();
     if (_excludedTeamIds != null) {
-      var localTeams =
-          teams.where((team) => !_excludedTeamIds.contains(team.id));
+      var localTeams = teams
+          .where((team) => !_excludedTeamIds.contains(team.id))
+          .map((tm) => _createGrouppedItemFromTeam(tm));
       _teamsList.addAll(localTeams);
     } else {
-      _teamsList.addAll(teams);
+      _teamsList.addAll(teams.map((tm) => _createGrouppedItemFromTeam(tm)));
     }
+  }
+
+  GrouppedListItem<TeamModel> _createGrouppedItemFromTeam(TeamModel team) {
+    int sortIndex = team.isTeamAdmin(_authService.currentUser.id)
+        ? 2
+        : team.isTeamMember(_authService.currentUser.id) ? 1 : 0;
+
+    final myTeamsText = localizer().myTeams;
+    final otherTeamsText = localizer().otherTeams;
+    String groupName = sortIndex > 0 ? myTeamsText : otherTeamsText;
+
+    return GrouppedListItem<TeamModel>(groupName, sortIndex, team);
   }
 
   void _onTeamUpdated(TeamUpdatedMessage event) {
@@ -107,7 +136,7 @@ class TeamsViewModel extends BaseViewModel {
   }
 
   void _onTeamDeleted(TeamDeletedMessage event) {
-    _teamsList.removeWhere((x) => x.id == event.teamId);
+    _teamsList.removeWhere((x) => x.item.id == event.teamId);
     notifyListeners();
   }
 

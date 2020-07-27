@@ -6,14 +6,11 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/people_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 
 class MyProfileViewModel extends BaseViewModel {
   final _peopleService = locator<PeopleService>();
   final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
-
-  final myTeamsViewModel = TeamsViewModel();
 
   UserModel get user => _authService.currentUser;
 
@@ -28,11 +25,5 @@ class MyProfileViewModel extends BaseViewModel {
       await _peopleService.unsubscribeFromNotifications();
       await _authService.signOut();
     }
-  }
-
-  @override
-  void dispose() {
-    myTeamsViewModel.dispose();
-    super.dispose();
   }
 }
