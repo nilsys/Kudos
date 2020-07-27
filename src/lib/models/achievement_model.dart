@@ -18,7 +18,7 @@ class AchievementModel {
   String imageName;
   File imageFile;
   AchievementOwnerModel owner;
-  Map<int, TeamMemberModel> teamMembers;
+  Map<String, TeamMemberModel> teamMembers;
 
   AchievementModel._({
     this.id,

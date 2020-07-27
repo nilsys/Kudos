@@ -111,7 +111,8 @@ class Achievement extends Equatable {
     if (addAll || addOwner) {
       map["team"] = team == null ? null : team.toJson();
       map["user"] = user == null ? null : user.toJson();
-      map["team_members"] = this.teamMembers;
+      map["team_members"] =
+          this.teamMembers?.map((tm) => tm.toJson())?.toList();
     }
 
     if (addAll || addIsActive) {
