@@ -11,12 +11,14 @@ import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
+import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/image_service.dart';
 
 class AchievementsService {
   final _imageService = locator<ImageService>();
   final _authService = locator<BaseAuthService>();
   final _databaseService = locator<DatabaseService>();
+  final _usersDatabaseService = locator<UsersDatabaseService>();
   final _achievementsDatabaseService = locator<AchievementsDatabaseService>();
 
   Future<List<AchievementModel>> getAchievements() async {
@@ -57,14 +59,20 @@ class AchievementsService {
     final userAchievement = UserAchievement.fromModel(userAcheivementModel);
 
     return _databaseService.batchUpdate(
+      [
         // add an achievement to user's achievements
-        (batch) => _achievementsDatabaseService.createUserAchievement(
-            recipient.id, userAchievement, batch: batch),
+        (batch) => _achievementsDatabaseService
+            .createUserAchievement(recipient.id, userAchievement, batch: batch),
         // add a user to achievements
         (batch) => _achievementsDatabaseService.createAchievementHolder(
             userAcheivementModel.achievement.id,
             AchievementHolder.fromModel(recipient),
-            batch: batch));
+            batch: batch),
+        // increment received_achievements_count
+        (batch) => _usersDatabaseService
+            .incrementRecievedAchievementsCount(recipient.id, batch: batch),
+      ],
+    );
   }
 
   Future<AchievementModel> transferAchievement(

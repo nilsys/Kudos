@@ -57,6 +57,19 @@ class UsersDatabaseService {
     }
   }
 
+  Future<void> incrementRecievedAchievementsCount(String userId,
+      {WriteBatch batch}) async {
+    var docRef = _database.collection(_usersCollection).document(userId);
+
+    if (batch != null) {
+      batch.updateData(
+          docRef, {"received_achievements_count": FieldValue.increment(1)});
+    } else {
+      return docRef
+          .updateData({"received_achievements_count": FieldValue.increment(1)});
+    }
+  }
+
   void _onUsersChange(QuerySnapshot qs) {
     if (qs.documents.length == 0) {
       return;
