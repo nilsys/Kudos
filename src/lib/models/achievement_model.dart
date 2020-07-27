@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/related_achievement.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
-import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
