@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -33,8 +35,6 @@ class _ManageTeamPage extends StatefulWidget {
 }
 
 class _ManageTeamPageState extends State<_ManageTeamPage> {
-  bool _membersExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ManageTeamViewModel>(
@@ -99,8 +99,6 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
           child: _buildMembersList(
             localizer().members,
             viewModel.members,
-            _membersExpanded,
-            _toggleMembersExpanded,
             viewModel.canEdit,
             () => viewModel.editMembers(context),
           ),
@@ -145,33 +143,17 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
     });
   }
 
-  Widget _buildMembersList(
-      String title,
-      Iterable<TeamMemberModel> members,
-      bool usersExpanded,
-      void Function() toggleUsersExpanded,
-      bool canEdit,
-      void Function() editUsers) {
+  Widget _buildMembersList(String title, Iterable<TeamMemberModel> members,
+      bool canEdit, void Function() editUsers) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            GestureDetector(
-              onTap: toggleUsersExpanded,
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: KudosTheme.sectionTitleTextStyle,
-                  ),
-                  Icon(
-                    usersExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: KudosTheme.mainGradientEndColor,
-                  ),
-                ],
-              ),
+            Text(
+              title,
+              style: KudosTheme.sectionTitleTextStyle,
             ),
             Expanded(
               child: Align(
@@ -186,17 +168,10 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
             ),
           ],
         ),
-        SizedBox(height: usersExpanded ? 10.0 : 0.0),
-        Visibility(
-          child: _TeamMembersListWidget(members),
-          visible: usersExpanded,
-        ),
+        SizedBox(height: 10.0),
+        _TeamMembersListWidget(members),
       ],
     );
-  }
-
-  void _toggleMembersExpanded() {
-    setState(() => _membersExpanded = !_membersExpanded);
   }
 
   void _achievementTapped(AchievementModel achievement) {
@@ -231,10 +206,29 @@ class _TeamMembersListWidget extends StatelessWidget {
     return Tooltip(
       message: teamMember.user.name,
       child: GestureDetector(
-        child: RoundedImageWidget.circular(
-          size: 60,
-          imageUrl: teamMember.user.imageUrl,
-          title: teamMember.user.name,
+        child: SizedBox(
+          width: 65,
+          height: 65,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topLeft,
+                child: RoundedImageWidget.circular(
+                  size: 60,
+                  imageUrl: teamMember.user.imageUrl,
+                  title: teamMember.user.name,
+                ),
+              ),
+              Visibility(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: SvgPicture.asset("assets/icons/crown.svg",
+                      width: 24, height: 24),
+                ),
+                visible: teamMember.accessLevel == UserAccessLevel.admin,
+              ),
+            ],
+          ),
         ),
         onTap: () => Navigator.of(context).push(ProfileRoute(teamMember.user)),
       ),

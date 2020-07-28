@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/team_member_picker_viewmodel.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
-import 'package:provider/provider.dart';
 import 'package:kudosapp/widgets/list_of_people_widget.dart';
+import 'package:provider/provider.dart';
 
 class TeamMemberPickerRoute extends MaterialPageRoute {
   TeamMemberPickerRoute(
@@ -94,10 +95,15 @@ class _TeamMemberPickerPageState extends State<_TeamMemberPickerPage> {
       case 0:
         return SizedBox(width: 1, height: 1);
       case 1:
-        return Icon(Icons.people, color: KudosTheme.accentColor);
+        return Icon(
+          Icons.person,
+          size: 32,
+          color: KudosTheme.accentColor,
+        );
       case 2:
       default:
-        return Icon(Icons.verified_user, color: KudosTheme.accentColor);
+        return SvgPicture.asset("assets/icons/crown.svg",
+            width: 32, height: 32);
     }
   }
 
