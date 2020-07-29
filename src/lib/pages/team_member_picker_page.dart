@@ -89,18 +89,20 @@ class _TeamMemberPickerPageState extends State<_TeamMemberPickerPage> {
   }
 
   Widget _trailingWidgetFunc(
-      TeamMemberPickerViewModel viewModel, UserModel user) {
-    int state = viewModel.getUserState(user);
+    TeamMemberPickerViewModel viewModel,
+    UserModel user,
+  ) {
+    var state = viewModel.getUserState(user);
     switch (state) {
-      case 0:
+      case UserState.None:
         return SizedBox(width: 1, height: 1);
-      case 1:
+      case UserState.Member:
         return Icon(
           Icons.person,
           size: 32,
           color: KudosTheme.accentColor,
         );
-      case 2:
+      case UserState.Admin:
       default:
         return SvgPicture.asset("assets/icons/crown.svg",
             width: 32, height: 32);

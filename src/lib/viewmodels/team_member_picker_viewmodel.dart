@@ -11,6 +11,12 @@ import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
+enum UserState {
+  None,
+  Member,
+  Admin,
+}
+
 class TeamMemberPickerViewModel extends BaseViewModel {
   final _peopleService = locator<PeopleService>();
   final _dialogService = locator<DialogService>();
@@ -54,18 +60,19 @@ class TeamMemberPickerViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  int getUserState(UserModel user) {
+  UserState getUserState(UserModel user) {
     if (!_teamMembers.containsKey(user.id)) {
-      return 0; // not a member
+      return UserState.None; // not a member
     } else if (_teamMembers[user.id].accessLevel == UserAccessLevel.member) {
-      return 1; // member
+      return UserState.Member; // member
     } else {
-      return 2; // admin
+      return UserState.Admin; // admin
     }
   }
 
   void saveChanges(BuildContext context) async {
-    if (_teamMembers.isEmpty) {
+    if (!_teamMembers.values
+        .any((tm) => tm.accessLevel == UserAccessLevel.admin)) {
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,
