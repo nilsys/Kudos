@@ -30,10 +30,11 @@ class UserAchievementModel {
   factory UserAchievementModel.fromUserAchievement(
       UserAchievement userAchievement) {
     return UserAchievementModel._(
-        sender: UserModel.fromUserReference(userAchievement.sender),
-        achievement: AchievementModel.fromRelatedAchievement(
-            userAchievement.achievement),
-        comment: userAchievement.comment,
-        date: userAchievement.date);
+      sender: UserModel.fromUserReference(userAchievement.sender),
+      achievement:
+          AchievementModel.fromRelatedAchievement(userAchievement.achievement),
+      comment: userAchievement.comment,
+      date: userAchievement.date,
+    );
   }
 }

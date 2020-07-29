@@ -38,9 +38,11 @@ class TeamModel {
       description: team.description,
       imageUrl: team.imageUrl,
       imageName: team.imageName,
-      members: Map.fromIterable(team.members,
-          key: (item) => item.id,
-          value: (item) => TeamMemberModel.fromTeamMember(item)),
+      members: Map.fromIterable(
+        team.members,
+        key: (item) => item.id,
+        value: (item) => TeamMemberModel.fromTeamMember(item),
+      ),
       accessLevel: (AccessLevel.values[team.accessLevel]),
     );
   }
