@@ -77,6 +77,7 @@ class TeamMemberPickerViewModel extends BaseViewModel {
           context: context,
           title: localizer().error,
           content: localizer().userPickerEmptyMessage);
+      return;
     }
 
     try {
