@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kudosapp/models/group_list_item.dart';
+import 'package:kudosapp/widgets/group_list_item_widget.dart';
 import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
@@ -18,7 +18,7 @@ class GrouppedListWidget<T> extends StatelessWidget {
       final itemGroup = groupItem.groupName;
       if (groupName != itemGroup) {
         groupName = itemGroup;
-        _items.add(GroupListItem(itemGroup));
+        _items.add(GroupListItemWidget(itemGroup));
       }
       _items.add(_itemBuilder(groupItem.item));
     }
