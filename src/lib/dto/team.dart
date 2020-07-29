@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudosapp/dto/team_member.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 
@@ -60,7 +61,7 @@ class Team extends Equatable {
             imageName: json["image_name"],
             description: json["description"],
             members: _getMembers(json["members"]),
-            accessLevel: json["access_level"] ?? 0,
+            accessLevel: json["access_level"] ?? AccessLevel.public.index,
             isActive: json["is_active"],
           );
   }

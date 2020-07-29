@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/team.dart';
+import 'package:kudosapp/models/access_level.dart';
 
 class TeamsDatabaseService {
   static const _teamsCollection = "teams";
@@ -19,7 +20,7 @@ class TeamsDatabaseService {
   Future<Iterable<Team>> getPublicTeams() {
     return _database
         .collection(_teamsCollection)
-        .where("access_level", isEqualTo: 0)
+        .where("access_level", isEqualTo: AccessLevel.public.index)
         .where("is_active", isEqualTo: true)
         .getDocuments()
         .then((value) =>
