@@ -69,6 +69,7 @@
     "softeq": "Softeq",
     "peopleProgress": "%i из %i людей",
     "userPickerEmptyMessage": "Выберите хотя бы одного пользователя",
+    "teamMemberPickerEmptyMessage": "Выберите хотя бы одного администратора",
     "searchEmptyPlaceholder": "Нет результатов поиска",
     "accessDenied": "Доступ запрещён",
     "privateTeam": "Это частная команда",

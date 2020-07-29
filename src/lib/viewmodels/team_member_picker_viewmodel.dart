@@ -76,7 +76,7 @@ class TeamMemberPickerViewModel extends BaseViewModel {
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,
-          content: localizer().userPickerEmptyMessage);
+          content: localizer().teamMemberPickerEmptyMessage);
       return;
     }
 

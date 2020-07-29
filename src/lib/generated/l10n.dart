@@ -723,11 +723,21 @@ class S {
     );
   }
 
-  /// `Select at least one user`
+  /// `Please select at least one user`
   String get userPickerEmptyMessage {
     return Intl.message(
-      'Select at least one user',
+      'Please select at least one user',
       name: 'userPickerEmptyMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select at least one admin`
+  String get teamMemberPickerEmptyMessage {
+    return Intl.message(
+      'Please select at least one admin',
+      name: 'teamMemberPickerEmptyMessage',
       desc: '',
       args: [],
     );
@@ -783,6 +793,7 @@ class S {
     );
   }
 
+  /// `Public Teams`
   String get otherTeams {
     return Intl.message(
       'Public Teams',

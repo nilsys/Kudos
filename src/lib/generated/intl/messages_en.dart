@@ -84,6 +84,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "signOutConfirmationTitle" : MessageLookupByLibrary.simpleMessage("Are you sure?"),
     "softeq" : MessageLookupByLibrary.simpleMessage("Softeq"),
     "team" : MessageLookupByLibrary.simpleMessage("Team"),
+    "teamMemberPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Please select at least one admin"),
     "teams" : MessageLookupByLibrary.simpleMessage("Teams"),
     "teamsTabName" : MessageLookupByLibrary.simpleMessage("Teams"),
     "transferAchievementDescription" : MessageLookupByLibrary.simpleMessage("Do you want to transfer this achievement to another user or another team?"),
@@ -93,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "transferAchievementToUserTitle" : MessageLookupByLibrary.simpleMessage("Transfer to %s?"),
     "transferAchievementToUserWarning" : MessageLookupByLibrary.simpleMessage("You will not have access to this achievement after the operation is complete"),
     "user" : MessageLookupByLibrary.simpleMessage("User"),
-    "userPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Select at least one user"),
+    "userPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Please select at least one user"),
     "userTeamsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("This user is not part of any team yet"),
     "warning" : MessageLookupByLibrary.simpleMessage("Warning"),
     "writeAComment" : MessageLookupByLibrary.simpleMessage("Your comment")
