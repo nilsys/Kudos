@@ -61,7 +61,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "noComment" : MessageLookupByLibrary.simpleMessage("Нет комментария"),
     "notSignedIn" : MessageLookupByLibrary.simpleMessage("Войдите, чтобы увидеть свои награды"),
     "ok" : MessageLookupByLibrary.simpleMessage("OK"),
-    "otherTeams" : MessageLookupByLibrary.simpleMessage("Другие Команды"),
+    "otherTeams" : MessageLookupByLibrary.simpleMessage("Публичные Команды"),
     "people" : MessageLookupByLibrary.simpleMessage("Люди"),
     "peopleProgress" : MessageLookupByLibrary.simpleMessage("%i из %i людей"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("Люди"),

@@ -783,10 +783,9 @@ class S {
     );
   }
 
-  /// `Other Teams`
   String get otherTeams {
     return Intl.message(
-      'Other Teams',
+      'Public Teams',
       name: 'otherTeams',
       desc: '',
       args: [],

@@ -11,7 +11,7 @@ class GroupListItem extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         left: 16.0,
-        top: 16.0,
+        top: 24.0,
         bottom: 16.0,
       ),
       child: Text(

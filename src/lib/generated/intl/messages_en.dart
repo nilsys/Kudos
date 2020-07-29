@@ -61,7 +61,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "noComment" : MessageLookupByLibrary.simpleMessage("No comment"),
     "notSignedIn" : MessageLookupByLibrary.simpleMessage("Sign in to view your achievements"),
     "ok" : MessageLookupByLibrary.simpleMessage("OK"),
-    "otherTeams" : MessageLookupByLibrary.simpleMessage("Other Teams"),
+    "otherTeams" : MessageLookupByLibrary.simpleMessage("Public Teams"),
     "people" : MessageLookupByLibrary.simpleMessage("People"),
     "peopleProgress" : MessageLookupByLibrary.simpleMessage("%i of %i people"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("People"),

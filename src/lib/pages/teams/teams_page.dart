@@ -88,10 +88,10 @@ class TeamsPage extends StatelessWidget {
                                 } else {
                                   return GrouppedListWidget(
                                     snapshot.data,
-                                    (t) => _buildListItem(
+                                    (team) => _buildListItem(
                                       context,
                                       viewModel,
-                                      t,
+                                      team,
                                     ),
                                   );
                                 }
