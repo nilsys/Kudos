@@ -91,8 +91,7 @@ class TeamsService {
     var userTeams = await _teamsDatabaseService.getUserTeams(userId);
     var publicTeams = await _teamsDatabaseService.getPublicTeams();
 
-    var teamsSet = Set.from(userTeams);
-    teamsSet.addAll(publicTeams);
+    var teamsSet = {...userTeams, ...publicTeams};
     return teamsSet.map((t) => TeamModel.fromTeam(t)).toList();
   }
 

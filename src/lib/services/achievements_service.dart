@@ -28,8 +28,7 @@ class AchievementsService {
     var myAchievements = await _achievementsDatabaseService
         .getUserAchievements(_authService.currentUser.id);
 
-    var achievementsSet = Set.from(teamsAchievements);
-    achievementsSet.addAll(myAchievements);
+    var achievementsSet = {...teamsAchievements, ...myAchievements};
     return achievementsSet
         .map((a) => AchievementModel.fromAchievement(a))
         .toList();
@@ -136,11 +135,4 @@ class AchievementsService {
         (list) =>
             list.map((a) => AchievementModel.fromAchievement(a)).toList());
   }
-
-  // Future<List<AchievementModel>> getMyAchievements() {
-  //   return _achievementsDatabaseService
-  //       .getUserAchievements(_authService.currentUser.id)
-  //       .then((list) =>
-  //           list.map((a) => AchievementModel.fromAchievement(a)).toList());
-  // }
 }
