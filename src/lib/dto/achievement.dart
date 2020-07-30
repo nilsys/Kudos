@@ -3,8 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:kudosapp/dto/team_member.dart';
 import 'package:kudosapp/dto/team_reference.dart';
 import 'package:kudosapp/dto/user_reference.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
+import 'package:kudosapp/models/team_member_model.dart';
+import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_model.dart';
 
 /// Achievements collection
 @immutable
@@ -17,6 +21,7 @@ class Achievement extends Equatable {
   final TeamReference team;
   final UserReference user;
   final List<TeamMember> teamMembers;
+  final int accessLevel;
   final bool isActive;
 
   Achievement._({
@@ -28,6 +33,7 @@ class Achievement extends Equatable {
     @required this.user,
     @required this.imageName,
     @required this.teamMembers,
+    @required this.accessLevel,
     @required this.isActive,
   });
 
@@ -43,6 +49,7 @@ class Achievement extends Equatable {
             team: TeamReference.fromJson(json["team"], null),
             user: UserReference.fromJson(json["user"], null),
             teamMembers: _getMembers(json["team_members"]),
+            accessLevel: json["access_level"] ?? AccessLevel.public.index,
             isActive: json["is_active"],
           );
   }
@@ -52,28 +59,23 @@ class Achievement extends Equatable {
     bool isActive,
     AchievementOwnerModel newOwner,
   }) {
-    UserReference userReference;
-    TeamReference teamReference;
-    List<TeamMember> teamMembers;
+    UserModel user;
+    TeamModel team;
+    Iterable<TeamMemberModel> teamMembers;
+    AccessLevel accessLevel;
 
     if (newOwner != null) {
-      userReference =
-          newOwner.user != null ? UserReference.fromModel(newOwner.user) : null;
-      teamReference =
-          newOwner.team != null ? TeamReference.fromModel(newOwner.team) : null;
-      teamMembers = newOwner.team?.members?.values
-          ?.map((tmm) => TeamMember.fromModel(tmm))
-          ?.toList();
+      user = newOwner.user;
+      team = newOwner.team;
+      teamMembers = newOwner.team?.members?.values;
+      accessLevel = newOwner.type == AchievementOwnerType.user
+          ? AccessLevel.private
+          : newOwner.team.accessLevel;
     } else {
-      userReference = model.owner.user != null
-          ? UserReference.fromModel(model.owner.user)
-          : null;
-      teamReference = model.owner.team != null
-          ? TeamReference.fromModel(model.owner.team)
-          : null;
-      teamMembers = model.owner?.team?.members?.values
-          ?.map((tmm) => TeamMember.fromModel(tmm))
-          ?.toList();
+      user = model.owner.user;
+      team = model.owner.team;
+      teamMembers = model.owner?.team?.members?.values;
+      accessLevel = model.accessLevel;
     }
 
     return Achievement._(
@@ -82,9 +84,11 @@ class Achievement extends Equatable {
       description: model.description,
       imageUrl: model.imageUrl,
       imageName: model.imageName,
-      team: teamReference,
-      user: userReference,
-      teamMembers: teamMembers,
+      team: team == null ? null : TeamReference.fromModel(team),
+      user: user == null ? null : UserReference.fromModel(user),
+      teamMembers:
+          teamMembers?.map((tmm) => TeamMember.fromModel(tmm))?.toList(),
+      accessLevel: accessLevel.index,
       isActive: isActive ?? true,
     );
   }
@@ -94,9 +98,11 @@ class Achievement extends Equatable {
     bool addMetadata = false,
     bool addImage = false,
     bool addOwner = false,
+    bool addAccessLevel = false,
     bool addIsActive = false,
   }) {
     final map = new Map<String, Object>();
+    var visibleFor = List<String>();
 
     if (addAll || addMetadata) {
       map["name"] = this.name;
@@ -113,10 +119,20 @@ class Achievement extends Equatable {
       map["user"] = user == null ? null : user.toJson();
       map["team_members"] =
           this.teamMembers?.map((tm) => tm.toJson())?.toList();
+      visibleFor.addAll(this.teamMembers?.map((x) => x.id));
+    }
+
+    if (addAll || addAccessLevel) {
+      map["access_level"] = this.accessLevel;
     }
 
     if (addAll || addIsActive) {
       map["is_active"] = this.isActive;
+    }
+
+    if (visibleFor.isNotEmpty) {
+      visibleFor = visibleFor.toSet().toList();
+      map["visible_for"] = visibleFor;
     }
 
     return map;

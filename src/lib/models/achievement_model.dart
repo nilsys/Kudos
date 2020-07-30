@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/related_achievement.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
@@ -17,6 +18,7 @@ class AchievementModel {
   String imageName;
   File imageFile;
   AchievementOwnerModel owner;
+  AccessLevel accessLevel;
   Map<String, TeamMemberModel> teamMembers;
 
   AchievementModel._({
@@ -26,6 +28,7 @@ class AchievementModel {
     this.imageUrl,
     this.imageName,
     this.owner,
+    this.accessLevel,
     this.teamMembers,
   });
 
@@ -48,6 +51,7 @@ class AchievementModel {
               TeamModel.fromTeamReference(achievement.team))
           : AchievementOwnerModel.fromUser(
               UserModel.fromUserReference(achievement.user)),
+      accessLevel: (AccessLevel.values[achievement.accessLevel]),
     );
   }
 
@@ -68,6 +72,7 @@ class AchievementModel {
     imageName = achievement.imageName;
     imageFile = achievement.imageFile;
     owner = achievement.owner;
+    accessLevel = achievement.accessLevel;
   }
 
   bool _isTeamMember(String userId) =>
@@ -78,6 +83,9 @@ class AchievementModel {
       teamMembers[userId].accessLevel == UserAccessLevel.admin;
 
   bool _isAchievementOwner(String userId) => (owner?.id == userId) ?? false;
+
+  bool canBeViewedByUser(String userId) =>
+      _isTeamMember(userId) || accessLevel == AccessLevel.public;
 
   bool canBeModifiedByUser(String userId) =>
       _isAchievementOwner(userId) || _isTeamAdmin(userId);

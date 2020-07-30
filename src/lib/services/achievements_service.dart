@@ -22,13 +22,20 @@ class AchievementsService {
   final _achievementsDatabaseService = locator<AchievementsDatabaseService>();
 
   Future<List<AchievementModel>> getAchievements() async {
-    var teamsAchievements =
-        await _achievementsDatabaseService.getTeamsAchievements();
-
     var myAchievements = await _achievementsDatabaseService
         .getUserAchievements(_authService.currentUser.id);
 
-    var achievementsSet = {...teamsAchievements, ...myAchievements};
+    var myTeamsAchievements = await _achievementsDatabaseService
+        .getUserTeamsAchievements(_authService.currentUser.id);
+
+    var publicAchievements =
+        await _achievementsDatabaseService.getPublicAchievements();
+
+    var achievementsSet = {
+      ...myAchievements,
+      ...myTeamsAchievements,
+      ...publicAchievements,
+    };
     return achievementsSet
         .map((a) => AchievementModel.fromAchievement(a))
         .toList();
@@ -106,7 +113,8 @@ class AchievementsService {
     );
 
     return _achievementsDatabaseService
-        .updateAchievement(achievement, updateOwner: true)
+        .updateAchievement(achievement,
+            updateAccessLevel: true, updateOwner: true)
         .then((a) => AchievementModel.fromAchievement(a));
   }
 

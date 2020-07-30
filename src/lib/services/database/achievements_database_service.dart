@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/achievement_holder.dart';
 import 'package:kudosapp/dto/user_achievement.dart';
+import 'package:kudosapp/models/access_level.dart';
 
 class AchievementsDatabaseService {
   static const _usersCollection = "users";
@@ -21,10 +22,20 @@ class AchievementsDatabaseService {
             .map((d) => Achievement.fromJson(d.data, d.documentID)));
   }
 
-  Future<Iterable<Achievement>> getTeamsAchievements() {
+  Future<Iterable<Achievement>> getUserTeamsAchievements(String userId) {
     return _database
         .collection(_achievementsCollection)
-        .where("user", isNull: true)
+        .where("visible_for", arrayContains: userId)
+        .where("is_active", isEqualTo: true)
+        .getDocuments()
+        .then((value) => value.documents
+            .map((d) => Achievement.fromJson(d.data, d.documentID)));
+  }
+
+  Future<Iterable<Achievement>> getPublicAchievements() {
+    return _database
+        .collection(_achievementsCollection)
+        .where("access_level", isEqualTo: AccessLevel.public.index)
         .where("is_active", isEqualTo: true)
         .getDocuments()
         .then((value) => value.documents
@@ -113,6 +124,7 @@ class AchievementsDatabaseService {
     bool updateMetadata = false,
     bool updateImage = false,
     bool updateOwner = false,
+    bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
   }) {
@@ -122,6 +134,7 @@ class AchievementsDatabaseService {
       addMetadata: updateMetadata,
       addImage: updateImage,
       addOwner: updateOwner,
+      addAccessLevel: updateAccessLevel,
       addIsActive: updateIsActive,
     );
     if (batch == null) {
