@@ -85,14 +85,19 @@ class TeamsService {
     );
   }
 
-  Future<List<TeamModel>> getTeams([String userId]) async {
-    userId = userId ?? _authService.currentUser.id;
-
-    var userTeams = await _teamsDatabaseService.getUserTeams(userId);
+  Future<List<TeamModel>> getTeams() async {
+    var userTeams =
+        await _teamsDatabaseService.getUserTeams(_authService.currentUser.id);
     var publicTeams = await _teamsDatabaseService.getPublicTeams();
 
     var teamsSet = {...userTeams, ...publicTeams};
     return teamsSet.map((t) => TeamModel.fromTeam(t)).toList();
+  }
+
+  Future<List<TeamModel>> getUserTeams(String userId) async {
+    var userTeams = await _teamsDatabaseService.getUserTeams(userId);
+
+    return userTeams.map((t) => TeamModel.fromTeam(t)).toList();
   }
 
   Future<TeamModel> getTeam(String teamId) {

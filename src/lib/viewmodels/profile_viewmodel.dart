@@ -42,7 +42,7 @@ class ProfileViewModel extends BaseViewModel with Disposable {
     final loadedUser = await _peopleService.getUserById(user.id);
     user.updateWithModel(loadedUser);
 
-    final teams = await _teamsService.getTeams(user.id);
+    final teams = await _teamsService.getUserTeams(user.id);
     userTeams.replace(teams);
 
     notifyListeners();
