@@ -802,6 +802,15 @@ class S {
       args: [],
     );
   }
+
+  String get teamNameExists {
+    return Intl.message(
+      'Team with such name already exists. Please change the name and try again',
+      name: 'teamNameExists',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

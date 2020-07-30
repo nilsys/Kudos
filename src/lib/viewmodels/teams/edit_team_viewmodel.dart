@@ -10,6 +10,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
+import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/services/image_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
@@ -19,6 +20,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   final _teamsService = locator<TeamsService>();
   final _imageService = locator<ImageService>();
   final _authService = locator<BaseAuthService>();
+  final _dialogService = locator<DialogService>();
 
   final TeamModel _initialTeam;
   final TeamModel _team = TeamModel.empty();
@@ -63,7 +65,8 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
     isImageLoading = false;
   }
 
-  Future<void> save(String name, String description) async {
+  Future<void> save(
+      BuildContext context, String name, String description) async {
     TeamModel updatedTeam;
 
     _team.name = name;
@@ -71,6 +74,16 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
 
     try {
       isBusy = true;
+
+      var teamsWithName = await _teamsService.findTeamIdsByName(name);
+      if (teamsWithName.length > 0 &&
+          (_team.id == null || !teamsWithName.contains(_team.id))) {
+        _dialogService.showOkDialog(
+            context: context,
+            title: localizer().error,
+            content: localizer().teamNameExists);
+        return;
+      }
 
       if (_team.id == null) {
         updatedTeam = await _teamsService.createTeam(_team);
@@ -85,5 +98,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
       _initialTeam?.updateWithModel(updatedTeam);
       _eventBus.fire(TeamUpdatedMessage(updatedTeam));
     }
+
+    Navigator.of(context).pop();
   }
 }

@@ -85,6 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "softeq" : MessageLookupByLibrary.simpleMessage("Softeq"),
     "team" : MessageLookupByLibrary.simpleMessage("Команда"),
     "teamMemberPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Выберите хотя бы одного администратора"),
+    "teamNameExists" : MessageLookupByLibrary.simpleMessage("Команда с таким названием уже существует. Измените название и попробуйте еще раз"),
     "teams" : MessageLookupByLibrary.simpleMessage("Команды"),
     "teamsTabName" : MessageLookupByLibrary.simpleMessage("Команды"),
     "transferAchievementDescription" : MessageLookupByLibrary.simpleMessage("Вы хотите сменить владельца текущей награды на другого пользователя или другую команду?"),

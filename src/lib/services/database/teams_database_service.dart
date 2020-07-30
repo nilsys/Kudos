@@ -35,6 +35,14 @@ class TeamsDatabaseService {
         .then((value) => Team.fromJson(value.data, value.documentID));
   }
 
+  Future<Iterable<String>> findTeamIdsByName(String name) {
+    return _database
+        .collection(_teamsCollection)
+        .where("name", isEqualTo: name)
+        .getDocuments()
+        .then((value) => value.documents.map((d) => d.documentID));
+  }
+
   Future<Team> createTeam(Team team) {
     return _database
         .collection(_teamsCollection)

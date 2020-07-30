@@ -75,5 +75,6 @@
     "privateTeam": "This team is private",
     "private": "Private",
     "myTeams": "My Teams",
-    "otherTeams": "Public Teams"
+    "otherTeams": "Public Teams",
+    "teamNameExists": "Team with such name already exists. Please change the name and try again"
 }

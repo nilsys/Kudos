@@ -100,4 +100,8 @@ class TeamsService {
         .getTeam(teamId)
         .then((t) => TeamModel.fromTeam(t));
   }
+
+  Future<Iterable<String>> findTeamIdsByName(String name) {
+    return _teamsDatabaseService.findTeamIdsByName(name);
+  }
 }

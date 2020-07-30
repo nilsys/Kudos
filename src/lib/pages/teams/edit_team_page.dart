@@ -138,10 +138,10 @@ class _EditTeamPageState extends State<_EditTeamPage> {
               return;
             }
             await viewModel.save(
+              context,
               _nameController.text,
               _descriptionController.text,
             );
-            Navigator.of(context).pop();
           }
         },
         label: Text(localizer().save),
