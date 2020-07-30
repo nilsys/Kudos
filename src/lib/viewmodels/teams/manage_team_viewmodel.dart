@@ -3,16 +3,15 @@ import 'dart:async';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:kudosapp/models/achievement_model.dart';
-import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
 import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/messages/team_deleted_message.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
+import 'package:kudosapp/pages/team_member_picker_page.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
-import 'package:kudosapp/pages/user_picker_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
@@ -30,8 +29,6 @@ class ManageTeamViewModel extends BaseViewModel {
   final TeamModel _team;
 
   List<AchievementModel> achievements;
-  ListNotifier<UserModel> members;
-  ListNotifier<UserModel> admins;
 
   StreamSubscription _achievementUpdatedSubscription;
   StreamSubscription _achievementDeletedSubscription;
@@ -40,9 +37,9 @@ class ManageTeamViewModel extends BaseViewModel {
   String get name => _team.name;
   String get description => _team.description;
   String get imageUrl => _team.imageUrl;
-  String get owners => admins.items.map((x) => x.name).join(", ");
+  Iterable<TeamMemberModel> get members => _team.members.values;
 
-  bool get canEdit => _team.owners == null
+  bool get canEdit => _team.members == null
       ? false
       : _team.canBeModifiedByUser(_authService.currentUser.id);
 
@@ -56,8 +53,6 @@ class ManageTeamViewModel extends BaseViewModel {
 
       final loadedTeam = await _teamsService.getTeam(_team.id);
       _team.updateWithModel(loadedTeam);
-      members = new ListNotifier<UserModel>.wrap(_team.members);
-      admins = new ListNotifier<UserModel>.wrap(_team.owners);
 
       achievements = await _achievementsService.getTeamAchievements(_team.id) ??
           new List<AchievementModel>();
@@ -81,47 +76,19 @@ class ManageTeamViewModel extends BaseViewModel {
     }
   }
 
-  void editAdmins(BuildContext context) async {
-    if (!canEdit) {
-      return;
-    }
-
-    var users = await Navigator.of(context).push(
-      UserPickerRoute(
-        allowMultipleSelection: true,
-        allowCurrentUser: true,
-        allowEmptyResult: false,
-        searchHint: localizer().searchAdmins,
-        selectedUserIds: admins.items.map((x) => x.id).toList(),
-      ),
-    );
-
-    if (users != null && users.isNotEmpty) {
-      admins.replace(users);
-      _teamsService.updateTeamMembers(_team, users, members.items);
-      notifyListeners();
-    }
-  }
-
   void editMembers(BuildContext context) async {
     if (!canEdit) {
       return;
     }
 
-    var users = await Navigator.of(context).push(
-      UserPickerRoute(
-        allowMultipleSelection: true,
-        allowCurrentUser: true,
+    await Navigator.of(context).push(
+      TeamMemberPickerRoute(
+        _team,
         searchHint: localizer().searchMembers,
-        selectedUserIds: members.items.map((x) => x.id).toList(),
       ),
     );
 
-    if (users != null) {
-      members.replace(users);
-      _teamsService.updateTeamMembers(_team, admins.items, users);
-      notifyListeners();
-    }
+    notifyListeners();
   }
 
   void editTeam(BuildContext context) async {
@@ -193,8 +160,6 @@ class ManageTeamViewModel extends BaseViewModel {
 
   @override
   void dispose() {
-    members.dispose();
-    admins.dispose();
     _achievementUpdatedSubscription?.cancel();
     _achievementDeletedSubscription?.cancel();
     _achievementTransferredSubscription?.cancel();

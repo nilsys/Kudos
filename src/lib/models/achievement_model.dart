@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/related_achievement.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 
 class AchievementModel {
@@ -15,8 +17,7 @@ class AchievementModel {
   String imageName;
   File imageFile;
   AchievementOwnerModel owner;
-  Set<String> admins;
-  Set<String> members;
+  Map<String, TeamMemberModel> teamMembers;
 
   AchievementModel._({
     this.id,
@@ -25,8 +26,7 @@ class AchievementModel {
     this.imageUrl,
     this.imageName,
     this.owner,
-    this.admins,
-    this.members,
+    this.teamMembers,
   });
 
   factory AchievementModel.empty() => AchievementModel._();
@@ -38,8 +38,11 @@ class AchievementModel {
       description: achievement.description,
       imageUrl: achievement.imageUrl,
       imageName: achievement.imageName,
-      admins: achievement.owners,
-      members: achievement.members,
+      teamMembers: achievement.teamMembers == null
+          ? null
+          : Map.fromIterable(achievement.teamMembers,
+              key: (item) => item.id,
+              value: (item) => TeamMemberModel.fromTeamMember(item)),
       owner: achievement.team != null
           ? AchievementOwnerModel.fromTeam(
               TeamModel.fromTeamReference(achievement.team))
@@ -51,9 +54,10 @@ class AchievementModel {
   factory AchievementModel.fromRelatedAchievement(
       RelatedAchievement relatedAchievement) {
     return AchievementModel._(
-        id: relatedAchievement.id,
-        name: relatedAchievement.name,
-        imageUrl: relatedAchievement.imageUrl);
+      id: relatedAchievement.id,
+      name: relatedAchievement.name,
+      imageUrl: relatedAchievement.imageUrl,
+    );
   }
 
   void updateWithModel(AchievementModel achievement) {
@@ -66,9 +70,18 @@ class AchievementModel {
     owner = achievement.owner;
   }
 
+  bool _isTeamMember(String userId) =>
+      teamMembers?.containsKey(userId) ?? false;
+
+  bool _isTeamAdmin(String userId) =>
+      _isTeamMember(userId) &&
+      teamMembers[userId].accessLevel == UserAccessLevel.admin;
+
+  bool _isAchievementOwner(String userId) => (owner?.id == userId) ?? false;
+
   bool canBeModifiedByUser(String userId) =>
-      _ownedByUser(userId) || (admins?.contains(userId) ?? false);
+      _isAchievementOwner(userId) || _isTeamAdmin(userId);
+
   bool canBeSentByUser(String userId) =>
-      _ownedByUser(userId) || (members?.contains(userId) ?? false);
-  bool _ownedByUser(String userId) => (owner?.id == userId) ?? false;
+      _isAchievementOwner(userId) || _isTeamMember(userId);
 }

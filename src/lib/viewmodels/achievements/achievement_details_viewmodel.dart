@@ -255,9 +255,8 @@ class AchievementDetailsViewModel extends BaseViewModel {
             await _teamsService.getTeam(achievement.owner.team.id);
         achievement.owner.team.updateWithModel(loadedTeam);
       }
-      var membersIds = achievement.owner.team.members.map((x) => x.id);
-      var teamHolders =
-          achievementHolders.items.where((x) => membersIds.contains(x.id));
+      var teamHolders = achievementHolders.items
+          .where((x) => achievement.owner.team.members.containsKey(x.id));
       _teamUsersStatistics = StatisticsModel(achievement.owner.name,
           achievement.owner.team.members.length, teamHolders.length);
     } else {
@@ -285,8 +284,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
       allUsersStatistics.positiveUsersCount++;
       if (_teamUsersStatistics != null &&
-          achievement.owner.team.members
-              .any((user) => user.id == event.recipient.id)) {
+          achievement.owner.team.members.containsKey(event.recipient.id)) {
         _teamUsersStatistics.positiveUsersCount++;
       }
     }

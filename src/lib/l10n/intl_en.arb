@@ -67,10 +67,13 @@
     "peopleTabName": "People",
     "achievementsTabName": "Library",
     "softeq": "Softeq",
-    "people_progress": "%i of %i people",
-    "user_picker_empty_message": "Select at least one user",
+    "peopleProgress": "%i of %i people",
+    "userPickerEmptyMessage": "Please select at least one user",
+    "teamMemberPickerEmptyMessage": "Please select at least one admin",
     "searchEmptyPlaceholder": "No search results",
     "accessDenied": "Access denied",
     "privateTeam": "This team is private",
-    "private": "Private"
+    "private": "Private",
+    "myTeams": "My Teams",
+    "otherTeams": "Public Teams"
 }

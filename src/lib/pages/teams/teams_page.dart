@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/profile/my_teams_viewmodel.dart';
-import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
+import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
+import 'package:kudosapp/widgets/groupped_list_widget.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
 import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
@@ -54,9 +55,11 @@ class TeamsPage extends StatelessWidget {
       body: ChangeNotifierProvider<SearchInputViewModel>(
         create: (context) => SearchInputViewModel(),
         child:
-            ChangeNotifierProxyProvider<SearchInputViewModel, MyTeamsViewModel>(
-          create: (context) =>
-              MyTeamsViewModel(excludedTeamIds: _excludedTeamIds),
+            ChangeNotifierProxyProvider<SearchInputViewModel, TeamsViewModel>(
+          create: (context) => TeamsViewModel(
+            _selectionAction,
+            excludedTeamIds: _excludedTeamIds,
+          ),
           update: (context, searchViewModel, teamsViewModel) =>
               teamsViewModel..filterByName(searchViewModel.query),
           child: Column(
@@ -67,12 +70,15 @@ class TeamsPage extends StatelessWidget {
                   Stack(
                     children: <Widget>[
                       Positioned.fill(
-                        child: Consumer<MyTeamsViewModel>(
+                        child: Consumer<TeamsViewModel>(
                           builder: (context, viewModel, child) {
-                            return StreamBuilder<List<TeamModel>>(
+                            return StreamBuilder<
+                                List<GrouppedListItem<TeamModel>>>(
                               stream: viewModel.teamsStream,
                               builder: (BuildContext context,
-                                  AsyncSnapshot<List<TeamModel>> snapshot) {
+                                  AsyncSnapshot<
+                                          List<GrouppedListItem<TeamModel>>>
+                                      snapshot) {
                                 if (viewModel.isBusy || snapshot.data == null) {
                                   return _buildLoading();
                                 }
@@ -80,7 +86,14 @@ class TeamsPage extends StatelessWidget {
                                   return _buildEmpty(
                                       viewModel.isAllTeamsListEmpty);
                                 } else {
-                                  return _buildList(context, snapshot.data);
+                                  return GrouppedListWidget(
+                                    snapshot.data,
+                                    (team) => _buildListItem(
+                                      context,
+                                      viewModel,
+                                      team,
+                                    ),
+                                  );
                                 }
                               },
                             );
@@ -110,17 +123,6 @@ class TeamsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _onItemSelected(BuildContext context, TeamModel team) {
-    switch (_selectionAction) {
-      case SelectionAction.OpenDetails:
-        Navigator.of(context).push(ManageTeamRoute(team));
-        break;
-      case SelectionAction.Pop:
-        Navigator.of(context).pop(team);
-        break;
-    }
   }
 
   Widget _buildSearchBar() {
@@ -153,25 +155,19 @@ class TeamsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<TeamModel> teams) {
-    return ListView.builder(
-      padding: EdgeInsets.only(
-        top: TopDecorator.height,
-        bottom: BottomDecorator.height,
-      ),
-      itemCount: teams.length,
-      itemBuilder: (context, index) {
-        var team = teams[index];
-        return SimpleListItem(
-          title: team.name,
-          onTap: () => _onItemSelected(context, team),
-          selectorIcon: _selectorIcon,
-          imageShape: ImageShape.square(56, 4),
-          imageUrl: team.imageUrl,
-          useTextPlaceholder: true,
-          addHeroAnimation: true,
-        );
-      },
+  Widget _buildListItem(
+    BuildContext context,
+    TeamsViewModel viewModel,
+    TeamModel team,
+  ) {
+    return SimpleListItem(
+      title: team.name,
+      onTap: () => viewModel.onTeamClicked(context, team),
+      selectorIcon: _selectorIcon,
+      imageShape: ImageShape.square(56, 4),
+      imageUrl: team.imageUrl,
+      useTextPlaceholder: true,
+      addHeroAnimation: true,
     );
   }
 }

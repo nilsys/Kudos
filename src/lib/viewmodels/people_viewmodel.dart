@@ -51,12 +51,11 @@ class PeopleViewModel extends BaseViewModel {
     _peopleStream = _streamController.stream.transform(
       StreamTransformer<String, List<UserModel>>.fromHandlers(
         handleData: (query, sink) {
-          if (_peopleList.length == 0) {
+          if (_peopleList == null || _peopleList.isEmpty) {
             return;
           }
 
-          sink.add(
-              query.isEmpty ? _peopleList : _filterByName(_peopleList, query));
+          sink.add(_filterByName(query));
         },
       ),
     );
@@ -95,8 +94,12 @@ class PeopleViewModel extends BaseViewModel {
     }
   }
 
-  List<UserModel> _filterByName(List<UserModel> people, String query) {
-    final filteredPeople = people
+  List<UserModel> _filterByName(String query) {
+    if (query.isEmpty) {
+      return _peopleList;
+    }
+
+    final filteredPeople = _peopleList
         .where((x) => x.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
     return filteredPeople;

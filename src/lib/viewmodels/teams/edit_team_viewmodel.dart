@@ -4,9 +4,12 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:kudosapp/helpers/image_loading.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
-import 'package:kudosapp/models/team_access_level.dart';
+import 'package:kudosapp/models/access_level.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/services/image_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
@@ -15,6 +18,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
   final _imageService = locator<ImageService>();
+  final _authService = locator<BaseAuthService>();
 
   final TeamModel _initialTeam;
   final TeamModel _team = TeamModel.empty();
@@ -22,6 +26,12 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   EditTeamViewModel(this._initialTeam) {
     if (_initialTeam != null) {
       _team.updateWithModel(_initialTeam);
+    } else {
+      _team.accessLevel = AccessLevel.public;
+      _team.members = {
+        _authService.currentUser.id: TeamMemberModel.fromUserModel(
+            _authService.currentUser, UserAccessLevel.admin)
+      };
     }
   }
 
@@ -36,11 +46,10 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
 
   String get imageUrl => _team.imageUrl;
 
-  bool get isPrivate => _team.accessLevel == TeamAccessLevel.private;
+  bool get isPrivate => _team.accessLevel == AccessLevel.private;
 
   set isPrivate(bool value) {
-    _team.accessLevel =
-        value ? TeamAccessLevel.private : TeamAccessLevel.public;
+    _team.accessLevel = value ? AccessLevel.private : AccessLevel.public;
     notifyListeners();
   }
 

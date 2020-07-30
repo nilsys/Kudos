@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/achievement_model.dart';
-import 'package:kudosapp/helpers/list_notifier.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/achievement_list_item_widget.dart';
-import 'package:kudosapp/widgets/common/fancy_list_widget.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
@@ -35,9 +35,6 @@ class _ManageTeamPage extends StatefulWidget {
 }
 
 class _ManageTeamPageState extends State<_ManageTeamPage> {
-  bool _adminsExpanded = false;
-  bool _membersExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ManageTeamViewModel>(
@@ -99,25 +96,9 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
       children.add(
         Padding(
           padding: EdgeInsets.only(left: 16.0, right: 8.0),
-          child: _buildUsersList(
-            localizer().admins,
-            viewModel.admins,
-            _adminsExpanded,
-            _toggleAdminsExpanded,
-            viewModel.canEdit,
-            () => viewModel.editAdmins(context),
-          ),
-        ),
-      );
-      children.add(SizedBox(height: 8.0));
-      children.add(
-        Padding(
-          padding: EdgeInsets.only(left: 16.0, right: 8.0),
-          child: _buildUsersList(
+          child: _buildMembersList(
             localizer().members,
             viewModel.members,
-            _membersExpanded,
-            _toggleMembersExpanded,
             viewModel.canEdit,
             () => viewModel.editMembers(context),
           ),
@@ -162,33 +143,17 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
     });
   }
 
-  Widget _buildUsersList(
-      String title,
-      ListNotifier<UserModel> users,
-      bool usersExpanded,
-      void Function() toggleUsersExpanded,
-      bool canEdit,
-      void Function() editUsers) {
+  Widget _buildMembersList(String title, Iterable<TeamMemberModel> members,
+      bool canEdit, void Function() editUsers) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            GestureDetector(
-              onTap: toggleUsersExpanded,
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: KudosTheme.sectionTitleTextStyle,
-                  ),
-                  Icon(
-                    usersExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: KudosTheme.mainGradientEndColor,
-                  ),
-                ],
-              ),
+            Text(
+              title,
+              style: KudosTheme.sectionTitleTextStyle,
             ),
             Expanded(
               child: Align(
@@ -203,29 +168,73 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
             ),
           ],
         ),
-        SizedBox(height: usersExpanded ? 10.0 : 0.0),
-        Visibility(
-          child: FancyListWidget<UserModel>(
-            users,
-            (user) => user.name,
-            localizer().addPeople,
-            (userModel) => Navigator.of(context).push(ProfileRoute(userModel)),
-          ),
-          visible: usersExpanded,
-        ),
+        SizedBox(height: 10.0),
+        _TeamMembersListWidget(members),
       ],
     );
   }
 
-  void _toggleAdminsExpanded() {
-    setState(() => _adminsExpanded = !_adminsExpanded);
-  }
-
-  void _toggleMembersExpanded() {
-    setState(() => _membersExpanded = !_membersExpanded);
-  }
-
   void _achievementTapped(AchievementModel achievement) {
     Navigator.of(context).push(AchievementDetailsRoute(achievement));
+  }
+}
+
+class _TeamMembersListWidget extends StatelessWidget {
+  final Iterable<TeamMemberModel> _teamMembers;
+
+  _TeamMembersListWidget(this._teamMembers);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Wrap(
+          children: _buildListItems(context, _teamMembers),
+          runSpacing: 10,
+          spacing: 10),
+    );
+  }
+
+  List<Widget> _buildListItems(
+      BuildContext context, Iterable<TeamMemberModel> items) {
+    return items == null
+        ? new List<Widget>()
+        : items.map((user) => _buildUserAvatar(context, user)).toList();
+  }
+
+  Widget _buildUserAvatar(BuildContext context, TeamMemberModel teamMember) {
+    return Tooltip(
+      message: teamMember.user.name,
+      child: GestureDetector(
+        child: SizedBox(
+          width: 65,
+          height: 65,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topLeft,
+                child: RoundedImageWidget.circular(
+                  size: 60,
+                  imageUrl: teamMember.user.imageUrl,
+                  title: teamMember.user.name,
+                ),
+              ),
+              Visibility(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: SvgPicture.asset("assets/icons/crown.svg",
+                      width: 24, height: 24),
+                ),
+                visible: teamMember.accessLevel == UserAccessLevel.admin,
+              ),
+            ],
+          ),
+        ),
+        onTap: () => Navigator.of(context).push(ProfileRoute(teamMember.user)),
+      ),
+      decoration: KudosTheme.tooltipDecoration,
+      textStyle: KudosTheme.tooltipTextStyle,
+      verticalOffset: 33,
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:kudosapp/dto/team_member.dart';
 import 'package:kudosapp/dto/team_reference.dart';
 import 'package:kudosapp/dto/user_reference.dart';
 import 'package:kudosapp/models/achievement_model.dart';
@@ -15,8 +16,7 @@ class Achievement extends Equatable {
   final String imageName;
   final TeamReference team;
   final UserReference user;
-  final Set<String> members;
-  final Set<String> owners;
+  final List<TeamMember> teamMembers;
   final bool isActive;
 
   Achievement._({
@@ -27,9 +27,8 @@ class Achievement extends Equatable {
     @required this.team,
     @required this.user,
     @required this.imageName,
+    @required this.teamMembers,
     @required this.isActive,
-    @required this.members,
-    @required this.owners,
   });
 
   factory Achievement.fromJson(Map<String, dynamic> json, String id) {
@@ -43,12 +42,7 @@ class Achievement extends Equatable {
             imageName: json["image_name"],
             team: TeamReference.fromJson(json["team"], null),
             user: UserReference.fromJson(json["user"], null),
-            owners: json["owners"] == null
-                ? null
-                : Set<String>.from(json["owners"]),
-            members: json["members"] == null
-                ? null
-                : Set<String>.from(json["members"]),
+            teamMembers: _getMembers(json["team_members"]),
             isActive: json["is_active"],
           );
   }
@@ -60,16 +54,16 @@ class Achievement extends Equatable {
   }) {
     UserReference userReference;
     TeamReference teamReference;
-    Set<String> members;
-    Set<String> owners;
+    List<TeamMember> teamMembers;
 
     if (newOwner != null) {
       userReference =
           newOwner.user != null ? UserReference.fromModel(newOwner.user) : null;
       teamReference =
           newOwner.team != null ? TeamReference.fromModel(newOwner.team) : null;
-      members = newOwner.team?.members?.map((u) => u.id)?.toSet();
-      owners = newOwner.team?.owners?.map((u) => u.id)?.toSet();
+      teamMembers = newOwner.team?.members?.values
+          ?.map((tmm) => TeamMember.fromModel(tmm))
+          ?.toList();
     } else {
       userReference = model.owner.user != null
           ? UserReference.fromModel(model.owner.user)
@@ -77,8 +71,9 @@ class Achievement extends Equatable {
       teamReference = model.owner.team != null
           ? TeamReference.fromModel(model.owner.team)
           : null;
-      members = model.owner?.team?.members?.map((u) => u.id)?.toSet();
-      owners = model.owner?.team?.owners?.map((u) => u.id)?.toSet();
+      teamMembers = model.owner?.team?.members?.values
+          ?.map((tmm) => TeamMember.fromModel(tmm))
+          ?.toList();
     }
 
     return Achievement._(
@@ -89,8 +84,7 @@ class Achievement extends Equatable {
       imageName: model.imageName,
       team: teamReference,
       user: userReference,
-      members: members,
-      owners: owners,
+      teamMembers: teamMembers,
       isActive: isActive ?? true,
     );
   }
@@ -105,27 +99,36 @@ class Achievement extends Equatable {
     final map = new Map<String, Object>();
 
     if (addAll || addMetadata) {
-      map.putIfAbsent("name", () => this.name);
-      map.putIfAbsent("description", () => this.description);
+      map["name"] = this.name;
+      map["description"] = this.description;
     }
 
     if (addAll || addImage) {
-      map.putIfAbsent("image_url", () => this.imageUrl);
-      map.putIfAbsent("image_name", () => this.imageName);
+      map["image_url"] = this.imageUrl;
+      map["image_name"] = this.imageName;
     }
 
     if (addAll || addOwner) {
-      map.putIfAbsent("team", () => team == null ? null : team.toJson());
-      map.putIfAbsent("user", () => user == null ? null : user.toJson());
-      map.putIfAbsent("members", () => this.members?.toList());
-      map.putIfAbsent("owners", () => this.owners?.toList());
+      map["team"] = team == null ? null : team.toJson();
+      map["user"] = user == null ? null : user.toJson();
+      map["team_members"] =
+          this.teamMembers?.map((tm) => tm.toJson())?.toList();
     }
 
     if (addAll || addIsActive) {
-      map.putIfAbsent("is_active", () => this.isActive);
+      map["is_active"] = this.isActive;
     }
 
     return map;
+  }
+
+  static List<TeamMember> _getMembers(List<dynamic> members) {
+    if (members == null) {
+      return List<TeamMember>();
+    }
+
+    var mapList = members.cast<Map<String, dynamic>>();
+    return mapList.map((y) => TeamMember.fromJson(y, null)).toList();
   }
 
   @override

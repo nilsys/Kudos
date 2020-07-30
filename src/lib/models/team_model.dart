@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/dto/team_reference.dart';
-import 'package:kudosapp/models/team_access_level.dart';
-import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/models/access_level.dart';
+import 'package:kudosapp/models/team_member_model.dart';
+import 'package:kudosapp/models/user_access_level.dart';
 
 class TeamModel {
   String id;
@@ -13,9 +14,8 @@ class TeamModel {
   String imageUrl;
   String imageName;
   File imageFile;
-  List<UserModel> owners;
-  List<UserModel> members;
-  TeamAccessLevel accessLevel;
+  Map<String, TeamMemberModel> members;
+  AccessLevel accessLevel;
 
   TeamModel._({
     this.id,
@@ -24,7 +24,6 @@ class TeamModel {
     this.imageUrl,
     this.imageName,
     this.members,
-    this.owners,
     this.accessLevel,
   });
 
@@ -39,11 +38,12 @@ class TeamModel {
       description: team.description,
       imageUrl: team.imageUrl,
       imageName: team.imageName,
-      members:
-          team.teamMembers.map((tm) => UserModel.fromTeamMember(tm)).toList(),
-      owners:
-          team.teamOwners.map((tm) => UserModel.fromTeamMember(tm)).toList(),
-      accessLevel: (TeamAccessLevel.values[team.accessLevel]),
+      members: Map.fromIterable(
+        team.members,
+        key: (item) => item.id,
+        value: (item) => TeamMemberModel.fromTeamMember(item),
+      ),
+      accessLevel: (AccessLevel.values[team.accessLevel]),
     );
   }
 
@@ -62,13 +62,16 @@ class TeamModel {
     imageName = team.imageName;
     imageFile = team.imageFile;
     members = team.members;
-    owners = team.owners;
     accessLevel = team.accessLevel;
   }
 
-  bool canBeModifiedByUser(String userId) =>
-      owners.any((user) => user.id == userId);
+  bool isTeamAdmin(String userId) =>
+      isTeamMember(userId) &&
+      members[userId].accessLevel == UserAccessLevel.admin;
 
+  bool isTeamMember(String userId) => members?.containsKey(userId) ?? false;
+
+  bool canBeModifiedByUser(String userId) => isTeamAdmin(userId);
   bool canBeViewedByUser(String userId) =>
-      members.any((user) => user.id == userId) || canBeModifiedByUser(userId);
+      isTeamMember(userId) || this.accessLevel == AccessLevel.public;
 }

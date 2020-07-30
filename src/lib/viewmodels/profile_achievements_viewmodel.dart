@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
+import 'package:flutter/material.dart';
 import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
+import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
+import 'package:kudosapp/pages/profile/received_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
@@ -47,6 +50,18 @@ class ProfileAchievementsViewModel extends BaseViewModel {
 
   List<UserAchievementCollection> getAchievements() =>
       _achievementsMap.values.toList();
+
+  void openAchievementDetails(
+      BuildContext context, UserAchievementCollection achievementCollection) {
+    if (isMyProfile) {
+      Navigator.of(context).push(
+        ReceivedAchievementRoute(achievementCollection),
+      );
+    } else {
+      final achievement = achievementCollection.userAchievements[0].achievement;
+      Navigator.of(context).push(AchievementDetailsRoute(achievement));
+    }
+  }
 
   void _addUserAchievementToMap(UserAchievementModel userAchievement) {
     final id = userAchievement.achievement.id;

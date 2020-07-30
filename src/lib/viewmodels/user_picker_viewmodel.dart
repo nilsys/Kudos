@@ -59,7 +59,7 @@ class UserPickerViewModel extends BaseViewModel {
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,
-          content: localizer().user_picker_empty_message);
+          content: localizer().userPickerEmptyMessage);
       return false;
     }
 

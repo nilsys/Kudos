@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/team.dart';
+import 'package:kudosapp/models/access_level.dart';
 
 class TeamsDatabaseService {
   static const _teamsCollection = "teams";
@@ -10,6 +11,16 @@ class TeamsDatabaseService {
     return _database
         .collection(_teamsCollection)
         .where("visible_for", arrayContains: userId)
+        .where("is_active", isEqualTo: true)
+        .getDocuments()
+        .then((value) =>
+            value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
+  }
+
+  Future<Iterable<Team>> getPublicTeams() {
+    return _database
+        .collection(_teamsCollection)
+        .where("access_level", isEqualTo: AccessLevel.public.index)
         .where("is_active", isEqualTo: true)
         .getDocuments()
         .then((value) =>
@@ -37,7 +48,6 @@ class TeamsDatabaseService {
     bool updateMetadata = false,
     bool updateImage = false,
     bool updateMembers = false,
-    bool updateOwners = false,
     bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
@@ -47,7 +57,6 @@ class TeamsDatabaseService {
       addMetadata: updateMetadata,
       addImage: updateImage,
       addMembers: updateMembers,
-      addOwners: updateOwners,
       addAccessLevel: updateAccessLevel,
       addIsActive: updateIsActive,
     );

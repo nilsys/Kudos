@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudosapp/dto/team_member.dart';
+import 'package:kudosapp/models/access_level.dart';
+import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 
 /// Teams collection
 @immutable
@@ -12,8 +13,7 @@ class Team extends Equatable {
   final String imageUrl;
   final String imageName;
   final String description;
-  final List<TeamMember> teamOwners;
-  final List<TeamMember> teamMembers;
+  final List<TeamMember> members;
   final int accessLevel;
   final bool isActive;
 
@@ -23,8 +23,7 @@ class Team extends Equatable {
     this.imageUrl,
     this.imageName,
     this.description,
-    this.teamOwners,
-    this.teamMembers,
+    this.members,
     this.accessLevel,
     this.isActive,
   });
@@ -32,8 +31,7 @@ class Team extends Equatable {
   factory Team.fromModel(
     TeamModel model, {
     bool isActive,
-    List<UserModel> newMembers,
-    List<UserModel> newOwners,
+    List<TeamMemberModel> newMembers,
   }) {
     return Team._(
       id: model.id,
@@ -41,12 +39,10 @@ class Team extends Equatable {
       imageUrl: model.imageUrl,
       imageName: model.imageName,
       description: model.description,
-      teamMembers: (newMembers ?? model.members)
-          ?.map((um) => TeamMember.fromModel(um))
-          ?.toList(),
-      teamOwners: (newOwners ?? model.owners)
-          ?.map((um) => TeamMember.fromModel(um))
-          ?.toList(),
+      members: newMembers?.map((tmm) => TeamMember.fromModel(tmm))?.toList() ??
+          model.members?.values
+              ?.map((tmm) => TeamMember.fromModel(tmm))
+              ?.toList(),
       accessLevel: model.accessLevel.index,
       isActive: isActive ?? true,
     );
@@ -64,9 +60,8 @@ class Team extends Equatable {
             imageUrl: json["image_url"],
             imageName: json["image_name"],
             description: json["description"],
-            teamOwners: _getMembers(json["team_owners"]),
-            teamMembers: _getMembers(json["team_members"]),
-            accessLevel: json["access_level"] ?? 0,
+            members: _getMembers(json["members"]),
+            accessLevel: json["access_level"] ?? AccessLevel.public.index,
             isActive: json["is_active"],
           );
   }
@@ -76,11 +71,11 @@ class Team extends Equatable {
     bool addMetadata = false,
     bool addImage = false,
     bool addMembers = false,
-    bool addOwners = false,
     bool addAccessLevel = false,
     bool addIsActive = false,
   }) {
     final map = new Map<String, Object>();
+    var visibleFor = List<String>();
 
     if (addAll || addMetadata) {
       map["name"] = this.name;
@@ -92,22 +87,9 @@ class Team extends Equatable {
       map["image_name"] = this.imageName;
     }
 
-    var visibleFor = List<String>();
-
     if (addAll || addMembers) {
-      map["team_members"] =
-          this.teamMembers?.map((tm) => tm.toJson())?.toList();
-      visibleFor.addAll(this.teamMembers?.map((x) => x.id));
-    }
-
-    if (addAll || addOwners) {
-      map["team_owners"] = this.teamOwners?.map((to) => to.toJson())?.toList();
-      visibleFor.addAll(this.teamOwners?.map((x) => x.id));
-    }
-
-    if (visibleFor.isNotEmpty) {
-      visibleFor = visibleFor.toSet().toList();
-      map["visible_for"] = visibleFor;
+      map["members"] = this.members?.map((tm) => tm.toJson())?.toList();
+      visibleFor.addAll(this.members?.map((x) => x.id));
     }
 
     if (addAll || addAccessLevel) {
@@ -116,6 +98,11 @@ class Team extends Equatable {
 
     if (addAll || addIsActive) {
       map["is_active"] = this.isActive;
+    }
+
+    if (visibleFor.isNotEmpty) {
+      visibleFor = visibleFor.toSet().toList();
+      map["visible_for"] = visibleFor;
     }
 
     return map;

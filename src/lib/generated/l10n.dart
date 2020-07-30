@@ -714,20 +714,30 @@ class S {
   }
 
   /// `%i of %i people`
-  String get people_progress {
+  String get peopleProgress {
     return Intl.message(
       '%i of %i people',
-      name: 'people_progress',
+      name: 'peopleProgress',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select at least one user`
-  String get user_picker_empty_message {
+  /// `Please select at least one user`
+  String get userPickerEmptyMessage {
     return Intl.message(
-      'Select at least one user',
-      name: 'user_picker_empty_message',
+      'Please select at least one user',
+      name: 'userPickerEmptyMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select at least one admin`
+  String get teamMemberPickerEmptyMessage {
+    return Intl.message(
+      'Please select at least one admin',
+      name: 'teamMemberPickerEmptyMessage',
       desc: '',
       args: [],
     );
@@ -768,6 +778,26 @@ class S {
     return Intl.message(
       'Private',
       name: 'private',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Teams`
+  String get myTeams {
+    return Intl.message(
+      'My Teams',
+      name: 'myTeams',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Public Teams`
+  String get otherTeams {
+    return Intl.message(
+      'Public Teams',
+      name: 'otherTeams',
       desc: '',
       args: [],
     );

@@ -4,16 +4,18 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
-import 'package:kudosapp/helpers/list_notifier.dart';
+import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
 import 'package:kudosapp/models/messages/achievement_updated_message.dart';
-import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
+import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:sorted_list/sorted_list.dart';
 
 class AchievementsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
@@ -24,89 +26,121 @@ class AchievementsViewModel extends BaseViewModel {
   StreamSubscription _achievementDeletedSubscription;
   StreamSubscription _achievementTransferredSubscription;
 
-  final achievements = ListNotifier<AchievementModel>();
+  final SelectionAction _selectionAction;
+  final achievements =
+      SortedList<GrouppedListItem<AchievementModel>>(_sortFunc);
   final bool Function(AchievementModel) _achievementFilter;
 
-  UserModel get currentUser => _authService.currentUser;
-
-  AchievementsViewModel({bool Function(AchievementModel) achievementsFilter})
+  AchievementsViewModel(this._selectionAction,
+      {bool Function(AchievementModel) achievementsFilter})
       : _achievementFilter = achievementsFilter {
     _initialize();
   }
 
+  static int _sortFunc(GrouppedListItem<AchievementModel> x,
+      GrouppedListItem<AchievementModel> y) {
+    if (x.sortIndex == y.sortIndex) {
+      return x.groupName.compareTo(y.groupName);
+    } else {
+      return y.sortIndex.compareTo(x.sortIndex);
+    }
+  }
+
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    final myAchievements = await _achievementsService.getMyAchievements();
-    final teamsAchievements = await _achievementsService.getAchievements();
+      final loadedAchievements = await _achievementsService.getAchievements();
 
-    achievements.items.clear();
-    achievements.items.addAll(_achievementFilter == null
-        ? myAchievements
-        : myAchievements.where(_achievementFilter));
-    achievements.items.addAll(_achievementFilter == null
-        ? teamsAchievements
-        : teamsAchievements.where(_achievementFilter));
-    achievements.notifyListeners();
+      achievements.clear();
+      achievements.addAll(_achievementFilter == null
+          ? loadedAchievements.map((a) => _createGrouppedItemFromAchievement(a))
+          : loadedAchievements
+              .where(_achievementFilter)
+              .map((a) => _createGrouppedItemFromAchievement(a)));
+      notifyListeners();
 
-    _achievementUpdatedSubscription?.cancel();
-    _achievementUpdatedSubscription =
-        _eventBus.on<AchievementUpdatedMessage>().listen(_onAchievementUpdated);
+      _achievementUpdatedSubscription?.cancel();
+      _achievementUpdatedSubscription = _eventBus
+          .on<AchievementUpdatedMessage>()
+          .listen(_onAchievementUpdated);
 
-    _achievementDeletedSubscription?.cancel();
-    _achievementDeletedSubscription =
-        _eventBus.on<AchievementDeletedMessage>().listen(_onAchievementDeleted);
+      _achievementDeletedSubscription?.cancel();
+      _achievementDeletedSubscription = _eventBus
+          .on<AchievementDeletedMessage>()
+          .listen(_onAchievementDeleted);
 
-    _achievementTransferredSubscription?.cancel();
-    _achievementTransferredSubscription = _eventBus
-        .on<AchievementTransferredMessage>()
-        .listen(_onAchievementTransferred);
-
-    isBusy = false;
+      _achievementTransferredSubscription?.cancel();
+      _achievementTransferredSubscription = _eventBus
+          .on<AchievementTransferredMessage>()
+          .listen(_onAchievementTransferred);
+    } finally {
+      isBusy = false;
+    }
   }
 
   void onAchievementClicked(
       BuildContext context, AchievementModel achievement) {
-    Navigator.of(context)
-        .push(AchievementDetailsRoute(achievement))
-        .whenComplete(() => notifyListeners());
+    switch (_selectionAction) {
+      case SelectionAction.OpenDetails:
+        Navigator.of(context)
+            .push(AchievementDetailsRoute(achievement))
+            .whenComplete(() => notifyListeners());
+        break;
+      case SelectionAction.Pop:
+        Navigator.of(context).pop(achievement);
+        break;
+    }
+  }
+
+  void createAchievement(BuildContext context) {
+    Navigator.of(context).push(
+      EditAchievementRoute.createUserAchievement(
+        _authService.currentUser,
+      ),
+    );
   }
 
   void _onAchievementUpdated(AchievementUpdatedMessage event) {
     if (event.achievement.owner.type == AchievementOwnerType.user &&
-        event.achievement.owner.id != currentUser.id) {
+        event.achievement.owner.id != _authService.currentUser.id) {
       return;
     }
 
-    final index = achievements.items.indexWhere(
-      (x) => x.id == event.achievement.id,
-    );
-    if (index != -1) {
-      achievements.items.removeAt(index);
-      achievements.items.insert(index, event.achievement);
-      achievements.notifyListeners();
-    } else {
-      achievements.add(event.achievement);
-    }
+    achievements.removeWhere((x) => x.item.id == event.achievement.id);
+    achievements.add(_createGrouppedItemFromAchievement(event.achievement));
+    notifyListeners();
   }
 
   void _onAchievementDeleted(AchievementDeletedMessage event) {
-    achievements.items.removeWhere((x) => event.ids.contains(x.id));
-    achievements.notifyListeners();
+    achievements.removeWhere((x) => event.ids.contains(x.item.id));
+    notifyListeners();
   }
 
   void _onAchievementTransferred(AchievementTransferredMessage event) {
     var achievementIds = event.achievements.map((a) => a.id).toSet();
-    achievements.items.removeWhere((x) => achievementIds.contains(x.id));
+    achievements.removeWhere((x) => achievementIds.contains(x.item.id));
 
     if (event.achievements.first.owner.type == AchievementOwnerType.team ||
-        event.achievements.first.owner.id == currentUser.id) {
+        event.achievements.first.owner.id == _authService.currentUser.id) {
       for (var achievement in event.achievements) {
-        achievements.items.add(achievement);
+        achievements.add(_createGrouppedItemFromAchievement(achievement));
       }
     }
 
-    achievements.notifyListeners();
+    notifyListeners();
+  }
+
+  GrouppedListItem<AchievementModel> _createGrouppedItemFromAchievement(
+      AchievementModel achievement) {
+    int sortIndex =
+        (achievement.owner.id == _authService.currentUser.id) ? 1 : 0;
+    final myAchievementsText = localizer().myAchievements;
+    String groupName =
+        sortIndex > 0 ? myAchievementsText : achievement.owner.name;
+
+    return GrouppedListItem<AchievementModel>(
+        groupName, sortIndex, achievement);
   }
 
   @override
@@ -115,7 +149,6 @@ class AchievementsViewModel extends BaseViewModel {
     _achievementDeletedSubscription?.cancel();
     _achievementTransferredSubscription?.cancel();
 
-    achievements.dispose();
     super.dispose();
   }
 }
