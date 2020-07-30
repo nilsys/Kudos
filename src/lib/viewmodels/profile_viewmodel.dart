@@ -14,7 +14,7 @@ import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
@@ -22,7 +22,7 @@ class ProfileViewModel extends BaseViewModel with Disposable {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
   final _teamsService = locator<TeamsService>();
-  final _peopleService = locator<PeopleService>();
+  final _peopleService = locator<UsersService>();
   final _dialogsService = locator<DialogService>();
   final _achievementsService = locator<AchievementsService>();
 

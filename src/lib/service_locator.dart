@@ -13,7 +13,7 @@ import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/file_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/services/image_service.dart';
 import 'package:kudosapp/services/push_notifications_service.dart';
 import 'package:kudosapp/services/snack_bar_notifier_service.dart';
@@ -25,7 +25,7 @@ S localizer([BuildContext context]) => S.of(context ?? Get.context);
 void setupLocator() {
   locator
     ..registerLazySingleton<BaseAuthService>(() => AuthService())
-    ..registerLazySingleton<PeopleService>(() => PeopleService())
+    ..registerLazySingleton<UsersService>(() => UsersService())
     ..registerLazySingleton<AchievementsService>(() => AchievementsService())
     ..registerLazySingleton<TeamsService>(() => TeamsService())
     ..registerLazySingleton<EventBus>(() => EventBus())

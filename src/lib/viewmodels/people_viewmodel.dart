@@ -5,11 +5,11 @@ import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class PeopleViewModel extends BaseViewModel {
-  final _peopleService = locator<PeopleService>();
+  final _peopleService = locator<UsersService>();
   final Set<String> _excludedUserIds;
   final SelectionAction _selectionAction;
 

@@ -6,7 +6,7 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/push_notifications_service.dart';
 
-class PeopleService {
+class UsersService {
   static List<UserModel> _cachedUsers;
 
   final _authService = locator<BaseAuthService>();
@@ -14,7 +14,7 @@ class PeopleService {
   final _usersDatabaseService = locator<UsersDatabaseService>();
   final _initUsersMemoizer = AsyncMemoizer<List<UserModel>>();
 
-  PeopleService() {
+  UsersService() {
     _usersDatabaseService.usersStream.listen((users) {
       _cachedUsers.clear();
       _cachedUsers.addAll(users);
