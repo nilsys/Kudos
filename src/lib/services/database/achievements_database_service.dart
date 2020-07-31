@@ -139,17 +139,17 @@ class AchievementsDatabaseService {
   Future<void> markUserAchievementAsViewed(
     String userId,
     String achievementId,
-  ) async {
+  ) {
     final path = "$_usersCollection/$userId/$_achievementReferencesCollection";
-    final docRef = _database
+    return _database
         .collection(path)
-        .where("achievement.id", isEqualTo: achievementId);
-
-    final snapshots = await docRef.getDocuments();
-
-    snapshots.documents.forEach((document) {
-      document.reference.updateData({"viewed": true});
-    });
+        .where("achievement.id", isEqualTo: achievementId)
+        .getDocuments()
+        .then(
+          (snapshots) => snapshots.documents.forEach((document) {
+            document.reference.updateData({"viewed": true});
+          }),
+        );
   }
 
   Future<void> deleteAchievement(String achievementId) {
