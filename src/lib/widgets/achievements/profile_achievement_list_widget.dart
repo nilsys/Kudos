@@ -190,6 +190,12 @@ class ProfileAchievementsListWidget extends StatelessWidget {
           onTap: () => tapHandler(context, achievementCollection),
           imageShape: ImageShape.circle(60),
           addHeroAnimation: true,
+          selectorIcon: achievementCollection.hasNew
+              ? Icon(
+                  Icons.new_releases,
+                  color: Colors.orange,
+                )
+              : null,
         );
       },
     );
