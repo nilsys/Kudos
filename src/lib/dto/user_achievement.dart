@@ -38,7 +38,7 @@ class UserAchievement {
             achievement: RelatedAchievement.fromJson(json["achievement"], null),
             comment: json["comment"],
             date: json["date"].toDate(),
-            viewed: json["viewed"] ?? false,
+            viewed: json["viewed"] ?? true,
           );
   }
 
