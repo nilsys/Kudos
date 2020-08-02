@@ -156,4 +156,13 @@ class AchievementsService {
         (list) =>
             list.map((a) => AchievementModel.fromAchievement(a)).toList());
   }
+
+  Future<void> markCurrentUserAchievementAsViewed(
+    AchievementModel achievement,
+  ) {
+    return _achievementsDatabaseService.markUserAchievementAsViewed(
+      _authService.currentUser.id,
+      achievement.id,
+    );
+  }
 }

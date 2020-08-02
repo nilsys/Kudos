@@ -9,6 +9,8 @@ class UserAchievementCollection implements Comparable {
   final String name;
   final DateTime latestDateTime;
 
+  bool hasNew = false;
+
   int get count => userAchievements.length;
 
   AchievementModel get relatedAchievement => userAchievements[0].achievement;
@@ -18,7 +20,9 @@ class UserAchievementCollection implements Comparable {
     this.name,
     this.imageUrl,
     this.latestDateTime,
-  );
+  ) {
+    hasNew = userAchievements.any((x) => !x.viewed);
+  }
 
   factory UserAchievementCollection.single(
     UserAchievementModel userAchievement,

@@ -10,12 +10,14 @@ class UserAchievement {
   final RelatedAchievement achievement;
   final String comment;
   final DateTime date;
+  final bool viewed;
 
   UserAchievement._({
     @required this.sender,
     @required this.achievement,
     @required this.comment,
     @required this.date,
+    @required this.viewed,
   });
 
   factory UserAchievement.fromModel(UserAchievementModel model) {
@@ -24,6 +26,7 @@ class UserAchievement {
       achievement: RelatedAchievement.fromModel(model.achievement),
       comment: model.comment,
       date: model.date,
+      viewed: model.viewed,
     );
   }
 
@@ -35,6 +38,7 @@ class UserAchievement {
             achievement: RelatedAchievement.fromJson(json["achievement"], null),
             comment: json["comment"],
             date: json["date"].toDate(),
+            viewed: json["viewed"] ?? true,
           );
   }
 
@@ -44,6 +48,7 @@ class UserAchievement {
       "achievement": achievement.toJson(),
       "comment": comment,
       "date": date,
+      "viewed": viewed,
     };
   }
 }

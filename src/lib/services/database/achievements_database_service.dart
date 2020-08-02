@@ -99,7 +99,8 @@ class AchievementsDatabaseService {
   }
 
   Future<Iterable<UserAchievement>> getReceivedAchievements(
-      String userId) async {
+    String userId,
+  ) async {
     return _database
         .collection(
             "$_usersCollection/$userId/$_achievementReferencesCollection")
@@ -133,6 +134,22 @@ class AchievementsDatabaseService {
       batch.setData(docRef, map, merge: true);
       return null;
     }
+  }
+
+  Future<void> markUserAchievementAsViewed(
+    String userId,
+    String achievementId,
+  ) {
+    final path = "$_usersCollection/$userId/$_achievementReferencesCollection";
+    return _database
+        .collection(path)
+        .where("achievement.id", isEqualTo: achievementId)
+        .getDocuments()
+        .then(
+          (snapshots) => snapshots.documents.forEach((document) {
+            document.reference.updateData({"viewed": true});
+          }),
+        );
   }
 
   Future<void> deleteAchievement(String achievementId) {
