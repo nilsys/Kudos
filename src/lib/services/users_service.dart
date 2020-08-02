@@ -41,9 +41,8 @@ class UsersService {
     );
   }
 
-  Future<void> unsubscribeFromNotifications() {
+  void closeUsersSubscription() {
     _usersDatabaseService.stopListenUsers();
-    return _pushNotificationsService.unsubscribeFromNotifications();
   }
 
   Future<List<UserModel>> find(String request, bool _allowCurrentUser) async {

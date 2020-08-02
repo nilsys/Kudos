@@ -31,6 +31,7 @@ class Team extends Equatable {
   factory Team.fromModel(
     TeamModel model, {
     bool isActive,
+    AccessLevel newAccessLevel,
     List<TeamMemberModel> newMembers,
   }) {
     return Team._(
@@ -43,7 +44,7 @@ class Team extends Equatable {
           model.members?.values
               ?.map((tmm) => TeamMember.fromModel(tmm))
               ?.toList(),
-      accessLevel: model.accessLevel.index,
+      accessLevel: newAccessLevel?.index ?? model.accessLevel.index,
       isActive: isActive ?? true,
     );
   }

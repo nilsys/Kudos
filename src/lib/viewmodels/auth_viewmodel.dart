@@ -1,5 +1,7 @@
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
+import 'package:kudosapp/services/push_notifications_service.dart';
 import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
@@ -10,8 +12,10 @@ enum AuthViewModelState {
 }
 
 class AuthViewModel extends BaseViewModel {
+  final _usersService = locator<UsersService>();
   final _authService = locator<BaseAuthService>();
-  final _peopleService = locator<UsersService>();
+  final _achievementsService = locator<AchievementsService>();
+  final _pushNotificationsService = locator<PushNotificationsService>();
 
   AuthViewModelState _authState = AuthViewModelState.unknown;
 
@@ -32,11 +36,12 @@ class AuthViewModel extends BaseViewModel {
 
   Future<void> signIn() async {
     await _authService.signIn();
-    await _peopleService.tryRegisterCurrentUser();
+    await _usersService.tryRegisterCurrentUser();
   }
 
   Future<void> signOut() async {
-    await _peopleService.unsubscribeFromNotifications();
+    await _pushNotificationsService.unsubscribeFromNotifications();
+    _achievementsService.closeAchievementsSubscription();
     await _authService.signOut();
   }
 }

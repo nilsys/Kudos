@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/team.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
@@ -44,10 +46,38 @@ class TeamsService {
         .updateTeam(
           Team.fromModel(teamModel),
           updateMetadata: true,
-          updateAccessLevel: true,
           updateImage: updateImage,
         )
         .then((t) => TeamModel.fromTeam(t));
+  }
+
+  Future<void> setTeamAccessLevel(
+    TeamModel teamModel,
+    List<AchievementModel> teamAchievements,
+    AccessLevel accessLevel,
+  ) {
+    var funcs = new List<void Function(WriteBatch)>();
+
+    funcs.add(
+      (batch) => _teamsDatabaseService.updateTeam(
+        Team.fromModel(
+          teamModel,
+          newAccessLevel: accessLevel,
+        ),
+        updateAccessLevel: true,
+      ),
+    );
+
+    for (var achievement in teamAchievements) {
+      funcs.add(
+        (batch) => _achievementsDatabaseService.updateAchievement(
+          Achievement.fromModel(achievement, newAccessLevel: accessLevel),
+          updateAccessLevel: true,
+        ),
+      );
+    }
+
+    return _databaseService.batchUpdate(funcs);
   }
 
   Future<TeamModel> updateTeamMembers(

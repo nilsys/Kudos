@@ -106,20 +106,23 @@ class _EditTeamPageState extends State<_EditTeamPage> {
                       ),
                     ),
                     SizedBox(height: 28.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          localizer().private,
-                          style: KudosTheme.listTitleTextStyle,
-                        ),
-                        SizedBox(width: 8),
-                        Switch(
-                          value: viewModel.isPrivate,
-                          onChanged: (value) => viewModel.isPrivate = value,
-                        ),
-                      ],
+                    Visibility(
+                      visible: viewModel.isNewTeam,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            localizer().private,
+                            style: KudosTheme.listTitleTextStyle,
+                          ),
+                          SizedBox(width: 8),
+                          Switch(
+                            value: viewModel.isPrivate,
+                            onChanged: (value) => viewModel.isPrivate = value,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

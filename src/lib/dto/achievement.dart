@@ -58,6 +58,7 @@ class Achievement extends Equatable {
     AchievementModel model, {
     bool isActive,
     AchievementOwnerModel newOwner,
+    AccessLevel newAccessLevel,
   }) {
     UserModel user;
     TeamModel team;
@@ -75,7 +76,7 @@ class Achievement extends Equatable {
       user = model.owner.user;
       team = model.owner.team;
       teamMembers = model.owner?.team?.members?.values;
-      accessLevel = model.accessLevel;
+      accessLevel = newAccessLevel?.index ?? model.accessLevel;
     }
 
     return Achievement._(
