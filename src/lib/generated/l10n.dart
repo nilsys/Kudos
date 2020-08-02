@@ -802,6 +802,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Enter team name`
+  String get teamNamePlaceholder {
+    return Intl.message(
+      'Enter team name',
+      name: 'teamNamePlaceholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter team description`
+  String get teamDescriptionPlaceholder {
+    return Intl.message(
+      'Enter team description',
+      name: 'teamDescriptionPlaceholder',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

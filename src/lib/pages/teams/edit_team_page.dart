@@ -80,9 +80,11 @@ class _EditTeamPageState extends State<_EditTeamPage> {
                       style: KudosTheme.descriptionTextStyle,
                       cursorColor: KudosTheme.accentColor,
                       decoration: InputDecoration(
+                        hintStyle: KudosTheme.hintTextStyle,
+                        hintText: localizer().teamNamePlaceholder,
                         focusedBorder: UnderlineInputBorder(
-                            borderSide:
-                                BorderSide(color: KudosTheme.accentColor)),
+                          borderSide: BorderSide(color: KudosTheme.accentColor),
+                        ),
                       ),
                     ),
                     SizedBox(height: 36.0),
@@ -100,9 +102,11 @@ class _EditTeamPageState extends State<_EditTeamPage> {
                       style: KudosTheme.descriptionTextStyle,
                       cursorColor: KudosTheme.accentColor,
                       decoration: InputDecoration(
+                        hintStyle: KudosTheme.hintTextStyle,
+                        hintText: localizer().teamDescriptionPlaceholder,
                         focusedBorder: UnderlineInputBorder(
-                            borderSide:
-                                BorderSide(color: KudosTheme.accentColor)),
+                          borderSide: BorderSide(color: KudosTheme.accentColor),
+                        ),
                       ),
                     ),
                     SizedBox(height: 28.0),

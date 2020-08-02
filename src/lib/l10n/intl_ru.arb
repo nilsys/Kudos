@@ -75,5 +75,7 @@
     "privateTeam": "Это частная команда",
     "private": "Частная",
     "myTeams": "Мои Команды",
-    "otherTeams": "Публичные Команды"
+    "otherTeams": "Публичные Команды",
+    "teamNamePlaceholder": "Введите название команды",
+    "teamDescriptionPlaceholder": "Введите описание команды"
 }
