@@ -58,6 +58,7 @@ class Achievement extends Equatable {
     AchievementModel model, {
     bool isActive,
     AchievementOwnerModel newOwner,
+    List<TeamMemberModel> newMembers,
     AccessLevel newAccessLevel,
   }) {
     UserModel user;
@@ -75,7 +76,7 @@ class Achievement extends Equatable {
     } else {
       user = model.owner.user;
       team = model.owner.team;
-      teamMembers = model.owner?.team?.members?.values;
+      teamMembers = newMembers ?? model.owner?.team?.members?.values;
       accessLevel = newAccessLevel?.index ?? model.accessLevel;
     }
 
@@ -99,6 +100,7 @@ class Achievement extends Equatable {
     bool addMetadata = false,
     bool addImage = false,
     bool addOwner = false,
+    bool addTeamMembers = false,
     bool addAccessLevel = false,
     bool addIsActive = false,
   }) {
@@ -118,6 +120,12 @@ class Achievement extends Equatable {
     if (addAll || addOwner) {
       map["team"] = team == null ? null : team.toJson();
       map["user"] = user == null ? null : user.toJson();
+      map["team_members"] =
+          this.teamMembers?.map((tm) => tm.toJson())?.toList();
+      visibleFor.addAll(this.teamMembers?.map((x) => x.id));
+    }
+
+    if (addTeamMembers) {
       map["team_members"] =
           this.teamMembers?.map((tm) => tm.toJson())?.toList();
       visibleFor.addAll(this.teamMembers?.map((x) => x.id));

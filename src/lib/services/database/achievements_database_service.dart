@@ -176,6 +176,7 @@ class AchievementsDatabaseService {
     bool updateMetadata = false,
     bool updateImage = false,
     bool updateOwner = false,
+    bool updateTeamMembers = false,
     bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
@@ -186,6 +187,7 @@ class AchievementsDatabaseService {
       addMetadata: updateMetadata,
       addImage: updateImage,
       addOwner: updateOwner,
+      addTeamMembers: updateTeamMembers,
       addAccessLevel: updateAccessLevel,
       addIsActive: updateIsActive,
     );

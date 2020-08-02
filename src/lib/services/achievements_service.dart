@@ -35,7 +35,7 @@ class AchievementsService {
 
       switch (achievementChange.changeType) {
         case ItemChangeType.remove:
-          _cachedAchievements.remove(model);
+          _cachedAchievements.remove(model.id);
           break;
         case ItemChangeType.add:
         case ItemChangeType.change:
@@ -230,10 +230,9 @@ class AchievementsService {
         .then((a) => AchievementModel.fromAchievement(a));
   }
 
-  Future<List<AchievementModel>> getTeamAchievements(String teamId) async {
-    return _achievementsDatabaseService.getTeamAchievements(teamId).then(
-        (list) =>
-            list.map((a) => AchievementModel.fromAchievement(a)).toList());
+  Future<Iterable<AchievementModel>> getTeamAchievements(String teamId) async {
+    await _loadAchievements();
+    return _cachedAchievements.values.where((a) => a.owner.id == teamId);
   }
 
   Future<void> markCurrentUserAchievementAsViewed(

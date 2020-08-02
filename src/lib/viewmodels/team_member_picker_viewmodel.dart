@@ -18,7 +18,7 @@ enum UserState {
 }
 
 class TeamMemberPickerViewModel extends BaseViewModel {
-  final _peopleService = locator<UsersService>();
+  final _usersService = locator<UsersService>();
   final _dialogService = locator<DialogService>();
   final _teamsService = locator<TeamsService>();
 
@@ -102,7 +102,7 @@ class TeamMemberPickerViewModel extends BaseViewModel {
   }
 
   Future<List<UserModel>> _findPeople(String request) async {
-    var result = await _peopleService.find(request, true);
+    var result = await _usersService.find(request, true);
     if (_teamMembers.isNotEmpty) {
       result.sort((x, y) {
         var xSelected = _teamMembers.containsKey(x.id);
