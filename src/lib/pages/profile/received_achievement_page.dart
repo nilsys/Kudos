@@ -40,7 +40,9 @@ class ReceivedAchievementPage extends StatelessWidget {
   }
 
   List<Widget> _buildSlivers(
-      BuildContext context, ReceivedAchievementViewModel viewModel) {
+    BuildContext context,
+    ReceivedAchievementViewModel viewModel,
+  ) {
     Widget bottomArea;
     if (viewModel.isBusy) {
       bottomArea = SliverFillRemaining(
@@ -61,26 +63,31 @@ class ReceivedAchievementPage extends StatelessWidget {
   }
 
   Widget _buildAppBar(
-      BuildContext context, ReceivedAchievementViewModel viewModel) {
+    BuildContext context,
+    ReceivedAchievementViewModel viewModel,
+  ) {
     return SliverGradientAppBar(
-        context: context,
-        heroTag: viewModel.achievementCollection.imageUrl,
-        title: viewModel.relatedAchievement.name,
-        imageUrl: viewModel.achievementCollection.imageUrl,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info_outline),
-            onPressed: () {
-              Navigator.of(context).push(
-                AchievementDetailsRoute(viewModel.relatedAchievement),
-              );
-            },
-          )
-        ]);
+      context: context,
+      heroTag: viewModel.achievementCollection.imageUrl,
+      title: viewModel.relatedAchievement.name,
+      imageUrl: viewModel.achievementCollection.imageUrl,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            Navigator.of(context).push(
+              AchievementDetailsRoute(viewModel.relatedAchievement),
+            );
+          },
+        )
+      ],
+    );
   }
 
   Widget _buildBody(
-      BuildContext context, ReceivedAchievementViewModel viewModel) {
+    BuildContext context,
+    ReceivedAchievementViewModel viewModel,
+  ) {
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 20),
       shrinkWrap: true,
@@ -96,7 +103,9 @@ class ReceivedAchievementPage extends StatelessWidget {
   }
 
   Widget _buildUserAchievementView(
-      BuildContext context, UserAchievementModel userAchievementModel) {
+    BuildContext context,
+    UserAchievementModel userAchievementModel,
+  ) {
     return SimpleListItem(
       imageShape: ImageShape.circle(56),
       imageUrl: userAchievementModel.sender.imageUrl,

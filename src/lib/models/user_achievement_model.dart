@@ -9,12 +9,14 @@ class UserAchievementModel {
   AchievementModel achievement;
   String comment;
   DateTime date;
+  bool viewed;
 
   UserAchievementModel._({
     this.sender,
     this.comment,
     this.date,
     this.achievement,
+    this.viewed,
   });
 
   factory UserAchievementModel.createNew(
@@ -27,6 +29,7 @@ class UserAchievementModel {
       achievement: achievement,
       comment: comment,
       date: DateTime.now(),
+      viewed: false,
     );
   }
 
@@ -40,6 +43,7 @@ class UserAchievementModel {
       ),
       comment: userAchievement.comment,
       date: userAchievement.date,
+      viewed: userAchievement.viewed,
     );
   }
 }

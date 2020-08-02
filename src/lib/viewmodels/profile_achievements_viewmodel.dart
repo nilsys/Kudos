@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:kudosapp/models/messages/achievement_sent_message.dart';
+import 'package:kudosapp/models/messages/achievement_viewed_message.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
@@ -23,6 +24,7 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       SortedMap<String, UserAchievementCollection>(Ordering.byValue());
 
   StreamSubscription<AchievementSentMessage> _achievementReceivedSubscription;
+  StreamSubscription<AchievementViewedMessage> _achievementViewedSubscription;
 
   bool get hasAchievements => _achievementsMap.isNotEmpty;
   bool get isMyProfile => _userId == _authService.currentUser.id;
@@ -45,6 +47,10 @@ class ProfileAchievementsViewModel extends BaseViewModel {
     _achievementReceivedSubscription =
         _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
 
+    _achievementViewedSubscription?.cancel();
+    _achievementViewedSubscription =
+        _eventBus.on<AchievementViewedMessage>().listen(_onAchievementViewed);
+
     isBusy = false;
   }
 
@@ -52,7 +58,9 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       _achievementsMap.values.toList();
 
   void openAchievementDetails(
-      BuildContext context, UserAchievementCollection achievementCollection) {
+    BuildContext context,
+    UserAchievementCollection achievementCollection,
+  ) {
     if (isMyProfile) {
       Navigator.of(context).push(
         ReceivedAchievementRoute(achievementCollection),
@@ -82,9 +90,18 @@ class ProfileAchievementsViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void _onAchievementViewed(AchievementViewedMessage event) {
+    final id = event.achievement.id;
+    if (_achievementsMap.containsKey(id)) {
+      _achievementsMap[id].hasNew = false;
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     _achievementReceivedSubscription.cancel();
+    _achievementViewedSubscription.cancel();
     super.dispose();
   }
 }
