@@ -101,7 +101,8 @@ class TeamsService {
         .then((t) => TeamModel.fromTeam(t));
   }
 
-  Future<Iterable<String>> findTeamIdsByName(String name) {
-    return _teamsDatabaseService.findTeamIdsByName(name);
+  Future<bool> isTeamNameUnique(String name, String teamId) async {
+    var teamIds = await _teamsDatabaseService.findTeamIdsByName(name);
+    return teamIds.length == 0 || (teamId != null && teamIds.contains(teamId));
   }
 }

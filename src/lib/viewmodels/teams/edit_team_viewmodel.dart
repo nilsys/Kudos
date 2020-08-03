@@ -75,9 +75,9 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
     try {
       isBusy = true;
 
-      var teamsWithName = await _teamsService.findTeamIdsByName(name);
-      if (teamsWithName.length > 0 &&
-          (_team.id == null || !teamsWithName.contains(_team.id))) {
+      var isTeamNameUnique =
+          await _teamsService.isTeamNameUnique(name.trim(), _team.id);
+      if (!isTeamNameUnique) {
         _dialogService.showOkDialog(
             context: context,
             title: localizer().error,
