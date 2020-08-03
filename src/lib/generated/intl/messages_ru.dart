@@ -86,6 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "team" : MessageLookupByLibrary.simpleMessage("Команда"),
     "teamDescriptionPlaceholder" : MessageLookupByLibrary.simpleMessage("Введите описание команды"),
     "teamMemberPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Выберите хотя бы одного администратора"),
+    "teamNameExists" : MessageLookupByLibrary.simpleMessage("Команда с таким названием уже существует. Измените название и попробуйте еще раз"),
     "teamNamePlaceholder" : MessageLookupByLibrary.simpleMessage("Введите название команды"),
     "teams" : MessageLookupByLibrary.simpleMessage("Команды"),
     "teamsTabName" : MessageLookupByLibrary.simpleMessage("Команды"),

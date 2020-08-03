@@ -77,5 +77,6 @@
     "myTeams": "Мои Команды",
     "otherTeams": "Публичные Команды",
     "teamNamePlaceholder": "Введите название команды",
-    "teamDescriptionPlaceholder": "Введите описание команды"
+    "teamDescriptionPlaceholder": "Введите описание команды",
+    "teamNameExists": "Команда с таким названием уже существует. Измените название и попробуйте еще раз"
 }

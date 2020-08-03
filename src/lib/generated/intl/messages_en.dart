@@ -86,6 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "team" : MessageLookupByLibrary.simpleMessage("Team"),
     "teamDescriptionPlaceholder" : MessageLookupByLibrary.simpleMessage("Enter team description"),
     "teamMemberPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Please select at least one admin"),
+    "teamNameExists" : MessageLookupByLibrary.simpleMessage("Team with such name already exists. Please change the name and try again"),
     "teamNamePlaceholder" : MessageLookupByLibrary.simpleMessage("Enter team name"),
     "teams" : MessageLookupByLibrary.simpleMessage("Teams"),
     "teamsTabName" : MessageLookupByLibrary.simpleMessage("Teams"),
