@@ -41,6 +41,7 @@ class AuthViewModel extends BaseViewModel {
 
   Future<void> signOut() async {
     await _pushNotificationsService.unsubscribeFromNotifications();
+    _usersService.closeUsersSubscription();
     _achievementsService.closeAchievementsSubscription();
     await _authService.signOut();
   }

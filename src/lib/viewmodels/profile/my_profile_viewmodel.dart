@@ -6,9 +6,11 @@ import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/push_notifications_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class MyProfileViewModel extends BaseViewModel {
+  final _usersService = locator<UsersService>();
   final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
   final _achievementsService = locator<AchievementsService>();
@@ -27,6 +29,7 @@ class MyProfileViewModel extends BaseViewModel {
     );
     if (signOutConfirmed) {
       await _pushNotificationsService.unsubscribeFromNotifications();
+      _usersService.closeUsersSubscription();
       _achievementsService.closeAchievementsSubscription();
       await _authService.signOut();
     }
