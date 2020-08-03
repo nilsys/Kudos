@@ -5,14 +5,14 @@ import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/groupped_list_widget.dart';
+import 'package:kudosapp/widgets/search_input_widget.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
-import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
-import 'package:kudosapp/widgets/search_input_widget.dart';
 
 class TeamsPageRoute extends MaterialPageRoute<TeamModel> {
   TeamsPageRoute({

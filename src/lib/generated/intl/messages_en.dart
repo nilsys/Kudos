@@ -85,6 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "softeq" : MessageLookupByLibrary.simpleMessage("Softeq"),
     "team" : MessageLookupByLibrary.simpleMessage("Team"),
     "teamMemberPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Please select at least one admin"),
+    "teamNameExists" : MessageLookupByLibrary.simpleMessage("Team with such name already exists. Please change the name and try again"),
     "teams" : MessageLookupByLibrary.simpleMessage("Teams"),
     "teamsTabName" : MessageLookupByLibrary.simpleMessage("Teams"),
     "transferAchievementDescription" : MessageLookupByLibrary.simpleMessage("Do you want to transfer this achievement to another user or another team?"),
