@@ -4,13 +4,11 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
-import 'package:kudosapp/services/push_notifications_service.dart';
 
 class UsersService {
   static List<UserModel> _cachedUsers;
 
   final _authService = locator<BaseAuthService>();
-  final _pushNotificationsService = locator<PushNotificationsService>();
   final _usersDatabaseService = locator<UsersDatabaseService>();
   final _initUsersMemoizer = AsyncMemoizer<List<UserModel>>();
 
@@ -30,14 +28,13 @@ class UsersService {
     return _getAllUsers();
   }
 
-  Future<void> tryRegisterCurrentUser() async {
+  Future<void> tryRegisterCurrentUser(String pushToken) async {
     final user = _authService.currentUser;
-    final token = await _pushNotificationsService.subscribeForNotifications();
 
     _usersDatabaseService.registerUser(
       user.id,
       UserRegistration.fromModel(user),
-      token,
+      pushToken,
     );
   }
 

@@ -36,7 +36,9 @@ class AuthViewModel extends BaseViewModel {
 
   Future<void> signIn() async {
     await _authService.signIn();
-    await _usersService.tryRegisterCurrentUser();
+    final pushToken =
+        await _pushNotificationsService.subscribeForNotifications();
+    await _usersService.tryRegisterCurrentUser(pushToken);
   }
 
   Future<void> signOut() async {
