@@ -14,6 +14,7 @@ import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/image_service.dart';
+import 'package:mutex/mutex.dart';
 
 class AchievementsService {
   final _imageService = locator<ImageService>();
@@ -28,22 +29,26 @@ class AchievementsService {
   StreamSubscription _myTeamsAchievementsStreamSubscription;
   StreamSubscription _publicAchievementsStreamSubscription;
 
-  void _onAchievementsStreamUpdated(
-      Iterable<ItemChange<Achievement>> achievementChanges) {
-    for (var achievementChange in achievementChanges) {
-      var model = AchievementModel.fromAchievement(achievementChange.item);
+  final _achievementsStreamUpdatedMutex = Mutex();
 
-      switch (achievementChange.changeType) {
-        case ItemChangeType.remove:
-          _cachedAchievements.remove(model.id);
-          break;
-        case ItemChangeType.add:
-        case ItemChangeType.change:
-        default:
-          _cachedAchievements[model.id] = model;
-          break;
+  void _onAchievementsStreamUpdated(
+      Iterable<ItemChange<Achievement>> achievementChanges) async {
+    await _achievementsStreamUpdatedMutex.protect(() {
+      for (var achievementChange in achievementChanges) {
+        var model = AchievementModel.fromAchievement(achievementChange.item);
+
+        switch (achievementChange.changeType) {
+          case ItemChangeType.remove:
+            _cachedAchievements.remove(model.id);
+            break;
+          case ItemChangeType.add:
+          case ItemChangeType.change:
+          default:
+            _cachedAchievements[model.id] = model;
+            break;
+        }
       }
-    }
+    });
   }
 
   void _updateAchievementsSubscription() {
