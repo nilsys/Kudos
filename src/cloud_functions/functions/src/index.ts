@@ -24,35 +24,35 @@ export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdat
 
     const batch = db.batch();
 
-    //begin update team name in achievements collection
+    //update team name in achievements collection
     const oldName: string = oldData.name;
     const newName: string = newData.name;
 
-    if (oldName !== newName) {
+    //update team members for achievements
+    const oldMembers: Array<any> = oldData.members;
+    const newMembers: Array<any> = newData.members;
+
+    //update achievement access level
+    const oldAccessLevel: number = oldData.access_level;
+    const newAccessLevel: number = newData.access_level;
+
+    if ((oldName != newName) 
+        || (oldAccessLevel != newAccessLevel) 
+        || (!mapArraysEquals(oldMembers, newMembers))) {
         const data = {
             team: {
                 id: teamId,
                 name: newName,
             },
+            team_members: newMembers,
+            access_level: newAccessLevel,
         };
 
         qs.docs.forEach((x) => {
             batch.set(x.ref, data, { merge: true });
         });
     }
-    //end update team name in achievements collection
-
-    //begin update team members for achievements
-    const oldMembers: Array<any> = oldData.members;
-    const newMembers: Array<any> = newData.members;
-    
-    if (!mapArraysEquals(oldMembers, newMembers))
-    {
-        qs.docs.forEach((x) => {
-            batch.set(x.ref, newMembers, { merge: true });
-        });
-    }
-    //end update team members for achievements
+    //end update achievement access level
 
     await batch.commit();
 });
@@ -318,7 +318,7 @@ export const updateUser = functions.firestore.document('users/{userId}').onUpdat
 });
 
 function mapArraysEquals(array1: Array<Map<string, any>>, array2: Array<Map<string, any>>): boolean {
-    if (array1.length !== array2.length) {
+    if (array1.length != array2.length) {
         return false;
     }
 
@@ -342,7 +342,7 @@ function mapEquals(map1: Map<string, any>, map2: Map<string, any>): boolean {
     }
 
     for (var key in map1.keys) {
-        if (!map2.has(key) || map1.get(key) != map2.get(key))
+        if (!map2.has(key) || map1.get(key) !== map2.get(key))
         {
             return false;
         }
