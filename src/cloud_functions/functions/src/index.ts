@@ -42,43 +42,17 @@ export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdat
     }
     //end update team name in achievements collection
 
-    //begin update edit rights for achievements
-    const oldOwners: Array<any> = oldData.team_owners;
-    const newOwners: Array<any> = newData.team_owners;
-    if (oldOwners && newOwners) {
-        const oldIds = oldOwners.map<String>(x => x.id);
-        const newIds = newOwners.map<String>(x => x.id);
-
-        if (!arraysEquals(oldIds, newIds)) {
-            const data = {
-                owners: newIds,
-            };
-
-            qs.docs.forEach((x) => {
-                batch.set(x.ref, data, { merge: true });
-            });
-        }
+    //begin update team members for achievements
+    const oldMembers: Array<any> = oldData.members;
+    const newMembers: Array<any> = newData.members;
+    
+    if (!mapArraysEquals(oldMembers, newMembers))
+    {
+        qs.docs.forEach((x) => {
+            batch.set(x.ref, newMembers, { merge: true });
+        });
     }
-    //end update edit rights for achievements
-
-    //begin update send rights for achievements
-    const oldMembers: Array<any> = oldData.team_members;
-    const newMembers: Array<any> = newData.team_members;
-    if (oldMembers && newMembers) {
-        const oldIds = oldMembers.map<String>(x => x.id);
-        const newIds = newMembers.map<String>(x => x.id);
-
-        if (!arraysEquals(oldIds, newIds)) {
-            const data = {
-                members: newIds,
-            };
-
-            qs.docs.forEach((x) => {
-                batch.set(x.ref, data, { merge: true });
-            });
-        }
-    }
-    //end update send rights for achievements
+    //end update team members for achievements
 
     await batch.commit();
 });
@@ -343,16 +317,17 @@ export const updateUser = functions.firestore.document('users/{userId}').onUpdat
     await batch.commit();
 });
 
-function arraysEquals(array1: Array<String>, array2: Array<String>): boolean {
+function mapArraysEquals(array1: Array<Map<string, any>>, array2: Array<Map<string, any>>): boolean {
     if (array1.length !== array2.length) {
         return false;
     }
 
-    const sortedArray1 = array1.sort(stringComparer);
-    const sortedArray2 = array2.sort(stringComparer);
+    const sortedArray1 = array1.sort(mapComparer);
+    const sortedArray2 = array2.sort(mapComparer);
 
     for (let i = 0; i < sortedArray1.length; i++) {
-        if (sortedArray1[i] !== sortedArray2[i]) {
+        if (!mapEquals(sortedArray1[i], sortedArray2[i]))
+        {
             return false;
         }
     }
@@ -360,12 +335,28 @@ function arraysEquals(array1: Array<String>, array2: Array<String>): boolean {
     return true;
 }
 
-function stringComparer(value1: String, value2: String) {
-    if (value1 > value2) {
+function mapEquals(map1: Map<string, any>, map2: Map<string, any>): boolean {
+    if (map1.size != map2.size)
+    {
+        return false;
+    }
+
+    for (var key in map1.keys) {
+        if (!map2.has(key) || map1.get(key) != map2.get(key))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function mapComparer(map1: Map<string, any>, map2: Map<string, any>) {
+    if (map1.get("id") > map2.get("id")) {
         return 1;
     }
 
-    if (value1 < value2) {
+    if (map1.get("id") < map2.get("id")) {
         return -1;
     }
 
@@ -373,10 +364,10 @@ function stringComparer(value1: String, value2: String) {
 }
 
 class User {
-    name: String;
-    email: String;
+    name: string;
+    email: string;
 
-    constructor(name: String, email: String) {
+    constructor(name: string, email: string) {
         this.name = name;
         this.email = email;
     }
