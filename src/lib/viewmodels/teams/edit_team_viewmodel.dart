@@ -48,12 +48,12 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
 
   String get imageUrl => _team.imageUrl;
 
-  bool get isPrivate => _team.accessLevel == AccessLevel.private;
+  AccessLevel get accessLevel => _team.accessLevel;
 
   bool get isNewTeam => _team.id == null;
 
-  set isPrivate(bool value) {
-    _team.accessLevel = value ? AccessLevel.private : AccessLevel.public;
+  set accessLevel(AccessLevel value) {
+    _team.accessLevel = value;
     notifyListeners();
   }
 
@@ -68,7 +68,10 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   }
 
   Future<void> save(
-      BuildContext context, String name, String description) async {
+    BuildContext context,
+    String name,
+    String description,
+  ) async {
     TeamModel updatedTeam;
 
     _team.name = name;
@@ -91,6 +94,10 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
         updatedTeam = await _teamsService.createTeam(_team);
       } else {
         updatedTeam = await _teamsService.editTeam(_team);
+        if (accessLevel != _initialTeam.accessLevel) {
+          await _teamsService.setTeamAccessLevel(_initialTeam, accessLevel);
+          updatedTeam.accessLevel = _team.accessLevel;
+        }
       }
     } finally {
       isBusy = false;

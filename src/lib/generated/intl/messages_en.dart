@@ -22,6 +22,13 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "accessDenied" : MessageLookupByLibrary.simpleMessage("Access denied"),
+    "accessLevel" : MessageLookupByLibrary.simpleMessage("Access Level"),
+    "accessLevelPrivate" : MessageLookupByLibrary.simpleMessage("Private"),
+    "accessLevelPrivateDescription" : MessageLookupByLibrary.simpleMessage("Only team members can view and send this team\'s achievements"),
+    "accessLevelProtected" : MessageLookupByLibrary.simpleMessage("Protected"),
+    "accessLevelProtectedDescription" : MessageLookupByLibrary.simpleMessage("Everyone can view this team\'s achievements, but only team members can send them"),
+    "accessLevelPublic" : MessageLookupByLibrary.simpleMessage("Public"),
+    "accessLevelPublicDescription" : MessageLookupByLibrary.simpleMessage("Everyone can view and send this team\'s acheivements"),
     "achievementHoldersEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("No one has ever received this achievement"),
     "achievementHoldersTitle" : MessageLookupByLibrary.simpleMessage("Holders"),
     "achievementOwnerTitle" : MessageLookupByLibrary.simpleMessage("Owner"),
@@ -65,7 +72,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "people" : MessageLookupByLibrary.simpleMessage("People"),
     "peopleProgress" : MessageLookupByLibrary.simpleMessage("%i of %i people"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("People"),
-    "private" : MessageLookupByLibrary.simpleMessage("Private"),
     "privateTeam" : MessageLookupByLibrary.simpleMessage("This team is private"),
     "profileAchievementsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("No achievements yet"),
     "profileTabName" : MessageLookupByLibrary.simpleMessage("Profile"),
