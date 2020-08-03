@@ -8,6 +8,7 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
 import 'package:kudosapp/services/database/teams_database_service.dart';
+import 'package:kudosapp/services/session_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
@@ -40,5 +41,6 @@ void setupLocator() {
     ..registerLazySingleton<AchievementsDatabaseService>(
         () => AchievementsDatabaseService())
     ..registerLazySingleton<TeamsDatabaseService>(() => TeamsDatabaseService())
-    ..registerLazySingleton<UsersDatabaseService>(() => UsersDatabaseService());
+    ..registerLazySingleton<UsersDatabaseService>(() => UsersDatabaseService())
+    ..registerLazySingleton<SessionService>(() => SessionService());
 }
