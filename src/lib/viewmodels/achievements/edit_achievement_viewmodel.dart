@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:kudosapp/helpers/image_loading.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
 import 'package:kudosapp/models/messages/achievement_updated_message.dart';
@@ -49,8 +50,10 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
     }
     if (team != null) {
       _achievement.owner = AchievementOwnerModel.fromTeam(team);
+      _achievement.accessLevel = team.accessLevel;
     } else if (user != null) {
       _achievement.owner = AchievementOwnerModel.fromUser(user);
+      _achievement.accessLevel = AccessLevel.private;
     }
   }
 

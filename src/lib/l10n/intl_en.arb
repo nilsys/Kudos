@@ -76,5 +76,7 @@
     "private": "Private",
     "myTeams": "My Teams",
     "otherTeams": "Public Teams",
+    "teamNamePlaceholder": "Enter team name",
+    "teamDescriptionPlaceholder": "Enter team description",
     "teamNameExists": "Team with such name already exists. Please change the name and try again"
 }

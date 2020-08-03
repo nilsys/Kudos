@@ -4,12 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:kudosapp/helpers/queue_handler.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class UserPickerViewModel extends BaseViewModel {
-  final _peopleService = locator<PeopleService>();
+  final _peopleService = locator<UsersService>();
   final _dialogService = locator<DialogService>();
 
   final List<String> _selectedUserIds;

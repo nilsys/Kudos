@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/team.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
@@ -16,6 +19,7 @@ class TeamsService {
   final _databaseService = locator<DatabaseService>();
   final _teamsDatabaseService = locator<TeamsDatabaseService>();
   final _achievementsDatabaseService = locator<AchievementsDatabaseService>();
+  final _achievementsService = locator<AchievementsService>();
 
   Future<TeamModel> createTeam(TeamModel teamModel) async {
     if (teamModel.imageFile != null) {
@@ -44,19 +48,78 @@ class TeamsService {
         .updateTeam(
           Team.fromModel(teamModel),
           updateMetadata: true,
-          updateAccessLevel: true,
           updateImage: updateImage,
         )
         .then((t) => TeamModel.fromTeam(t));
   }
 
-  Future<TeamModel> updateTeamMembers(
-      TeamModel teamModel, List<TeamMemberModel> newMembers) {
-    var team = Team.fromModel(teamModel, newMembers: newMembers);
+  Future<void> setTeamAccessLevel(
+    TeamModel teamModel,
+    AccessLevel accessLevel,
+  ) async {
+    var funcs = new List<void Function(WriteBatch)>();
 
-    return _teamsDatabaseService
-        .updateTeam(team, updateMembers: true)
-        .then((t) => TeamModel.fromTeam(t));
+    funcs.add(
+      (batch) => _teamsDatabaseService.updateTeam(
+        Team.fromModel(
+          teamModel,
+          newAccessLevel: accessLevel,
+        ),
+        updateAccessLevel: true,
+        batch: batch,
+      ),
+    );
+
+    var teamAchievements =
+        await _achievementsService.getTeamAchievements(teamModel.id);
+
+    for (var achievement in teamAchievements) {
+      funcs.add(
+        (batch) => _achievementsDatabaseService.updateAchievement(
+          Achievement.fromModel(achievement, newAccessLevel: accessLevel),
+          updateAccessLevel: true,
+          batch: batch,
+        ),
+      );
+    }
+
+    return _databaseService.batchUpdate(funcs);
+  }
+
+  Future<void> updateTeamMembers(
+    TeamModel teamModel,
+    List<TeamMemberModel> newMembers,
+  ) async {
+    var funcs = new List<void Function(WriteBatch)>();
+
+    funcs.add(
+      (batch) => _teamsDatabaseService.updateTeam(
+        Team.fromModel(
+          teamModel,
+          newMembers: newMembers,
+        ),
+        updateMembers: true,
+        batch: batch,
+      ),
+    );
+
+    var teamAchievements =
+        await _achievementsService.getTeamAchievements(teamModel.id);
+
+    for (var achievement in teamAchievements) {
+      funcs.add(
+        (batch) => _achievementsDatabaseService.updateAchievement(
+          Achievement.fromModel(
+            achievement,
+            newMembers: newMembers,
+          ),
+          updateTeamMembers: true,
+          batch: batch,
+        ),
+      );
+    }
+
+    return _databaseService.batchUpdate(funcs);
   }
 
   Future<void> deleteTeam(

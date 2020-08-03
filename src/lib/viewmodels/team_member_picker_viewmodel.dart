@@ -6,7 +6,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
@@ -18,7 +18,7 @@ enum UserState {
 }
 
 class TeamMemberPickerViewModel extends BaseViewModel {
-  final _peopleService = locator<PeopleService>();
+  final _usersService = locator<UsersService>();
   final _dialogService = locator<DialogService>();
   final _teamsService = locator<TeamsService>();
 
@@ -102,7 +102,7 @@ class TeamMemberPickerViewModel extends BaseViewModel {
   }
 
   Future<List<UserModel>> _findPeople(String request) async {
-    var result = await _peopleService.find(request, true);
+    var result = await _usersService.find(request, true);
     if (_teamMembers.isNotEmpty) {
       result.sort((x, y) {
         var xSelected = _teamMembers.containsKey(x.id);

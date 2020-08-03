@@ -4,17 +4,15 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
-import 'package:kudosapp/services/push_notifications_service.dart';
 
-class PeopleService {
+class UsersService {
   static List<UserModel> _cachedUsers;
 
   final _authService = locator<BaseAuthService>();
-  final _pushNotificationsService = locator<PushNotificationsService>();
   final _usersDatabaseService = locator<UsersDatabaseService>();
   final _initUsersMemoizer = AsyncMemoizer<List<UserModel>>();
 
-  PeopleService() {
+  UsersService() {
     _usersDatabaseService.usersStream.listen((users) {
       _cachedUsers.clear();
       _cachedUsers.addAll(users);
@@ -30,20 +28,18 @@ class PeopleService {
     return _getAllUsers();
   }
 
-  Future<void> tryRegisterCurrentUser() async {
+  Future<void> tryRegisterCurrentUser(String pushToken) async {
     final user = _authService.currentUser;
-    final token = await _pushNotificationsService.subscribeForNotifications();
 
     _usersDatabaseService.registerUser(
       user.id,
       UserRegistration.fromModel(user),
-      token,
+      pushToken,
     );
   }
 
-  Future<void> unsubscribeFromNotifications() {
+  void closeUsersSubscription() {
     _usersDatabaseService.stopListenUsers();
-    return _pushNotificationsService.unsubscribeFromNotifications();
   }
 
   Future<List<UserModel>> find(String request, bool _allowCurrentUser) async {

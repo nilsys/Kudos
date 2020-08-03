@@ -803,6 +803,27 @@ class S {
     );
   }
 
+  /// `Enter team name`
+  String get teamNamePlaceholder {
+    return Intl.message(
+      'Enter team name',
+      name: 'teamNamePlaceholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter team description`
+  String get teamDescriptionPlaceholder {
+    return Intl.message(
+      'Enter team description',
+      name: 'teamDescriptionPlaceholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Team with such name already exists. Please change the name and try again`
   String get teamNameExists {
     return Intl.message(
       'Team with such name already exists. Please change the name and try again',

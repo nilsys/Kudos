@@ -38,7 +38,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   }
 
   String get pageTitle =>
-      _team.id == null ? localizer().createTeam : localizer().editTeam;
+      isNewTeam ? localizer().createTeam : localizer().editTeam;
 
   String get name => _team.name ?? "";
 
@@ -49,6 +49,8 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   String get imageUrl => _team.imageUrl;
 
   bool get isPrivate => _team.accessLevel == AccessLevel.private;
+
+  bool get isNewTeam => _team.id == null;
 
   set isPrivate(bool value) {
     _team.accessLevel = value ? AccessLevel.private : AccessLevel.public;
@@ -85,7 +87,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
         return;
       }
 
-      if (_team.id == null) {
+      if (isNewTeam) {
         updatedTeam = await _teamsService.createTeam(_team);
       } else {
         updatedTeam = await _teamsService.editTeam(_team);

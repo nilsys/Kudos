@@ -105,6 +105,12 @@ class KudosTheme {
     fontWeight: FontWeight.w500,
   );
 
+  static final TextStyle hintTextStyle = TextStyle(
+    fontSize: 17.0,
+    color: Color.fromARGB(80, 0, 0, 0),
+    fontWeight: FontWeight.normal,
+  );
+
   static final TextStyle errorTextStyle = TextStyle(
     fontSize: 15.0,
     color: Colors.redAccent,

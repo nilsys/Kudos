@@ -1,10 +1,11 @@
 import 'dart:async';
-
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/achievement_holder.dart';
 import 'package:kudosapp/dto/user_achievement.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
+import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/models/item_change_type.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -13,6 +14,7 @@ import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/image_service.dart';
+import 'package:mutex/mutex.dart';
 
 class AchievementsService {
   final _imageService = locator<ImageService>();
@@ -21,17 +23,93 @@ class AchievementsService {
   final _usersDatabaseService = locator<UsersDatabaseService>();
   final _achievementsDatabaseService = locator<AchievementsDatabaseService>();
 
-  Future<List<AchievementModel>> getAchievements() async {
-    var teamsAchievements =
-        await _achievementsDatabaseService.getTeamsAchievements();
+  Map<String, AchievementModel> _cachedAchievements;
 
+  StreamSubscription _myAchievementsStreamSubscription;
+  StreamSubscription _myTeamsAchievementsStreamSubscription;
+  StreamSubscription _publicAchievementsStreamSubscription;
+
+  final _achievementsStreamUpdatedMutex = Mutex();
+
+  void _onAchievementsStreamUpdated(
+      Iterable<ItemChange<Achievement>> achievementChanges) async {
+    await _achievementsStreamUpdatedMutex.protect(() {
+      for (var achievementChange in achievementChanges) {
+        var model = AchievementModel.fromAchievement(achievementChange.item);
+
+        switch (achievementChange.changeType) {
+          case ItemChangeType.remove:
+            _cachedAchievements.remove(model.id);
+            break;
+          case ItemChangeType.add:
+          case ItemChangeType.change:
+          default:
+            _cachedAchievements[model.id] = model;
+            break;
+        }
+      }
+    });
+  }
+
+  void _updateAchievementsSubscription() {
+    if (_myAchievementsStreamSubscription == null) {
+      _myAchievementsStreamSubscription = _achievementsDatabaseService
+          .getUserAchievementsStream(_authService.currentUser.id)
+          .listen(_onAchievementsStreamUpdated);
+    }
+
+    if (_myTeamsAchievementsStreamSubscription == null) {
+      _myTeamsAchievementsStreamSubscription = _achievementsDatabaseService
+          .getUserTeamsAchievementsStream(_authService.currentUser.id)
+          .listen(_onAchievementsStreamUpdated);
+    }
+
+    if (_publicAchievementsStreamSubscription == null) {
+      _publicAchievementsStreamSubscription = _achievementsDatabaseService
+          .getPublicAchievementsStream(_authService.currentUser.id)
+          .listen(_onAchievementsStreamUpdated);
+    }
+  }
+
+  Future<void> _cacheAchievements() async {
     var myAchievements = await _achievementsDatabaseService
         .getUserAchievements(_authService.currentUser.id);
 
-    var achievementsSet = {...teamsAchievements, ...myAchievements};
-    return achievementsSet
-        .map((a) => AchievementModel.fromAchievement(a))
-        .toList();
+    var myTeamsAchievements = await _achievementsDatabaseService
+        .getUserTeamsAchievements(_authService.currentUser.id);
+
+    var publicAchievements =
+        await _achievementsDatabaseService.getPublicAchievements();
+
+    var achievementsSet = {
+      ...myAchievements,
+      ...myTeamsAchievements,
+      ...publicAchievements,
+    };
+
+    _cachedAchievements = Map.fromIterable(
+      achievementsSet.map((a) => AchievementModel.fromAchievement(a)),
+      key: (am) => am.id,
+      value: (am) => am,
+    );
+  }
+
+  Future<void> _loadAchievements() async {
+    if (_cachedAchievements == null) {
+      await _cacheAchievements();
+    }
+
+    _updateAchievementsSubscription();
+  }
+
+  Future<Map<String, AchievementModel>> getAchievementsMap() async {
+    await _loadAchievements();
+    return _cachedAchievements;
+  }
+
+  Future<Iterable<AchievementModel>> getAchievements() async {
+    await _loadAchievements();
+    return _cachedAchievements.values;
   }
 
   Future<AchievementModel> createAchievement(
@@ -106,7 +184,8 @@ class AchievementsService {
     );
 
     return _achievementsDatabaseService
-        .updateAchievement(achievement, updateOwner: true)
+        .updateAchievement(achievement,
+            updateAccessLevel: true, updateOwner: true)
         .then((a) => AchievementModel.fromAchievement(a));
   }
 
@@ -146,15 +225,19 @@ class AchievementsService {
   }
 
   Future<AchievementModel> getAchievement(String achivementId) async {
+    if (_cachedAchievements != null &&
+        _cachedAchievements.containsKey(achivementId)) {
+      return _cachedAchievements[achivementId];
+    }
+
     return _achievementsDatabaseService
         .getAchievement(achivementId)
         .then((a) => AchievementModel.fromAchievement(a));
   }
 
-  Future<List<AchievementModel>> getTeamAchievements(String teamId) async {
-    return _achievementsDatabaseService.getTeamAchievements(teamId).then(
-        (list) =>
-            list.map((a) => AchievementModel.fromAchievement(a)).toList());
+  Future<Iterable<AchievementModel>> getTeamAchievements(String teamId) async {
+    await _loadAchievements();
+    return _cachedAchievements.values.where((a) => a.owner.id == teamId);
   }
 
   Future<void> markCurrentUserAchievementAsViewed(
@@ -164,5 +247,18 @@ class AchievementsService {
       _authService.currentUser.id,
       achievement.id,
     );
+  }
+
+  void closeAchievementsSubscription() {
+    _cachedAchievements = null;
+
+    _myAchievementsStreamSubscription?.cancel();
+    _myAchievementsStreamSubscription = null;
+
+    _myTeamsAchievementsStreamSubscription?.cancel();
+    _myTeamsAchievementsStreamSubscription = null;
+
+    _publicAchievementsStreamSubscription?.cancel();
+    _publicAchievementsStreamSubscription = null;
   }
 }

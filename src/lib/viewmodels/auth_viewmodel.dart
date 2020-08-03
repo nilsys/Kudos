@@ -1,6 +1,6 @@
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
-import 'package:kudosapp/services/people_service.dart';
+import 'package:kudosapp/services/session_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 enum AuthViewModelState {
@@ -11,7 +11,7 @@ enum AuthViewModelState {
 
 class AuthViewModel extends BaseViewModel {
   final _authService = locator<BaseAuthService>();
-  final _peopleService = locator<PeopleService>();
+  final _sessionService = locator<SessionService>();
 
   AuthViewModelState _authState = AuthViewModelState.unknown;
 
@@ -30,13 +30,6 @@ class AuthViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> signIn() async {
-    await _authService.signIn();
-    await _peopleService.tryRegisterCurrentUser();
-  }
-
-  Future<void> signOut() async {
-    await _peopleService.unsubscribeFromNotifications();
-    await _authService.signOut();
-  }
+  Future<void> signIn() => _sessionService.startSession();
+  Future<void> signOut() => _sessionService.closeSession();
 }

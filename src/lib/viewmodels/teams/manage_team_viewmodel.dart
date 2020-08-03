@@ -28,7 +28,7 @@ class ManageTeamViewModel extends BaseViewModel {
 
   final TeamModel _team;
 
-  List<AchievementModel> achievements;
+  final achievements = List<AchievementModel>();
 
   StreamSubscription _achievementUpdatedSubscription;
   StreamSubscription _achievementDeletedSubscription;
@@ -54,8 +54,8 @@ class ManageTeamViewModel extends BaseViewModel {
       final loadedTeam = await _teamsService.getTeam(_team.id);
       _team.updateWithModel(loadedTeam);
 
-      achievements = await _achievementsService.getTeamAchievements(_team.id) ??
-          new List<AchievementModel>();
+      achievements
+          .addAll(await _achievementsService.getTeamAchievements(_team.id));
 
       _achievementUpdatedSubscription?.cancel();
       _achievementUpdatedSubscription = _eventBus
