@@ -168,8 +168,12 @@ export const createAchievementReferences = functions.firestore.document('/users/
 
 /**
  * Cleans up unused images from storage
+ * Runs every day at 00.00 Minsk time
  */
-export const cleanupStorage = functions.https.onRequest(async (request, response) => {
+export const cleanupStorage = functions.pubsub
+    .schedule('every 24 hours')
+    .timeZone('Europe/Minsk')
+    .onRun(async (context) => {
     const images: Array<string> = new Array<string>();
 
     const achievements = await db.collection('achievements').get();
@@ -190,15 +194,11 @@ export const cleanupStorage = functions.https.onRequest(async (request, response
 
     const storage = admin.storage();
     const filesResponse = await storage.bucket().getFiles({ directory: 'kudos' });
-    const deletedFiles: Array<string> = new Array<string>();
     filesResponse[0].forEach(async x => {
         if (!images.some(y => y === x.name)) {
-            deletedFiles.push(x.name);
             await x.delete();
         }
     });
-
-    response.send({ deleted_files: deletedFiles });
 });
 
 /**
