@@ -22,6 +22,13 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "accessDenied" : MessageLookupByLibrary.simpleMessage("Доступ запрещён"),
+    "accessLevel" : MessageLookupByLibrary.simpleMessage("Уровень доступа"),
+    "accessLevelPrivate" : MessageLookupByLibrary.simpleMessage("Частная"),
+    "accessLevelPrivateDescription" : MessageLookupByLibrary.simpleMessage("Награды частных команд видны только участникам этой команды"),
+    "accessLevelProtected" : MessageLookupByLibrary.simpleMessage("Защищенная"),
+    "accessLevelProtectedDescription" : MessageLookupByLibrary.simpleMessage("Награды защищенных команд видны всем пользователям, но они не могут их дарить"),
+    "accessLevelPublic" : MessageLookupByLibrary.simpleMessage("Публичная"),
+    "accessLevelPublicDescription" : MessageLookupByLibrary.simpleMessage("Награды публичных команд видны всем пользователям"),
     "achievementHoldersEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("Никто ещё не получал эту награду"),
     "achievementHoldersTitle" : MessageLookupByLibrary.simpleMessage("Обладатели"),
     "achievementOwnerTitle" : MessageLookupByLibrary.simpleMessage("Владелец"),
@@ -65,7 +72,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "people" : MessageLookupByLibrary.simpleMessage("Люди"),
     "peopleProgress" : MessageLookupByLibrary.simpleMessage("%i из %i людей"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("Люди"),
-    "private" : MessageLookupByLibrary.simpleMessage("Частная"),
     "privateTeam" : MessageLookupByLibrary.simpleMessage("Это частная команда"),
     "profileAchievementsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("Ещё нет наград"),
     "profileTabName" : MessageLookupByLibrary.simpleMessage("Кабинет"),

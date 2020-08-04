@@ -93,6 +93,12 @@ class KudosTheme {
     fontWeight: FontWeight.w500,
   );
 
+  static final TextStyle sectionHintTextStyle = TextStyle(
+    fontSize: 15.0,
+    color: Color.fromARGB(160, 0, 0, 0),
+    fontWeight: FontWeight.w500,
+  );
+
   static final TextStyle editHintTextStyle = TextStyle(
     fontSize: 14.0,
     color: Color.fromARGB(160, 0, 0, 0),

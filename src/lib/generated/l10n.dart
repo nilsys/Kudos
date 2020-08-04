@@ -773,16 +773,6 @@ class S {
     );
   }
 
-  /// `Private`
-  String get private {
-    return Intl.message(
-      'Private',
-      name: 'private',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `My Teams`
   String get myTeams {
     return Intl.message(
@@ -828,6 +818,76 @@ class S {
     return Intl.message(
       'Team with such name already exists. Please change the name and try again',
       name: 'teamNameExists',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Access Level`
+  String get accessLevel {
+    return Intl.message(
+      'Access Level',
+      name: 'accessLevel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Public`
+  String get accessLevelPublic {
+    return Intl.message(
+      'Public',
+      name: 'accessLevelPublic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Protected`
+  String get accessLevelProtected {
+    return Intl.message(
+      'Protected',
+      name: 'accessLevelProtected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Private`
+  String get accessLevelPrivate {
+    return Intl.message(
+      'Private',
+      name: 'accessLevelPrivate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Everyone can view and send this team's acheivements`
+  String get accessLevelPublicDescription {
+    return Intl.message(
+      'Everyone can view and send this team\'s acheivements',
+      name: 'accessLevelPublicDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Everyone can view this team's achievements, but only team members can send them`
+  String get accessLevelProtectedDescription {
+    return Intl.message(
+      'Everyone can view this team\'s achievements, but only team members can send them',
+      name: 'accessLevelProtectedDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only team members can view and send this team's achievements`
+  String get accessLevelPrivateDescription {
+    return Intl.message(
+      'Only team members can view and send this team\'s achievements',
+      name: 'accessLevelPrivateDescription',
       desc: '',
       args: [],
     );

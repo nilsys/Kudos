@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/helpers/text_editing_value_helper.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
@@ -110,23 +112,35 @@ class _EditTeamPageState extends State<_EditTeamPage> {
                       ),
                     ),
                     SizedBox(height: 28.0),
-                    Visibility(
-                      visible: viewModel.isNewTeam,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            localizer().private,
-                            style: KudosTheme.listTitleTextStyle,
-                          ),
-                          SizedBox(width: 8),
-                          Switch(
-                            value: viewModel.isPrivate,
-                            onChanged: (value) => viewModel.isPrivate = value,
-                          ),
-                        ],
-                      ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          localizer().accessLevel,
+                          style: KudosTheme.listTitleTextStyle,
+                        ),
+                        SizedBox(width: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: <Widget>[
+                            _buildDropdown(viewModel),
+                            SizedBox(width: 18),
+                            Expanded(
+                              child: Text(
+                                AccessLevelUtils.getDescription(
+                                  viewModel.accessLevel,
+                                ),
+                                textAlign: TextAlign.end,
+                                maxLines: 5,
+                                style: KudosTheme.sectionHintTextStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -153,6 +167,23 @@ class _EditTeamPageState extends State<_EditTeamPage> {
         label: Text(localizer().save),
         icon: KudosTheme.saveIcon,
       ),
+    );
+  }
+
+  Widget _buildDropdown(EditTeamViewModel viewModel) {
+    return DropdownButton<AccessLevel>(
+      value: viewModel.accessLevel,
+      items: AccessLevelUtils.getAllAccessLevels()
+          .map<DropdownMenuItem<AccessLevel>>(
+        (AccessLevel value) {
+          return DropdownMenuItem<AccessLevel>(
+            value: value,
+            child: Text(AccessLevelUtils.getString(value)),
+          );
+        },
+      ).toList(),
+      onChanged: (AccessLevel value) => viewModel.accessLevel = value,
+      style: KudosTheme.descriptionTextStyle,
     );
   }
 
