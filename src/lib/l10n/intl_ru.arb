@@ -73,6 +73,7 @@
     "searchEmptyPlaceholder": "Нет результатов поиска",
     "accessDenied": "Доступ запрещён",
     "privateTeam": "Это частная команда",
+    "privateAcheivement": "Это частная награда",
     "myTeams": "Мои Команды",
     "otherTeams": "Другие Команды",
     "teamNamePlaceholder": "Введите название команды",

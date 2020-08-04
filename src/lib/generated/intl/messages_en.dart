@@ -72,6 +72,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "people" : MessageLookupByLibrary.simpleMessage("People"),
     "peopleProgress" : MessageLookupByLibrary.simpleMessage("%i of %i people"),
     "peopleTabName" : MessageLookupByLibrary.simpleMessage("People"),
+    "privateAchievement" : MessageLookupByLibrary.simpleMessage("This achievement is private"),
     "privateTeam" : MessageLookupByLibrary.simpleMessage("This team is private"),
     "profileAchievementsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("No achievements yet"),
     "profileTabName" : MessageLookupByLibrary.simpleMessage("Profile"),

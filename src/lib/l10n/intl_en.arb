@@ -73,6 +73,7 @@
     "searchEmptyPlaceholder": "No search results",
     "accessDenied": "Access denied",
     "privateTeam": "This team is private",
+    "privateAchievement": "This achievement is private",
     "myTeams": "My Teams",
     "otherTeams": "Other Teams",
     "teamNamePlaceholder": "Enter team name",

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/messages/achievement_viewed_message.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
@@ -11,22 +12,25 @@ import 'package:kudosapp/pages/profile/received_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:sortedmap/sortedmap.dart';
 
 class ProfileAchievementsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
+  final _dialogsService = locator<DialogService>();
   final _achievementsService = locator<AchievementsService>();
 
   final String _userId;
-  final _achievementsMap =
+  final _receivedAchievements =
       SortedMap<String, UserAchievementCollection>(Ordering.byValue());
+  Map<String, AchievementModel> _accessibleAchievementsMap;
 
   StreamSubscription<AchievementSentMessage> _achievementReceivedSubscription;
   StreamSubscription<AchievementViewedMessage> _achievementViewedSubscription;
 
-  bool get hasAchievements => _achievementsMap.isNotEmpty;
+  bool get hasAchievements => _receivedAchievements.isNotEmpty;
   bool get isMyProfile => _userId == _authService.currentUser.id;
 
   ProfileAchievementsViewModel(this._userId) {
@@ -34,36 +38,50 @@ class ProfileAchievementsViewModel extends BaseViewModel {
   }
 
   void _initialize() async {
-    isBusy = true;
+    try {
+      isBusy = true;
 
-    final allUserAchievements =
-        await _achievementsService.getReceivedAchievements(_userId);
+      _accessibleAchievementsMap =
+          await _achievementsService.getAchievementsMap();
 
-    for (final userAchievement in allUserAchievements) {
-      _addUserAchievementToMap(userAchievement);
+      final allUserAchievements =
+          await _achievementsService.getReceivedAchievements(_userId);
+
+      for (final userAchievement in allUserAchievements) {
+        _addUserAchievementToMap(userAchievement);
+      }
+
+      _achievementReceivedSubscription?.cancel();
+      _achievementReceivedSubscription =
+          _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
+
+      _achievementViewedSubscription?.cancel();
+      _achievementViewedSubscription =
+          _eventBus.on<AchievementViewedMessage>().listen(_onAchievementViewed);
+    } finally {
+      isBusy = false;
     }
-
-    _achievementReceivedSubscription?.cancel();
-    _achievementReceivedSubscription =
-        _eventBus.on<AchievementSentMessage>().listen(_onAchievementReceived);
-
-    _achievementViewedSubscription?.cancel();
-    _achievementViewedSubscription =
-        _eventBus.on<AchievementViewedMessage>().listen(_onAchievementViewed);
-
-    isBusy = false;
   }
 
   List<UserAchievementCollection> getAchievements() =>
-      _achievementsMap.values.toList();
+      _receivedAchievements.values.toList();
 
   void openAchievementDetails(
     BuildContext context,
     UserAchievementCollection achievementCollection,
   ) {
+    var achievement =
+        _accessibleAchievementsMap[achievementCollection.relatedAchievement.id];
+
     if (isMyProfile) {
       Navigator.of(context).push(
         ReceivedAchievementRoute(achievementCollection),
+      );
+    } else if (achievement == null || !achievement.canBeViewedByUser(_userId)) {
+      _dialogsService.showOkDialog(
+        context: context,
+        title: localizer().accessDenied,
+        content: localizer().privateAchievement,
       );
     } else {
       final achievement = achievementCollection.relatedAchievement;
@@ -73,11 +91,12 @@ class ProfileAchievementsViewModel extends BaseViewModel {
 
   void _addUserAchievementToMap(UserAchievementModel userAchievement) {
     final id = userAchievement.achievement.id;
-    if (_achievementsMap.containsKey(id)) {
-      _achievementsMap[id] =
-          _achievementsMap[id].addAchievement(userAchievement);
+    if (_receivedAchievements.containsKey(id)) {
+      _receivedAchievements[id] =
+          _receivedAchievements[id].addAchievement(userAchievement);
     } else {
-      _achievementsMap[id] = UserAchievementCollection.single(userAchievement);
+      _receivedAchievements[id] =
+          UserAchievementCollection.single(userAchievement);
     }
   }
 
@@ -92,8 +111,8 @@ class ProfileAchievementsViewModel extends BaseViewModel {
 
   void _onAchievementViewed(AchievementViewedMessage event) {
     final id = event.achievement.id;
-    if (_achievementsMap.containsKey(id)) {
-      _achievementsMap[id].hasNew = false;
+    if (_receivedAchievements.containsKey(id)) {
+      _receivedAchievements[id].hasNew = false;
       notifyListeners();
     }
   }
