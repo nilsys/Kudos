@@ -74,7 +74,7 @@
     "accessDenied": "Access denied",
     "privateTeam": "This team is private",
     "myTeams": "My Teams",
-    "otherTeams": "Public Teams",
+    "otherTeams": "Other Teams",
     "teamNamePlaceholder": "Enter team name",
     "teamDescriptionPlaceholder": "Enter team description",
     "teamNameExists": "Team with such name already exists. Please change the name and try again",
@@ -82,7 +82,7 @@
     "accessLevelPublic": "Public",
     "accessLevelProtected": "Protected",
     "accessLevelPrivate": "Private",
-    "accessLevelPublicDescription": "Everyone can view and send this team's acheivements",
+    "accessLevelPublicDescription": "Everyone can view and send this team's achievements",
     "accessLevelProtectedDescription": "Everyone can view this team's achievements, but only team members can send them",
     "accessLevelPrivateDescription": "Only team members can view and send this team's achievements"
 }

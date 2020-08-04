@@ -33,22 +33,28 @@ class AchievementsDatabaseService {
   Query _getAchievementsQuery(
     String field, {
     dynamic isEqualTo,
+    dynamic isLessThan,
     dynamic arrayContains,
   }) {
     return _database
         .collection(_achievementsCollection)
-        .where(field, isEqualTo: isEqualTo, arrayContains: arrayContains)
+        .where(field,
+            isEqualTo: isEqualTo,
+            isLessThan: isLessThan,
+            arrayContains: arrayContains)
         .where("is_active", isEqualTo: true);
   }
 
   Stream<Iterable<ItemChange<Achievement>>> _getAchievementsStream(
     String field, {
     dynamic isEqualTo,
+    dynamic isLessThan,
     dynamic arrayContains,
   }) {
     return _getAchievementsQuery(
       field,
       isEqualTo: isEqualTo,
+      isLessThan: isLessThan,
       arrayContains: arrayContains,
     ).snapshots().transform(_streamTransformer);
   }
@@ -56,11 +62,13 @@ class AchievementsDatabaseService {
   Future<Iterable<Achievement>> _getAchievements(
     String field, {
     dynamic isEqualTo,
+    dynamic isLessThan,
     dynamic arrayContains,
   }) {
     return _getAchievementsQuery(
       field,
       isEqualTo: isEqualTo,
+      isLessThan: isLessThan,
       arrayContains: arrayContains,
     ).getDocuments().then((value) =>
         value.documents.map((d) => Achievement.fromJson(d.data, d.documentID)));
@@ -76,11 +84,11 @@ class AchievementsDatabaseService {
     return _getAchievementsStream("visible_for", arrayContains: userId);
   }
 
-  Stream<Iterable<ItemChange<Achievement>>> getPublicAchievementsStream(
+  Stream<Iterable<ItemChange<Achievement>>> getAccessibleAchievementsStream(
       String userId) {
     return _getAchievementsStream(
       "access_level",
-      isEqualTo: AccessLevel.public.index,
+      isLessThan: AccessLevel.private.index,
     );
   }
 
@@ -88,9 +96,9 @@ class AchievementsDatabaseService {
     return _getAchievements("visible_for", arrayContains: userId);
   }
 
-  Future<Iterable<Achievement>> getPublicAchievements() {
+  Future<Iterable<Achievement>> getAccessibleAchievements() {
     return _getAchievements("access_level",
-        isEqualTo: AccessLevel.public.index);
+        isLessThan: AccessLevel.private.index);
   }
 
   Future<Iterable<Achievement>> getTeamAchievements(String teamId) {

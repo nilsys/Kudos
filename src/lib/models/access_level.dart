@@ -1,5 +1,5 @@
 enum AccessLevel {
   public, // 0
-  private, // 1
-  protected, // 2
+  protected, // 1
+  private, // 2
 }
