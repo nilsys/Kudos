@@ -17,10 +17,10 @@ class TeamsDatabaseService {
             value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
   }
 
-  Future<Iterable<Team>> getPublicTeams() {
+  Future<Iterable<Team>> getAccessibleTeams() {
     return _database
         .collection(_teamsCollection)
-        .where("access_level", isEqualTo: AccessLevel.public.index)
+        .where("access_level", isLessThan: AccessLevel.private.index)
         .where("is_active", isEqualTo: true)
         .getDocuments()
         .then((value) =>

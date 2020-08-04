@@ -27,7 +27,7 @@ class AchievementsService {
 
   StreamSubscription _myAchievementsStreamSubscription;
   StreamSubscription _myTeamsAchievementsStreamSubscription;
-  StreamSubscription _publicAchievementsStreamSubscription;
+  StreamSubscription _accessibleAchievementsStreamSubscription;
 
   final _achievementsStreamUpdatedMutex = Mutex();
 
@@ -64,9 +64,9 @@ class AchievementsService {
           .listen(_onAchievementsStreamUpdated);
     }
 
-    if (_publicAchievementsStreamSubscription == null) {
-      _publicAchievementsStreamSubscription = _achievementsDatabaseService
-          .getPublicAchievementsStream(_authService.currentUser.id)
+    if (_accessibleAchievementsStreamSubscription == null) {
+      _accessibleAchievementsStreamSubscription = _achievementsDatabaseService
+          .getAccessibleAchievementsStream(_authService.currentUser.id)
           .listen(_onAchievementsStreamUpdated);
     }
   }
@@ -78,13 +78,13 @@ class AchievementsService {
     var myTeamsAchievements = await _achievementsDatabaseService
         .getUserTeamsAchievements(_authService.currentUser.id);
 
-    var publicAchievements =
-        await _achievementsDatabaseService.getPublicAchievements();
+    var accessibleAchievements =
+        await _achievementsDatabaseService.getAccessibleAchievements();
 
     var achievementsSet = {
       ...myAchievements,
       ...myTeamsAchievements,
-      ...publicAchievements,
+      ...accessibleAchievements,
     };
 
     _cachedAchievements = Map.fromIterable(
@@ -258,7 +258,7 @@ class AchievementsService {
     _myTeamsAchievementsStreamSubscription?.cancel();
     _myTeamsAchievementsStreamSubscription = null;
 
-    _publicAchievementsStreamSubscription?.cancel();
-    _publicAchievementsStreamSubscription = null;
+    _accessibleAchievementsStreamSubscription?.cancel();
+    _accessibleAchievementsStreamSubscription = null;
   }
 }

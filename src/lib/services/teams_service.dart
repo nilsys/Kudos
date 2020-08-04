@@ -151,9 +151,9 @@ class TeamsService {
   Future<List<TeamModel>> getTeams() async {
     var userTeams =
         await _teamsDatabaseService.getUserTeams(_authService.currentUser.id);
-    var publicTeams = await _teamsDatabaseService.getPublicTeams();
+    var accessibleTeams = await _teamsDatabaseService.getAccessibleTeams();
 
-    var teamsSet = {...userTeams, ...publicTeams};
+    var teamsSet = {...userTeams, ...accessibleTeams};
     return teamsSet.map((t) => TeamModel.fromTeam(t)).toList();
   }
 

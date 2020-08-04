@@ -773,6 +773,16 @@ class S {
     );
   }
 
+  /// `This achievement is private`
+  String get privateAchievement {
+    return Intl.message(
+      'This achievement is private',
+      name: 'privateAchievement',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `My Teams`
   String get myTeams {
     return Intl.message(
@@ -783,10 +793,10 @@ class S {
     );
   }
 
-  /// `Public Teams`
+  /// `Other Teams`
   String get otherTeams {
     return Intl.message(
-      'Public Teams',
+      'Other Teams',
       name: 'otherTeams',
       desc: '',
       args: [],
@@ -863,10 +873,10 @@ class S {
     );
   }
 
-  /// `Everyone can view and send this team's acheivements`
+  /// `Everyone can view and send this team's achievements`
   String get accessLevelPublicDescription {
     return Intl.message(
-      'Everyone can view and send this team\'s acheivements',
+      'Everyone can view and send this team\'s achievements',
       name: 'accessLevelPublicDescription',
       desc: '',
       args: [],

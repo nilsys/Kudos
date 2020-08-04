@@ -73,8 +73,9 @@
     "searchEmptyPlaceholder": "Нет результатов поиска",
     "accessDenied": "Доступ запрещён",
     "privateTeam": "Это частная команда",
+    "privateAcheivement": "Это частная награда",
     "myTeams": "Мои Команды",
-    "otherTeams": "Публичные Команды",
+    "otherTeams": "Другие Команды",
     "teamNamePlaceholder": "Введите название команды",
     "teamDescriptionPlaceholder": "Введите описание команды",
     "teamNameExists": "Команда с таким названием уже существует. Измените название и попробуйте еще раз",
@@ -82,7 +83,7 @@
     "accessLevelPublic": "Публичная",
     "accessLevelProtected": "Защищенная",
     "accessLevelPrivate": "Частная",
-    "accessLevelPublicDescription": "Награды публичных команд видны всем пользователям",
+    "accessLevelPublicDescription": "Все пользователи могут видеть и дарить награды публичных команд",
     "accessLevelProtectedDescription": "Награды защищенных команд видны всем пользователям, но они не могут их дарить",
     "accessLevelPrivateDescription": "Награды частных команд видны только участникам этой команды"
 }

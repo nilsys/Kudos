@@ -72,6 +72,9 @@ class TeamModel {
   bool isTeamMember(String userId) => members?.containsKey(userId) ?? false;
 
   bool canBeModifiedByUser(String userId) => isTeamAdmin(userId);
+
   bool canBeViewedByUser(String userId) =>
-      isTeamMember(userId) || this.accessLevel == AccessLevel.public;
+      isTeamMember(userId) ||
+      this.accessLevel == AccessLevel.public ||
+      this.accessLevel == AccessLevel.protected;
 }
