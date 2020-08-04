@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
@@ -88,10 +89,37 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
         child: CircularProgressIndicator(),
       ));
     } else {
-      children.add(Text(
-        viewModel.description,
-        style: KudosTheme.descriptionTextStyle,
+      children.add(Visibility(
+        visible: viewModel.description.isNotEmpty,
+        child: Text(
+          viewModel.description,
+          style: KudosTheme.descriptionTextStyle,
+        ),
       ));
+      children.add(Visibility(
+        visible: viewModel.description.isNotEmpty,
+        child: SizedBox(height: 10.0),
+      ));
+      children.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              AccessLevelUtils.getIcon(viewModel.accessLevel),
+              color: KudosTheme.mainGradientEndColor,
+              size: 20.0,
+            ),
+            SizedBox(
+              width: 6.0,
+            ),
+            Text(
+              AccessLevelUtils.getString(viewModel.accessLevel),
+              style: KudosTheme.descriptionTextStyle,
+            ),
+          ],
+        ),
+      );
       children.add(SizedBox(height: 24.0));
       children.add(
         Padding(
