@@ -39,13 +39,16 @@ class ProfileViewModel extends BaseViewModel with Disposable {
   }
 
   void _initialize() async {
-    final loadedUser = await _peopleService.getUser(user.id);
-    user.updateWithModel(loadedUser);
+    try {
+      isBusy = true;
+      final loadedUser = await _peopleService.getUser(user.id);
+      user.updateWithModel(loadedUser);
 
-    final teams = await _teamsService.getUserTeams(user.id);
-    userTeams.replace(teams);
-
-    notifyListeners();
+      final teams = await _teamsService.getUserTeams(user.id);
+      userTeams.replace(teams);
+    } finally {
+      isBusy = false;
+    }
   }
 
   Future<void> sendAchievement(BuildContext context) async {

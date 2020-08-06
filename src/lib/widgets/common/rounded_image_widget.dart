@@ -120,13 +120,17 @@ class _RoundedImageWidgetState extends State<RoundedImageWidget> {
 
   Future<void> _loadImage() async {
     if (_url != null) {
-      var newFile = await DefaultCacheManager().getSingleFile(_url);
-      if (newFile != null) {
-        if (!_isDisposed) {
-          setState(() {
-            _file = newFile;
-          });
+      try {
+        var newFile = await DefaultCacheManager().getSingleFile(_url);
+        if (newFile != null) {
+          if (!_isDisposed) {
+            setState(() {
+              _file = newFile;
+            });
+          }
         }
+      } catch (ex) {
+        // Ignore exceptions
       }
     }
   }
