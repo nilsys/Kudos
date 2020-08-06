@@ -1,7 +1,7 @@
 class EntryCounter {
   final List<bool> _entries;
 
-  int _addedEntriesCount;
+  int _addedEntriesCount = 0;
   bool get hasEntries => _addedEntriesCount > 0;
 
   EntryCounter(int count) : _entries = new List<bool>(count);
