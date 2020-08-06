@@ -1,55 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/helpers/text_editing_value_helper.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:kudosapp/models/achievement_model.dart';
-import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:provider/provider.dart';
 
-class EditAchievementRoute extends MaterialPageRoute {
-  EditAchievementRoute.createTeamAchievement(TeamModel team)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<EditAchievementViewModel>(
-                create: (context) =>
-                    EditAchievementViewModel.createTeamAchievement(team),
-                child: _EditAchievementPage());
-          },
-          fullscreenDialog: true,
-        );
-
-  EditAchievementRoute.createUserAchievement(UserModel user)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<EditAchievementViewModel>(
-                create: (context) =>
-                    EditAchievementViewModel.createUserAchievement(user),
-                child: _EditAchievementPage());
-          },
-          fullscreenDialog: true,
-        );
-
-  EditAchievementRoute.editAchievement(AchievementModel achievementModel)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<EditAchievementViewModel>(
-              create: (context) {
-                return EditAchievementViewModel.editAchievement(
-                    achievementModel);
-              },
-              child: _EditAchievementPage(),
-            );
-          },
-          fullscreenDialog: true,
-        );
-}
-
-class _EditAchievementPage extends StatelessWidget {
+class EditAchievementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel =
@@ -59,7 +17,7 @@ class _EditAchievementPage extends StatelessWidget {
       appBar: GradientAppBar(title: viewModel.pageTitle),
       floatingActionButton: FloatingActionButton(
         child: KudosTheme.saveIcon,
-        onPressed: () => _onSavePressed(context),
+        onPressed: () => viewModel.save(context),
       ),
       body: Consumer<EditAchievementViewModel>(
         builder: (context, viewModel, child) {
@@ -241,45 +199,6 @@ class _EditAchievementPage extends StatelessWidget {
       EditAchievementViewModel viewModel, BuildContext context) {
     viewModel.pickFile(context);
   }
-
-  void _onSavePressed(BuildContext context) async {
-    var viewModel = Provider.of<EditAchievementViewModel>(
-      context,
-      listen: false,
-    );
-
-    String errorMessage;
-    try {
-      viewModel.isBusy = true;
-      await viewModel.save();
-    } on ArgumentError catch (exception) {
-      switch (exception.name) {
-        case "file":
-          errorMessage = localizer().fileIsNullErrorMessage;
-          break;
-        case "name":
-          errorMessage = localizer().nameIsNullErrorMessage;
-          break;
-        case "description":
-          errorMessage = localizer().descriptionIsNullErrorMessage;
-          break;
-        default:
-          errorMessage = localizer().generalErrorMessage;
-          break;
-      }
-    } catch (exception) {
-      errorMessage = localizer().generalErrorMessage;
-    } finally {
-      viewModel.isBusy = false;
-    }
-
-    if (errorMessage != null) {
-      locator<DialogService>()
-          .showOkDialog(context: context, content: errorMessage);
-    } else {
-      Navigator.of(context).pop();
-    }
-  }
 }
 
 class _OverlayPainter extends CustomPainter {
@@ -445,7 +364,11 @@ class _TextInputWidgetState extends State<_TextInputWidget> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(
-                  left: 16.0, right: 16.0, bottom: 16.0, top: 32.0),
+                left: 16.0,
+                right: 16.0,
+                bottom: 16.0,
+                top: 32.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[

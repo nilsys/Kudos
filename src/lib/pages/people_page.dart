@@ -13,21 +13,6 @@ import 'package:kudosapp/widgets/search_input_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:sprintf/sprintf.dart';
 
-class PeoplePageRoute extends MaterialPageRoute<UserModel> {
-  PeoplePageRoute({
-    @required SelectionAction selectionAction,
-    Set<String> excludedUserIds,
-    Icon selectorIcon,
-  }) : super(
-          builder: (context) => PeoplePage(
-            selectionAction: selectionAction,
-            excludedUserIds: excludedUserIds,
-            selectorIcon: selectorIcon,
-          ),
-          fullscreenDialog: true,
-        );
-}
-
 class PeoplePage extends StatelessWidget {
   final Set<String> _excludedUserIds;
   final SelectionAction _selectionAction;

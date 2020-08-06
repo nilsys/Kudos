@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/models/statistics_model.dart';
 import 'package:kudosapp/models/user_model.dart';
-import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
-import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/snack_bar_notifier_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
@@ -17,26 +14,12 @@ import 'package:kudosapp/widgets/section_header_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:sprintf/sprintf.dart';
 
-class AchievementDetailsRoute extends MaterialPageRoute {
-  AchievementDetailsRoute(AchievementModel achievementModel)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<AchievementDetailsViewModel>(
-              create: (context) {
-                return AchievementDetailsViewModel(achievementModel);
-              },
-              child: _AchievementDetailsPage(),
-            );
-          },
-        );
-}
-
-class _AchievementDetailsPage extends StatefulWidget {
+class AchievementDetailsPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _AchievementDetailsPageState();
 }
 
-class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
+class _AchievementDetailsPageState extends State<AchievementDetailsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _snackBarNotifier = locator<SnackBarNotifierService>();
 
@@ -56,13 +39,7 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
                             viewModel.transferAchievement(context)),
                     IconButton(
                       icon: KudosTheme.editIcon,
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          EditAchievementRoute.editAchievement(
-                            viewModel.achievement,
-                          ),
-                        );
-                      },
+                      onPressed: () => viewModel.editAchievement(context),
                     ),
                     IconButton(
                         icon: KudosTheme.deleteIcon,
@@ -122,6 +99,7 @@ class _AchievementDetailsPageState extends State<_AchievementDetailsPage> {
               builder: (context, notifier, child) {
                 return _UsersListWidget(
                   viewModel.achievementHolders,
+                  (user) => viewModel.onHolderClicked(context, user),
                 );
               },
             ),
@@ -242,8 +220,9 @@ class _AchievementOwnerWidget extends StatelessWidget {
 
 class _UsersListWidget extends StatelessWidget {
   final ListNotifier<UserModel> _users;
+  final void Function(UserModel) _onUserClicked;
 
-  _UsersListWidget(this._users);
+  _UsersListWidget(this._users, this._onUserClicked);
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +273,7 @@ class _UsersListWidget extends StatelessWidget {
           imageUrl: user.imageUrl,
           title: user.name,
         ),
-        onTap: () => Navigator.of(context).push(ProfileRoute(user)),
+        onTap: () => _onUserClicked?.call(user),
       ),
       decoration: KudosTheme.tooltipDecoration,
       textStyle: KudosTheme.tooltipTextStyle,

@@ -13,13 +13,17 @@ import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/profile/received_achievement_viewmodel.dart';
 import 'package:sortedmap/sortedmap.dart';
 
 class ProfileAchievementsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
   final _dialogsService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   final String _userId;
@@ -74,8 +78,10 @@ class ProfileAchievementsViewModel extends BaseViewModel {
         _accessibleAchievementsMap[achievementCollection.relatedAchievement.id];
 
     if (isMyProfile) {
-      Navigator.of(context).push(
-        ReceivedAchievementRoute(achievementCollection),
+      _navigationService.navigateToViewModel(
+        context,
+        ReceivedAchievementPage(),
+        ReceivedAchievementViewModel(achievementCollection),
       );
     } else if (achievement == null) {
       _dialogsService.showOkDialog(
@@ -85,7 +91,11 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       );
     } else {
       final achievement = achievementCollection.relatedAchievement;
-      Navigator.of(context).push(AchievementDetailsRoute(achievement));
+      _navigationService.navigateToViewModel(
+        context,
+        AchievementDetailsPage(),
+        AchievementDetailsViewModel(achievement),
+      );
     }
   }
 

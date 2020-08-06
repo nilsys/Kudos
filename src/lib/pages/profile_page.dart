@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/snack_bar_notifier_service.dart';
 import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
@@ -11,18 +10,6 @@ import 'package:kudosapp/widgets/common/fancy_list_widget.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
 import 'package:kudosapp/widgets/sliver_gradient_app_bar.dart';
 import 'package:provider/provider.dart';
-
-class ProfileRoute extends MaterialPageRoute {
-  ProfileRoute(UserModel userModel)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<ProfileViewModel>(
-              create: (context) => ProfileViewModel(userModel),
-              child: ProfilePage(),
-            );
-          },
-        );
-}
 
 class ProfilePage extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
