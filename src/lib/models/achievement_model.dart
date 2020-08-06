@@ -73,6 +73,7 @@ class AchievementModel {
     imageFile = achievement.imageFile;
     owner = achievement.owner;
     accessLevel = achievement.accessLevel;
+    teamMembers = achievement.teamMembers;
   }
 
   bool _isTeamMember(String userId) =>
