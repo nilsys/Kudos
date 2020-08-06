@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/widgets.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
@@ -35,8 +36,13 @@ class ManageTeamViewModel extends BaseViewModel {
   StreamSubscription _achievementTransferredSubscription;
 
   String get name => _team.name;
+
   String get description => _team.description;
+
   String get imageUrl => _team.imageUrl;
+
+  AccessLevel get accessLevel => _team.accessLevel;
+
   Iterable<TeamMemberModel> get members => _team.members.values;
 
   bool get canEdit => _team.members == null

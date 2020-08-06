@@ -31,6 +31,7 @@ class TeamsViewModel extends BaseViewModel {
   StreamSubscription _teamDeletedSubscription;
 
   Stream<List<GrouppedListItem<TeamModel>>> get teamsStream => _teamsStream;
+
   bool get isAllTeamsListEmpty => _teamsList.isEmpty;
 
   TeamsViewModel(this._selectionAction, {Set<String> excludedTeamIds})
@@ -120,9 +121,10 @@ class TeamsViewModel extends BaseViewModel {
   }
 
   GrouppedListItem<TeamModel> _createGrouppedItemFromTeam(TeamModel team) {
-    int sortIndex = team.isTeamAdmin(_authService.currentUser.id)
-        ? 2
-        : team.isTeamMember(_authService.currentUser.id) ? 1 : 0;
+    int sortIndex = team.isTeamAdmin(_authService.currentUser.id) ||
+            team.isTeamMember(_authService.currentUser.id)
+        ? 1
+        : 0;
 
     final myTeamsText = localizer().myTeams;
     final otherTeamsText = localizer().otherTeams;
