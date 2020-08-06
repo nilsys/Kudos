@@ -91,7 +91,7 @@ class Achievement extends Equatable {
       teamMembers:
           teamMembers?.map((tmm) => TeamMember.fromModel(tmm))?.toList(),
       accessLevel: accessLevel.index,
-      isActive: isActive ?? true,
+      isActive: isActive ?? model.isActive,
     );
   }
 
@@ -120,15 +120,16 @@ class Achievement extends Equatable {
     if (addAll || addOwner) {
       map["team"] = team == null ? null : team.toJson();
       map["user"] = user == null ? null : user.toJson();
-      map["team_members"] =
-          this.teamMembers?.map((tm) => tm.toJson())?.toList();
-      visibleFor.addAll(this.teamMembers?.map((x) => x.id));
     }
 
-    if (addTeamMembers) {
+    if (addAll || addOwner || addTeamMembers) {
       map["team_members"] =
           this.teamMembers?.map((tm) => tm.toJson())?.toList();
-      visibleFor.addAll(this.teamMembers?.map((x) => x.id));
+      if (this.teamMembers != null) {
+        visibleFor.addAll(this.teamMembers.map((x) => x.id));
+      }
+      visibleFor = visibleFor.toSet().toList();
+      map["visible_for"] = visibleFor.isNotEmpty ? visibleFor : null;
     }
 
     if (addAll || addAccessLevel) {
@@ -137,11 +138,6 @@ class Achievement extends Equatable {
 
     if (addAll || addIsActive) {
       map["is_active"] = this.isActive;
-    }
-
-    if (visibleFor.isNotEmpty) {
-      visibleFor = visibleFor.toSet().toList();
-      map["visible_for"] = visibleFor;
     }
 
     return map;

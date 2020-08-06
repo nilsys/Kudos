@@ -16,6 +16,7 @@ class TeamModel {
   File imageFile;
   Map<String, TeamMemberModel> members;
   AccessLevel accessLevel;
+  bool isActive;
 
   TeamModel._({
     this.id,
@@ -25,6 +26,7 @@ class TeamModel {
     this.imageName,
     this.members,
     this.accessLevel,
+    this.isActive = true,
   });
 
   factory TeamModel.empty() {
@@ -44,6 +46,7 @@ class TeamModel {
         value: (item) => TeamMemberModel.fromTeamMember(item),
       ),
       accessLevel: (AccessLevel.values[team.accessLevel]),
+      isActive: team.isActive,
     );
   }
 
@@ -63,6 +66,7 @@ class TeamModel {
     imageFile = team.imageFile;
     members = team.members;
     accessLevel = team.accessLevel;
+    isActive = team.isActive;
   }
 
   bool isTeamAdmin(String userId) =>
@@ -71,10 +75,11 @@ class TeamModel {
 
   bool isTeamMember(String userId) => members?.containsKey(userId) ?? false;
 
-  bool canBeModifiedByUser(String userId) => isTeamAdmin(userId);
+  bool canBeModifiedByUser(String userId) => isActive && isTeamAdmin(userId);
 
   bool canBeViewedByUser(String userId) =>
-      isTeamMember(userId) ||
-      this.accessLevel == AccessLevel.public ||
-      this.accessLevel == AccessLevel.protected;
+      isActive &&
+      (isTeamMember(userId) ||
+          this.accessLevel == AccessLevel.public ||
+          this.accessLevel == AccessLevel.protected);
 }

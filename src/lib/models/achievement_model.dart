@@ -20,6 +20,7 @@ class AchievementModel {
   AchievementOwnerModel owner;
   AccessLevel accessLevel;
   Map<String, TeamMemberModel> teamMembers;
+  bool isActive;
 
   AchievementModel._({
     this.id,
@@ -30,6 +31,7 @@ class AchievementModel {
     this.owner,
     this.accessLevel,
     this.teamMembers,
+    this.isActive = true,
   });
 
   factory AchievementModel.empty() => AchievementModel._();
@@ -52,6 +54,7 @@ class AchievementModel {
           : AchievementOwnerModel.fromUser(
               UserModel.fromUserReference(achievement.user)),
       accessLevel: (AccessLevel.values[achievement.accessLevel]),
+      isActive: achievement.isActive,
     );
   }
 
@@ -74,6 +77,7 @@ class AchievementModel {
     owner = achievement.owner;
     accessLevel = achievement.accessLevel;
     teamMembers = achievement.teamMembers;
+    isActive = achievement.isActive;
   }
 
   bool _isTeamMember(String userId) =>
@@ -91,10 +95,11 @@ class AchievementModel {
       accessLevel == AccessLevel.protected;
 
   bool canBeModifiedByUser(String userId) =>
-      _isAchievementOwner(userId) || _isTeamAdmin(userId);
+      isActive && (_isAchievementOwner(userId) || _isTeamAdmin(userId));
 
   bool canBeSentByUser(String userId) =>
-      _isAchievementOwner(userId) ||
-      _isTeamMember(userId) ||
-      accessLevel == AccessLevel.public;
+      isActive &&
+      (_isAchievementOwner(userId) ||
+          _isTeamMember(userId) ||
+          accessLevel == AccessLevel.public);
 }
