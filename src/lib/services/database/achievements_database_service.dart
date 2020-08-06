@@ -117,10 +117,10 @@ class AchievementsDatabaseService {
   }
 
   Future<Iterable<AchievementHolder>> getAchievementHolders(
-      String achivementId) {
+      String achievementId) {
     return _database
         .collection(
-            "$_achievementsCollection/$achivementId/$_achievementHoldersCollection")
+            "$_achievementsCollection/$achievementId/$_achievementHoldersCollection")
         .getDocuments()
         .then((value) =>
             value.documents.map((d) => AchievementHolder.fromJson(d.data)));
@@ -169,7 +169,7 @@ class AchievementsDatabaseService {
 
   Future<Iterable<UserAchievement>> getReceivedAchievements(
     String userId,
-  ) async {
+  ) {
     return _database
         .collection(
             "$_usersCollection/$userId/$_achievementReferencesCollection")
