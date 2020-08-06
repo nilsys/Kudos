@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/models/selection_action.dart';
@@ -161,6 +162,7 @@ class TeamsPage extends StatelessWidget {
   ) {
     return SimpleListItem(
       title: team.name,
+      description: AccessLevelUtils.getString(team.accessLevel),
       onTap: () => viewModel.onTeamClicked(context, team),
       selectorIcon: _selectorIcon,
       imageShape: ImageShape.square(56, 4),
