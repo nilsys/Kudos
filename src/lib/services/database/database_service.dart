@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DatabaseService {
   final _database = Firestore.instance;
 
-  Future<void> batchUpdate(List<void Function(WriteBatch)> functions) {
+  Future<void> batchUpdate(List<void Function(WriteBatch)> functions) async {
     if (functions == null || functions.isEmpty) {
-      return null;
+      return;
     }
     var batch = _database.batch();
 
@@ -13,6 +13,6 @@ class DatabaseService {
       func.call(batch);
     }
 
-    return batch.commit();
+    await batch.commit();
   }
 }

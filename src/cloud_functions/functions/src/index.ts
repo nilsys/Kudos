@@ -36,8 +36,8 @@ export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdat
     const oldAccessLevel: number = oldData.access_level;
     const newAccessLevel: number = newData.access_level;
 
-    if ((oldName != newName) 
-        || (oldAccessLevel != newAccessLevel) 
+    if ((oldName !== newName)
+        || (oldAccessLevel !== newAccessLevel)
         || (!mapArraysEquals(oldMembers, newMembers))) {
         const data = {
             team: {
@@ -318,7 +318,7 @@ export const updateUser = functions.firestore.document('users/{userId}').onUpdat
 });
 
 function mapArraysEquals(array1: Array<Map<string, any>>, array2: Array<Map<string, any>>): boolean {
-    if (array1.length != array2.length) {
+    if (array1.length !== array2.length) {
         return false;
     }
 
@@ -336,12 +336,12 @@ function mapArraysEquals(array1: Array<Map<string, any>>, array2: Array<Map<stri
 }
 
 function mapEquals(map1: Map<string, any>, map2: Map<string, any>): boolean {
-    if (map1.size != map2.size)
+    if (map1.size !== map2.size)
     {
         return false;
     }
 
-    for (var key in map1.keys) {
+    for (const key in map1.keys) {
         if (!map2.has(key) || map1.get(key) !== map2.get(key))
         {
             return false;

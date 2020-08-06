@@ -115,7 +115,7 @@ class TeamsDatabaseService {
     bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
-  }) {
+  }) async {
     final docRef = _database.collection(_teamsCollection).document(team.id);
     final map = team.toJson(
       addMetadata: updateMetadata,
@@ -125,13 +125,12 @@ class TeamsDatabaseService {
       addIsActive: updateIsActive,
     );
     if (batch == null) {
-      return docRef
+      await docRef
           .setData(map, merge: true)
           .then((value) => docRef.get())
           .then((value) => Team.fromJson(value.data, value.documentID));
     } else {
       batch.setData(docRef, map, merge: true);
-      return null;
     }
   }
 
