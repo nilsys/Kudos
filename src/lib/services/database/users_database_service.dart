@@ -3,39 +3,40 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/user.dart';
 import 'package:kudosapp/dto/user_registration.dart';
-import 'package:kudosapp/models/user_model.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/helpers/firestore_helpers.dart';
 
 class UsersDatabaseService {
   static const _usersCollection = "users";
   static const _pushTokenCollection = "push_tokens";
 
-  final _usersSubject = BehaviorSubject<List<UserModel>>();
   final _database = Firestore.instance;
 
-  StreamSubscription _usersStreamSubscription;
+  final _streamTransformer =
+      StreamTransformer<QuerySnapshot, Iterable<ItemChange<User>>>.fromHandlers(
+    handleData: (querySnapshot, sink) {
+      var usersChanges = querySnapshot.documentChanges.map(
+        (dc) => ItemChange<User>(
+          User.fromJson(dc.document.data, dc.document.documentID),
+          dc.type.toItemChangeType(),
+        ),
+      );
 
-  Stream<List<UserModel>> get usersStream => _usersSubject;
+      sink.add(usersChanges);
+    },
+  );
 
-  void updateUsersListenerIfNeeded() {
-    if (_usersStreamSubscription != null) {
-      return;
-    }
-
-    _usersStreamSubscription = _database
-        .collection(_usersCollection)
-        .snapshots()
-        .listen(_onUsersChange);
+  Query _getUsersQuery() {
+    return _database.collection(_usersCollection);
   }
 
-  void stopListenUsers() {
-    _usersStreamSubscription?.cancel();
-    _usersStreamSubscription = null;
+  Stream<Iterable<ItemChange<User>>> getUsersStream() {
+    return _getUsersQuery().snapshots().transform(_streamTransformer);
   }
 
-  Future<List<UserModel>> getAllUsers() async {
-    final qs = await _database.collection(_usersCollection).getDocuments();
-    return _mapToUserModels(qs);
+  Future<Iterable<User>> getUsers() async {
+    return _getUsersQuery().getDocuments().then((value) =>
+        value.documents.map((d) => User.fromJson(d.data, d.documentID)));
   }
 
   Future<void> registerUser(
@@ -68,23 +69,5 @@ class UsersDatabaseService {
       return docRef
           .updateData({"received_achievements_count": FieldValue.increment(1)});
     }
-  }
-
-  void _onUsersChange(QuerySnapshot qs) {
-    if (qs.documents.length == 0) {
-      return;
-    }
-
-    final models = _mapToUserModels(qs);
-    _usersSubject.add(models);
-  }
-
-  List<UserModel> _mapToUserModels(QuerySnapshot qs) {
-    final models = qs.documents
-        .map((x) => User.fromJson(x.data, x.documentID))
-        .map((x) => UserModel.fromUser(x))
-        .toList();
-    models.sort((x, y) => x.name.compareTo(y.name));
-    return models;
   }
 }

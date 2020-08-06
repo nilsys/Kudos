@@ -14,8 +14,8 @@ import 'package:kudosapp/pages/team_member_picker_page.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
-import 'package:kudosapp/services/achievements_service.dart';
-import 'package:kudosapp/services/teams_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 

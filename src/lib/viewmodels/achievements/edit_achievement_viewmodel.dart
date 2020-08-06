@@ -10,7 +10,7 @@ import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/image_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 

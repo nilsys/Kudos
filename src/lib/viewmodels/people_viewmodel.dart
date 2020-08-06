@@ -5,7 +5,7 @@ import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/users_service.dart';
+import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class PeopleViewModel extends BaseViewModel {
@@ -64,12 +64,12 @@ class PeopleViewModel extends BaseViewModel {
   Future<void> _loadPeopleList() async {
     try {
       isBusy = true;
-      var loadedList = await _peopleService.getAllUsers();
+      var loadedUsers = await _peopleService.getAllUsers();
 
       if (_excludedUserIds == null || _excludedUserIds.isEmpty) {
-        _peopleList = loadedList;
+        _peopleList = loadedUsers.toList();
       } else {
-        _peopleList = List.from(loadedList);
+        _peopleList = List.from(loadedUsers);
         _peopleList.removeWhere((x) => _excludedUserIds.contains(x.id));
       }
     } finally {

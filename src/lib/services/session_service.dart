@@ -1,8 +1,8 @@
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/push_notifications_service.dart';
-import 'package:kudosapp/services/users_service.dart';
+import 'package:kudosapp/services/data_services/users_service.dart';
 
 class SessionService {
   final _usersService = locator<UsersService>();
@@ -19,8 +19,8 @@ class SessionService {
 
   Future<void> closeSession() async {
     await _pushNotificationsService.unsubscribeFromNotifications();
-    _usersService.closeUsersSubscription();
-    _achievementsService.closeAchievementsSubscription();
+    _usersService.closeSubscriptions();
+    _achievementsService.closeSubscriptions();
     await _authService.signOut();
   }
 }

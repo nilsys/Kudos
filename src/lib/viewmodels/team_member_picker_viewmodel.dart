@@ -6,9 +6,9 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/users_service.dart';
+import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
-import 'package:kudosapp/services/teams_service.dart';
+import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 enum UserState {
