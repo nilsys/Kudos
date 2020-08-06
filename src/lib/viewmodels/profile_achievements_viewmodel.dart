@@ -77,7 +77,7 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       Navigator.of(context).push(
         ReceivedAchievementRoute(achievementCollection),
       );
-    } else if (achievement == null || !achievement.canBeViewedByUser(_userId)) {
+    } else if (achievement == null) {
       _dialogsService.showOkDialog(
         context: context,
         title: localizer().accessDenied,
