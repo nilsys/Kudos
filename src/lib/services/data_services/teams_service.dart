@@ -151,7 +151,7 @@ class TeamsService extends CachedDataService<Team, TeamModel> {
 
   Future<void> deleteTeam(
       TeamModel teamModel, List<AchievementModel> achievements) async {
-    if (achievements != null && achievements.length == 0) {
+    if (achievements != null && achievements.isEmpty) {
       return _teamsDatabaseService.deleteTeam(teamModel.id);
     }
 
