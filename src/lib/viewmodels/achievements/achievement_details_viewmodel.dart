@@ -45,6 +45,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
   final allUsersStatistics = StatisticsModel.empty(localizer().softeq);
 
   StatisticsModel _teamUsersStatistics;
+
   StatisticsModel get teamUsersStatistics => _teamUsersStatistics;
 
   AchievementDetailsViewModel(this.achievement) {
@@ -77,6 +78,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
   bool canEdit() =>
       achievement.canBeModifiedByUser(_authService.currentUser.id);
+
   bool canSend() => achievement.canBeSentByUser(_authService.currentUser.id);
 
   Future<void> sendAchievement(BuildContext context) async {
@@ -237,6 +239,17 @@ class AchievementDetailsViewModel extends BaseViewModel {
   }
 
   void onOwnerClicked(BuildContext context) {
+    if (achievement.owner.type == AchievementOwnerType.team &&
+        !achievement.owner.team
+            .canBeViewedByUser(_authService.currentUser.id)) {
+      _dialogsService.showOkDialog(
+        context: context,
+        title: localizer().accessDenied,
+        content: localizer().privateTeam,
+      );
+      return;
+    }
+
     switch (achievement.owner.type) {
       case AchievementOwnerType.user:
         Navigator.of(context)
