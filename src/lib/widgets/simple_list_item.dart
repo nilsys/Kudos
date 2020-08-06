@@ -100,7 +100,7 @@ class SimpleListItem extends StatelessWidget {
         top: 8.0,
         left: imageShape == null ? 0 : (imageShape.size + _imagePadding * 2),
       ),
-      height: 1.0,
+      height: 0.5,
       color: KudosTheme.accentColor,
     );
   }

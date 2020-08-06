@@ -78,7 +78,7 @@ class ProfilePage extends StatelessWidget {
       heroTag: viewModel.imageUrl,
     );
 
-    if (viewModel.user == null) {
+    if (viewModel.isBusy) {
       yield SliverFillRemaining(
         child: Center(
           child: CircularProgressIndicator(),
