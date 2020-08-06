@@ -272,6 +272,7 @@ class _UsersListWidget extends StatelessWidget {
           size: 60,
           imageUrl: user.imageUrl,
           title: user.name,
+          addHeroAnimation: true,
         ),
         onTap: () => _onUserClicked?.call(user),
       ),
