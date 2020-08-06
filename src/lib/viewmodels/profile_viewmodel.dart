@@ -11,11 +11,11 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/achievements_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
-import 'package:kudosapp/services/users_service.dart';
-import 'package:kudosapp/services/teams_service.dart';
+import 'package:kudosapp/services/data_services/users_service.dart';
+import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class ProfileViewModel extends BaseViewModel with Disposable {
@@ -39,7 +39,7 @@ class ProfileViewModel extends BaseViewModel with Disposable {
   }
 
   void _initialize() async {
-    final loadedUser = await _peopleService.getUserById(user.id);
+    final loadedUser = await _peopleService.getUser(user.id);
     user.updateWithModel(loadedUser);
 
     final teams = await _teamsService.getUserTeams(user.id);

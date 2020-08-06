@@ -19,14 +19,14 @@ class AchievementsDatabaseService {
   final _streamTransformer = StreamTransformer<QuerySnapshot,
       Iterable<ItemChange<Achievement>>>.fromHandlers(
     handleData: (querySnapshot, sink) {
-      var achievementChanges = querySnapshot.documentChanges.map(
+      var achievementsChanges = querySnapshot.documentChanges.map(
         (dc) => ItemChange<Achievement>(
           Achievement.fromJson(dc.document.data, dc.document.documentID),
           dc.type.toItemChangeType(),
         ),
       );
 
-      sink.add(achievementChanges);
+      sink.add(achievementsChanges);
     },
   );
 
@@ -84,8 +84,7 @@ class AchievementsDatabaseService {
     return _getAchievementsStream("visible_for", arrayContains: userId);
   }
 
-  Stream<Iterable<ItemChange<Achievement>>> getAccessibleAchievementsStream(
-      String userId) {
+  Stream<Iterable<ItemChange<Achievement>>> getAccessibleAchievementsStream() {
     return _getAchievementsStream(
       "access_level",
       isLessThan: AccessLevel.private.index,
@@ -118,10 +117,10 @@ class AchievementsDatabaseService {
   }
 
   Future<Iterable<AchievementHolder>> getAchievementHolders(
-      String achivementId) {
+      String achievementId) {
     return _database
         .collection(
-            "$_achievementsCollection/$achivementId/$_achievementHoldersCollection")
+            "$_achievementsCollection/$achievementId/$_achievementHoldersCollection")
         .getDocuments()
         .then((value) =>
             value.documents.map((d) => AchievementHolder.fromJson(d.data)));
@@ -170,7 +169,7 @@ class AchievementsDatabaseService {
 
   Future<Iterable<UserAchievement>> getReceivedAchievements(
     String userId,
-  ) async {
+  ) {
     return _database
         .collection(
             "$_usersCollection/$userId/$_achievementReferencesCollection")

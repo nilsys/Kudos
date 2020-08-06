@@ -10,7 +10,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
-import 'package:kudosapp/services/teams_service.dart';
+import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sorted_list/sorted_list.dart';

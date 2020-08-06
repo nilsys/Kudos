@@ -1,30 +1,89 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/models/access_level.dart';
+import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/helpers/firestore_helpers.dart';
 
 class TeamsDatabaseService {
   static const _teamsCollection = "teams";
 
   final _database = Firestore.instance;
 
-  Future<Iterable<Team>> getUserTeams(String userId) {
+  final _streamTransformer =
+      StreamTransformer<QuerySnapshot, Iterable<ItemChange<Team>>>.fromHandlers(
+    handleData: (querySnapshot, sink) {
+      var teamsChanges = querySnapshot.documentChanges.map(
+        (dc) => ItemChange<Team>(
+          Team.fromJson(dc.document.data, dc.document.documentID),
+          dc.type.toItemChangeType(),
+        ),
+      );
+
+      sink.add(teamsChanges);
+    },
+  );
+
+  Query _getTeamsQuery(
+    String field, {
+    dynamic isEqualTo,
+    dynamic isLessThan,
+    dynamic arrayContains,
+  }) {
     return _database
         .collection(_teamsCollection)
-        .where("visible_for", arrayContains: userId)
-        .where("is_active", isEqualTo: true)
-        .getDocuments()
-        .then((value) =>
-            value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
+        .where(field,
+            isEqualTo: isEqualTo,
+            isLessThan: isLessThan,
+            arrayContains: arrayContains)
+        .where("is_active", isEqualTo: true);
+  }
+
+  Stream<Iterable<ItemChange<Team>>> _getTeamsStream(
+    String field, {
+    dynamic isEqualTo,
+    dynamic isLessThan,
+    dynamic arrayContains,
+  }) {
+    return _getTeamsQuery(
+      field,
+      isEqualTo: isEqualTo,
+      isLessThan: isLessThan,
+      arrayContains: arrayContains,
+    ).snapshots().transform(_streamTransformer);
+  }
+
+  Future<Iterable<Team>> _getTeams(
+    String field, {
+    dynamic isEqualTo,
+    dynamic isLessThan,
+    dynamic arrayContains,
+  }) {
+    return _getTeamsQuery(
+      field,
+      isEqualTo: isEqualTo,
+      isLessThan: isLessThan,
+      arrayContains: arrayContains,
+    ).getDocuments().then((value) =>
+        value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
+  }
+
+  Stream<Iterable<ItemChange<Team>>> getUserTeamsStream(String userId) {
+    return _getTeamsStream("visible_for", arrayContains: userId);
+  }
+
+  Stream<Iterable<ItemChange<Team>>> getAccessibleTeamsStream() {
+    return _getTeamsStream("access_level",
+        isLessThan: AccessLevel.private.index);
+  }
+
+  Future<Iterable<Team>> getUserTeams(String userId) {
+    return _getTeams("visible_for", arrayContains: userId);
   }
 
   Future<Iterable<Team>> getAccessibleTeams() {
-    return _database
-        .collection(_teamsCollection)
-        .where("access_level", isLessThan: AccessLevel.private.index)
-        .where("is_active", isEqualTo: true)
-        .getDocuments()
-        .then((value) =>
-            value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
+    return _getTeams("access_level", isLessThan: AccessLevel.private.index);
   }
 
   Future<Team> getTeam(String teamId) {
@@ -36,11 +95,8 @@ class TeamsDatabaseService {
   }
 
   Future<Iterable<String>> findTeamIdsByName(String name) {
-    return _database
-        .collection(_teamsCollection)
-        .where("name", isEqualTo: name)
-        .getDocuments()
-        .then((value) => value.documents.map((d) => d.documentID));
+    return _getTeams("name", isEqualTo: name)
+        .then((teams) => teams.map((d) => d.id));
   }
 
   Future<Team> createTeam(Team team) {

@@ -11,7 +11,7 @@ import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/profile/received_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
-import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:sortedmap/sortedmap.dart';
@@ -77,7 +77,7 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       Navigator.of(context).push(
         ReceivedAchievementRoute(achievementCollection),
       );
-    } else if (achievement == null || !achievement.canBeViewedByUser(_userId)) {
+    } else if (achievement == null) {
       _dialogsService.showOkDialog(
         context: context,
         title: localizer().accessDenied,

@@ -13,7 +13,7 @@ import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
-import 'package:kudosapp/services/achievements_service.dart';
+import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:sorted_list/sorted_list.dart';
 
