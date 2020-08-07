@@ -82,9 +82,6 @@ class _TeamsContentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   appBar: GradientAppBar(title: localizer().teams, elevation: 0),
-    //   body:
     return SafeArea(
       child: Container(
         color: KudosTheme.contentColor,
