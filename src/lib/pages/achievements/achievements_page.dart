@@ -64,13 +64,11 @@ class AchievementsTab extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       height: 56,
-      child: Expanded(
-        child: Center(
-          child: Text(
-            localizer().achievements,
-            textAlign: TextAlign.center,
-            style: KudosTheme.appBarTitleTextStyle,
-          ),
+      child: Center(
+        child: Text(
+          localizer().achievements,
+          textAlign: TextAlign.center,
+          style: KudosTheme.appBarTitleTextStyle,
         ),
       ),
     );
