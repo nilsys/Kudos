@@ -54,13 +54,6 @@ class AchievementsTab extends StatelessWidget {
         Expanded(child: _content),
       ],
     );
-
-    // return SafeArea(
-    //   child: Container(
-    //     color: KudosTheme.contentColor,
-    //     child: _content,
-    //   ),
-    // );
   }
 }
 
