@@ -185,7 +185,7 @@ class AchievementsDatabaseService {
     bool updateAccessLevel = false,
     bool updateIsActive = false,
     WriteBatch batch,
-  }) async {
+  }) {
     final docRef =
         _database.collection(_achievementsCollection).document(achievement.id);
     final map = achievement.toJson(
@@ -197,12 +197,13 @@ class AchievementsDatabaseService {
       addIsActive: updateIsActive,
     );
     if (batch == null) {
-      await docRef
+      return docRef
           .setData(map, merge: true)
           .then((value) => docRef.get())
           .then((value) => Achievement.fromJson(value.data, value.documentID));
     } else {
       batch.setData(docRef, map, merge: true);
+      return Future<Achievement>.value(null);
     }
   }
 
