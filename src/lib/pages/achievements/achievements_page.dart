@@ -45,14 +45,34 @@ class AchievementsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        GradientAppBar(
-          title: localizer().achievements,
-          elevation: 0,
+    return SafeArea(
+      child: Column(
+        children: <Widget>[
+          _buildTopBar(context),
+          Expanded(
+            child: Container(
+              color: KudosTheme.contentColor,
+              child: _content,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    return Container(
+      color: Colors.transparent,
+      height: 56,
+      child: Expanded(
+        child: Center(
+          child: Text(
+            localizer().achievements,
+            textAlign: TextAlign.center,
+            style: KudosTheme.appBarTitleTextStyle,
+          ),
         ),
-        Expanded(child: _content),
-      ],
+      ),
     );
   }
 }
