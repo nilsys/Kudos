@@ -167,13 +167,16 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
               style: KudosTheme.sectionTitleTextStyle,
             ),
             Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: KudosTheme.editIcon,
-                  color: KudosTheme.accentColor,
-                  disabledColor: Colors.transparent,
-                  onPressed: () => viewModel.editMembers(context),
+              child: Visibility(
+                visible: viewModel.canEdit,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: KudosTheme.editIcon,
+                    color: KudosTheme.accentColor,
+                    disabledColor: Colors.transparent,
+                    onPressed: () => viewModel.editMembers(context),
+                  ),
                 ),
               ),
             ),
