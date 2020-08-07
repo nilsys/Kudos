@@ -90,7 +90,7 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
       isBusy = true;
 
       if (name.isEmpty) {
-        errorMessage = localizer().fileIsNullErrorMessage;
+        errorMessage = localizer().nameIsNullErrorMessage;
       } else if (description.isEmpty) {
         errorMessage = localizer().descriptionIsNullErrorMessage;
       } else {
@@ -107,6 +107,10 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
         _initialAchievement?.updateWithModel(updatedAchievement);
         _eventBus.fire(AchievementUpdatedMessage(updatedAchievement));
       }
+    } on ArgumentError catch (exception) {
+      errorMessage = exception.name == "file"
+          ? localizer().fileIsNullErrorMessage
+          : localizer().generalErrorMessage;
     } catch (exception) {
       errorMessage = localizer().generalErrorMessage;
     } finally {
