@@ -99,62 +99,55 @@ class _TeamsContentWidget extends StatelessWidget {
               children: <Widget>[
                 _buildSearchBar(),
                 Expanded(
-                  child: TopDecorator.buildLayoutWithDecorator(
-                    Stack(
-                      children: <Widget>[
-                        Positioned.fill(
-                          child: Consumer<TeamsViewModel>(
-                            builder: (context, viewModel, child) {
-                              return StreamBuilder<
-                                  List<GrouppedListItem<TeamModel>>>(
-                                stream: viewModel.teamsStream,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<
-                                            List<GrouppedListItem<TeamModel>>>
-                                        snapshot) {
-                                  if (viewModel.isBusy ||
-                                      snapshot.data == null) {
-                                    return _buildLoading();
-                                  }
-                                  if (snapshot.data?.isEmpty ?? true) {
-                                    return _buildEmpty(
-                                        viewModel.isAllTeamsListEmpty);
-                                  } else {
-                                    return GrouppedListWidget(
-                                      snapshot.data,
-                                      (team) => _buildListItem(
-                                        context,
-                                        viewModel,
-                                        team,
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                        Positioned.directional(
-                          textDirection: TextDirection.ltr,
-                          end: 16.0,
-                          bottom: 32.0,
-                          child: Visibility(
-                            visible: _showAddButton,
-                            child: FloatingActionButton(
-                              onPressed: () {
-                                var viewModel = Provider.of<TeamsViewModel>(
-                                  context,
-                                  listen: false,
-                                );
-                                viewModel.createTeam(context);
+                  child: Consumer<TeamsViewModel>(
+                      builder: (context, viewModel, child) {
+                    return TopDecorator.buildLayoutWithDecorator(
+                      Stack(
+                        children: <Widget>[
+                          Positioned.fill(
+                            child: StreamBuilder<
+                                List<GrouppedListItem<TeamModel>>>(
+                              stream: viewModel.teamsStream,
+                              builder: (
+                                BuildContext context,
+                                AsyncSnapshot<List<GrouppedListItem<TeamModel>>>
+                                    snapshot,
+                              ) {
+                                if (viewModel.isBusy || snapshot.data == null) {
+                                  return _buildLoading();
+                                }
+                                if (snapshot.data?.isEmpty ?? true) {
+                                  return _buildEmpty(
+                                      viewModel.isAllTeamsListEmpty);
+                                } else {
+                                  return GrouppedListWidget(
+                                    snapshot.data,
+                                    (team) => _buildListItem(
+                                      context,
+                                      viewModel,
+                                      team,
+                                    ),
+                                  );
+                                }
                               },
-                              child: KudosTheme.addIcon,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                          Positioned.directional(
+                            textDirection: TextDirection.ltr,
+                            end: 16.0,
+                            bottom: 32.0,
+                            child: Visibility(
+                              visible: _showAddButton,
+                              child: FloatingActionButton(
+                                onPressed: () => viewModel.createTeam(context),
+                                child: KudosTheme.addIcon,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
