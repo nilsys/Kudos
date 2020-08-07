@@ -17,9 +17,9 @@ class MyProfilePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          SizedBox(height: 5.0),
+          SizedBox(height: 4.0),
           _buildTopBar(context, viewModel),
-          SizedBox(height: 12.0),
+          SizedBox(height: 4.0),
           Expanded(
             child: TopDecorator.buildLayoutWithDecorator(
               Stack(
@@ -51,12 +51,12 @@ class MyProfilePage extends StatelessWidget {
         ClipOval(
           child: Container(
             color: KudosTheme.contentColor,
-            height: 40.0,
-            width: 40.0,
+            height: 38.0,
+            width: 38.0,
             child: Center(
               child: Container(
-                height: 36.0,
-                width: 36.0,
+                height: 34.0,
+                width: 34.0,
                 child: CircleAvatar(
                   backgroundColor: Colors.transparent,
                   backgroundImage: CachedNetworkImageProvider(
