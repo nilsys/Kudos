@@ -9,27 +9,10 @@ import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/list_of_people_widget.dart';
 import 'package:provider/provider.dart';
 
-class TeamMemberPickerRoute extends MaterialPageRoute {
-  TeamMemberPickerRoute(
-    TeamModel team, {
-    String searchHint,
-  }) : super(
-          builder: (context) {
-            return ChangeNotifierProvider<TeamMemberPickerViewModel>(
-              create: (context) {
-                return TeamMemberPickerViewModel(team);
-              },
-              child: _TeamMemberPickerPage(searchHint ?? localizer().search),
-            );
-          },
-          fullscreenDialog: true,
-        );
-}
-
-class _TeamMemberPickerPage extends StatefulWidget {
+class TeamMemberPickerPage extends StatefulWidget {
   final String _searchHint;
 
-  _TeamMemberPickerPage(this._searchHint);
+  TeamMemberPickerPage(this._searchHint);
 
   @override
   State<StatefulWidget> createState() {
@@ -37,7 +20,7 @@ class _TeamMemberPickerPage extends StatefulWidget {
   }
 }
 
-class _TeamMemberPickerPageState extends State<_TeamMemberPickerPage> {
+class _TeamMemberPickerPageState extends State<TeamMemberPickerPage> {
   final _textEditingController = TextEditingController();
 
   @override

@@ -4,7 +4,6 @@ import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/groupped_list_item.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
@@ -14,23 +13,6 @@ import 'package:kudosapp/widgets/groupped_list_widget.dart';
 import 'package:kudosapp/widgets/search_input_widget.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
-
-class TeamsPageRoute extends MaterialPageRoute<TeamModel> {
-  TeamsPageRoute({
-    @required SelectionAction selectionAction,
-    @required bool showAddButton,
-    Set<String> excludedTeamIds,
-    Icon selectorIcon,
-  }) : super(
-          builder: (context) => TeamsPage(
-            selectionAction: selectionAction,
-            showAddButton: showAddButton,
-            excludedTeamIds: excludedTeamIds,
-            selectorIcon: selectorIcon,
-          ),
-          fullscreenDialog: true,
-        );
-}
 
 class TeamsPage extends StatelessWidget {
   final Set<String> _excludedTeamIds;
@@ -108,7 +90,11 @@ class TeamsPage extends StatelessWidget {
                           visible: _showAddButton,
                           child: FloatingActionButton(
                             onPressed: () {
-                              Navigator.of(context).push(EditTeamRoute());
+                              var viewModel = Provider.of<TeamsViewModel>(
+                                context,
+                                listen: false,
+                              );
+                              viewModel.createTeam(context);
                             },
                             child: KudosTheme.addIcon,
                           ),

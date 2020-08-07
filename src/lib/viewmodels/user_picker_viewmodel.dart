@@ -6,15 +6,18 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class UserPickerViewModel extends BaseViewModel {
   final _peopleService = locator<UsersService>();
   final _dialogService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
 
   final List<String> _selectedUserIds;
   final bool _allowCurrentUser;
   final bool _allowEmptyResult;
+  final bool allowMultipleSelection;
 
   final users = List<UserModel>();
   final selectedUsers = List<UserModel>();
@@ -24,7 +27,11 @@ class UserPickerViewModel extends BaseViewModel {
   StreamSubscription<List<UserModel>> _searchStreamSubscription;
 
   UserPickerViewModel(
-      this._selectedUserIds, this._allowCurrentUser, this._allowEmptyResult) {
+    this._selectedUserIds,
+    this._allowCurrentUser,
+    this._allowEmptyResult,
+    this.allowMultipleSelection,
+  ) {
     _initialize();
   }
 
@@ -45,25 +52,30 @@ class UserPickerViewModel extends BaseViewModel {
     _searchQueueHandler.addRequest(x);
   }
 
-  bool isUserSelected(UserModel x) {
-    return selectedUsers.contains(x);
+  bool isUserSelected(UserModel user) {
+    return selectedUsers.contains(user);
   }
 
-  void toggleUserSelection(UserModel x) {
-    isUserSelected(x) ? selectedUsers.remove(x) : selectedUsers.add(x);
-    notifyListeners();
+  void toggleUserSelection(BuildContext context, UserModel user) {
+    if (allowMultipleSelection) {
+      isUserSelected(user)
+          ? selectedUsers.remove(user)
+          : selectedUsers.add(user);
+      notifyListeners();
+    } else {
+      _navigationService.pop(context, [user]);
+    }
   }
 
-  bool trySaveResult(BuildContext context) {
+  void trySaveResult(BuildContext context) {
     if (!_allowEmptyResult && selectedUsers.isEmpty) {
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,
           content: localizer().userPickerEmptyMessage);
-      return false;
     }
 
-    return true;
+    _navigationService.pop(context, selectedUsers);
   }
 
   Future<List<UserModel>> _findPeople(String request) async {

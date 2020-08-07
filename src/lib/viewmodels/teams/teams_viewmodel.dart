@@ -7,11 +7,15 @@ import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sorted_list/sorted_list.dart';
 
@@ -19,6 +23,7 @@ class TeamsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
   final _authService = locator<BaseAuthService>();
+  final _navigationService = locator<NavigationService>();
 
   final _selectionAction;
   final _teamsList = new SortedList<GrouppedListItem<TeamModel>>(_sortFunc);
@@ -73,13 +78,22 @@ class TeamsViewModel extends BaseViewModel {
     return _teamsService.getTeam(id);
   }
 
+  void createTeam(BuildContext context) {
+    _navigationService.navigateToViewModel(
+      context,
+      EditTeamPage(),
+      EditTeamViewModel(),
+    );
+  }
+
   void onTeamClicked(BuildContext context, TeamModel team) {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        Navigator.of(context).push(ManageTeamRoute(team));
+        _navigationService.navigateToViewModel(
+            context, ManageTeamPage(), ManageTeamViewModel(team));
         break;
       case SelectionAction.Pop:
-        Navigator.of(context).pop(team);
+        _navigationService.pop(context, team);
         break;
     }
   }

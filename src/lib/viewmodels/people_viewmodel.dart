@@ -6,10 +6,14 @@ import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
 
 class PeopleViewModel extends BaseViewModel {
   final _peopleService = locator<UsersService>();
+  final _navigationService = locator<NavigationService>();
+
   final Set<String> _excludedUserIds;
   final SelectionAction _selectionAction;
 
@@ -32,11 +36,12 @@ class PeopleViewModel extends BaseViewModel {
   void onItemClicked(BuildContext context, UserModel user) async {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        await Navigator.of(context).push(ProfileRoute(user));
+        await _navigationService.navigateToViewModel(
+            context, ProfilePage(), ProfileViewModel(user));
         updatePeopleList();
         break;
       case SelectionAction.Pop:
-        Navigator.of(context).pop(user);
+        _navigationService.pop(context, user);
         break;
     }
   }

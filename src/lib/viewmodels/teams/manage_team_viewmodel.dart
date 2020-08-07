@@ -10,7 +10,9 @@ import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
+import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
+import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/pages/team_member_picker_page.dart';
 import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -18,13 +20,20 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
+import 'package:kudosapp/viewmodels/team_member_picker_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 
 class ManageTeamViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
   final _teamsService = locator<TeamsService>();
   final _dialogService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   final TeamModel _team;
@@ -87,24 +96,48 @@ class ManageTeamViewModel extends BaseViewModel {
       return;
     }
 
-    await Navigator.of(context).push(
-      TeamMemberPickerRoute(
-        _team,
-        searchHint: localizer().searchMembers,
-      ),
-    );
+    await _navigationService
+        .navigateToViewModel(
+          context,
+          TeamMemberPickerPage(localizer().searchMembers),
+          TeamMemberPickerViewModel(_team),
+        )
+        .whenComplete(notifyListeners);
 
     notifyListeners();
   }
 
-  void editTeam(BuildContext context) async {
-    await Navigator.of(context).push(EditTeamRoute(_team));
-    notifyListeners();
+  void editTeam(BuildContext context) {
+    _navigationService
+        .navigateToViewModel(context, EditTeamPage(), EditTeamViewModel(_team))
+        .whenComplete(notifyListeners);
+  }
+
+  void openTeamMemberDetails(BuildContext context, TeamMemberModel teamMember) {
+    _navigationService.navigateToViewModel(
+      context,
+      ProfilePage(),
+      ProfileViewModel(teamMember.user),
+    );
+  }
+
+  void openAchievementDetails(
+    BuildContext context,
+    AchievementModel achievement,
+  ) {
+    _navigationService.navigateToViewModel(
+      context,
+      AchievementDetailsPage(),
+      AchievementDetailsViewModel(achievement),
+    );
   }
 
   void createAchievement(BuildContext context) {
-    Navigator.of(context)
-        .push(EditAchievementRoute.createTeamAchievement(_team));
+    _navigationService.navigateToViewModel(
+      context,
+      EditAchievementPage(),
+      EditAchievementViewModel.createTeamAchievement(_team),
+    );
   }
 
   void deleteTeam(BuildContext context) async {
