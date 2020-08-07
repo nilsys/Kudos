@@ -16,7 +16,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
-import 'package:kudosapp/pages/people_page.dart';
+import 'package:kudosapp/pages/users_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/pages/teams/teams_page.dart';
@@ -156,7 +156,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
                   : null;
           var user = await _navigationService.navigateTo(
             context,
-            PeoplePage(
+            UsersPage(
               selectionAction: SelectionAction.Pop,
               excludedUserIds: excludedUserIds,
               selectorIcon: KudosTheme.transferSelectorIcon,

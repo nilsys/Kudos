@@ -17,6 +17,7 @@ import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/viewmodels/achievements/achievements_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 
@@ -56,12 +57,14 @@ class ProfileViewModel extends BaseViewModel with Disposable {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Select achievement
-    var achievement = await _navigationService.navigateTo(
+    var achievement = await _navigationService.navigateToViewModel(
       context,
       AchievementsPage(
-        selectionAction: SelectionAction.Pop,
         showAddButton: false,
         selectorIcon: KudosTheme.sendSelectorIcon,
+      ),
+      AchievementsViewModel(
+        SelectionAction.Pop,
         achievementsFilter: (achievement) =>
             achievement.canBeSentByUser(_authService.currentUser.id),
       ),

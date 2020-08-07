@@ -18,7 +18,12 @@ class SearchInputWidget extends StatelessWidget {
     final viewModel = Provider.of<SearchInputViewModel>(context, listen: false);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(_leftPadding, _topBottomPadding, _rightPadding, _topBottomPadding),
+      padding: EdgeInsets.fromLTRB(
+        _leftPadding,
+        _topBottomPadding,
+        _rightPadding,
+        _topBottomPadding,
+      ),
       child: Row(
         children: <Widget>[
           Container(
@@ -36,12 +41,13 @@ class SearchInputWidget extends StatelessWidget {
               cursorColor: KudosTheme.accentColor,
               onChanged: (value) => viewModel.query = value,
               decoration: InputDecoration(
-                  enabledBorder:
-                      UnderlineInputBorder(borderSide: BorderSide.none),
-                  focusedBorder:
-                      UnderlineInputBorder(borderSide: BorderSide.none),
-                  hintText: hintText,
-                  hintStyle: KudosTheme.searchHintStyle),
+                enabledBorder:
+                    UnderlineInputBorder(borderSide: BorderSide.none),
+                focusedBorder:
+                    UnderlineInputBorder(borderSide: BorderSide.none),
+                hintText: hintText,
+                hintStyle: KudosTheme.searchHintStyle,
+              ),
             ),
           ),
         ],

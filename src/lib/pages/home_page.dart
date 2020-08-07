@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/pages/achievements/achievements_page.dart';
-import 'package:kudosapp/pages/people_page.dart';
+import 'package:kudosapp/pages/users_page.dart';
 import 'package:kudosapp/pages/profile/my_profile_page.dart';
 import 'package:kudosapp/pages/teams/teams_page.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/viewmodels/achievements/achievements_viewmodel.dart';
 import 'package:kudosapp/viewmodels/profile/my_profile_viewmodel.dart';
 import 'package:kudosapp/widgets/common/vector_icon.dart';
 import 'package:kudosapp/widgets/decorations/bottom_decorator.dart';
@@ -99,7 +100,7 @@ class _HomePageState extends State<HomePage> {
       _TabItem(
         title: localizer().teamsTabName,
         icon: VectorIcon("assets/icons/teams.svg", Size(16, 16)),
-        body: TeamsPage(
+        body: TeamsTab(
           selectionAction: SelectionAction.OpenDetails,
           showAddButton: true,
         ),
@@ -107,16 +108,20 @@ class _HomePageState extends State<HomePage> {
       _TabItem(
         icon: VectorIcon("assets/icons/people.svg", Size(16, 16)),
         title: localizer().peopleTabName,
-        body: PeoplePage(
+        body: UsersTab(
           selectionAction: SelectionAction.OpenDetails,
         ),
       ),
       _TabItem(
         icon: VectorIcon("assets/icons/cup.svg", Size(16, 16)),
         title: localizer().achievementsTabName,
-        body: AchievementsPage(
-          selectionAction: SelectionAction.OpenDetails,
-          showAddButton: true,
+        body: ChangeNotifierProvider<AchievementsViewModel>(
+          create: (context) => AchievementsViewModel(
+            SelectionAction.OpenDetails,
+          ),
+          child: AchievementsTab(
+            showAddButton: true,
+          ),
         ),
       ),
     ];
