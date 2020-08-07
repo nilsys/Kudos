@@ -7,32 +7,50 @@ class NavigationService {
   void pop<T>(BuildContext context, [T result]) =>
       Navigator.of(context).pop(result);
 
-  Future<T> navigateTo<T>(BuildContext context, Widget page) =>
-      Navigator.of(context).push(_getMaterialPageRoute(page));
+  Future<T> navigateTo<T>(
+    BuildContext context,
+    Widget page, {
+    bool fullscreenDialog,
+  }) =>
+      Navigator.of(context).push(_getMaterialPageRoute(
+        page,
+        fullscreenDialog: fullscreenDialog,
+      ));
 
   Future<TResult>
       navigateToViewModel<TViewModel extends BaseViewModel, TResult>(
     BuildContext context,
     Widget page,
-    TViewModel viewModel,
-  ) {
+    TViewModel viewModel, {
+    bool fullscreenDialog,
+  }) {
     var wrappedPage = ChangeNotifierProvider<TViewModel>(
       create: (context) => viewModel,
       child: page,
     );
-    return navigateTo(context, wrappedPage);
-  }
-
-  MaterialPageRoute<T> _getMaterialPageRoute<T>(Widget page) {
-    return MaterialPageRoute(
-      builder: (context) => page,
-      fullscreenDialog: true,
+    return navigateTo(
+      context,
+      wrappedPage,
+      fullscreenDialog: fullscreenDialog,
     );
   }
 
-  PageRouteBuilder<T> _getPageRouteBuilder<T>(Widget page) {
+  MaterialPageRoute<T> _getMaterialPageRoute<T>(
+    Widget page, {
+    bool fullscreenDialog,
+  }) {
+    return MaterialPageRoute(
+      builder: (context) => page,
+      fullscreenDialog: fullscreenDialog ?? false,
+    );
+  }
+
+  PageRouteBuilder<T> _getPageRouteBuilder<T>(
+    Widget page, {
+    bool fullscreenDialog,
+  }) {
     return PageRouteBuilder(
-      fullscreenDialog: true,
+      fullscreenDialog: fullscreenDialog ?? false,
       transitionDuration: Duration(milliseconds: 500),
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) =>
