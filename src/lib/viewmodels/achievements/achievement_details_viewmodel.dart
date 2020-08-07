@@ -163,6 +163,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
               excludedUserIds: excludedUserIds,
               selectorIcon: KudosTheme.transferSelectorIcon,
             ),
+            fullscreenDialog: true,
           );
           _onUserSelected(context, user);
           break;
@@ -181,6 +182,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
               excludedTeamIds: excludedTeamIds,
               selectorIcon: KudosTheme.transferSelectorIcon,
             ),
+            fullscreenDialog: true,
           );
           _onTeamSelected(context, team);
           break;
