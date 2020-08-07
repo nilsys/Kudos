@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:kudosapp/widgets/gradient_app_bar.dart';
-import 'package:provider/provider.dart';
+import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/user_picker_viewmodel.dart';
+import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/list_of_people_widget.dart';
+import 'package:provider/provider.dart';
 
 class UserPickerPage extends StatefulWidget {
   final String _searchHint;
@@ -57,7 +58,10 @@ class _UserPickerPageState extends State<UserPickerPage> {
       body: Consumer<UserPickerViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.users.isEmpty) {
-            return Container();
+            return Center(
+              child: Text(localizer().searchEmptyPlaceholder,
+                  style: KudosTheme.sectionEmptyTextStyle),
+            );
           }
           return ListOfPeopleWidget(
             itemSelector: (user) =>

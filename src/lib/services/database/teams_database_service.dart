@@ -131,7 +131,7 @@ class TeamsDatabaseService {
           .then((value) => Team.fromJson(value.data, value.documentID));
     } else {
       batch.setData(docRef, map, merge: true);
-      return null;
+      return Future<Team>.value(null);
     }
   }
 

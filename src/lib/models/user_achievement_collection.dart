@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 
-@immutable
 class UserAchievementCollection implements Comparable {
   final List<UserAchievementModel> userAchievements;
   final String imageUrl;

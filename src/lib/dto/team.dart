@@ -45,7 +45,7 @@ class Team extends Equatable {
               ?.map((tmm) => TeamMember.fromModel(tmm))
               ?.toList(),
       accessLevel: newAccessLevel?.index ?? model.accessLevel.index,
-      isActive: isActive ?? true,
+      isActive: isActive ?? model.isActive,
     );
   }
 
@@ -90,7 +90,11 @@ class Team extends Equatable {
 
     if (addAll || addMembers) {
       map["members"] = this.members?.map((tm) => tm.toJson())?.toList();
-      visibleFor.addAll(this.members?.map((x) => x.id));
+      if (this.members != null) {
+        visibleFor.addAll(this.members.map((x) => x.id));
+      }
+      visibleFor = visibleFor.toSet().toList();
+      map["visible_for"] = visibleFor.isNotEmpty ? visibleFor : null;
     }
 
     if (addAll || addAccessLevel) {
@@ -99,11 +103,6 @@ class Team extends Equatable {
 
     if (addAll || addIsActive) {
       map["is_active"] = this.isActive;
-    }
-
-    if (visibleFor.isNotEmpty) {
-      visibleFor = visibleFor.toSet().toList();
-      map["visible_for"] = visibleFor;
     }
 
     return map;

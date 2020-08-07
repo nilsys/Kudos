@@ -58,7 +58,10 @@ class _TeamMemberPickerPageState extends State<TeamMemberPickerPage> {
       body: Consumer<TeamMemberPickerViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.users.isEmpty) {
-            return Container();
+            return Center(
+              child: Text(localizer().searchEmptyPlaceholder,
+                  style: KudosTheme.sectionEmptyTextStyle),
+            );
           }
           return ListOfPeopleWidget(
             itemSelector: (x) => viewModel.onUserClicked(x),

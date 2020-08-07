@@ -128,7 +128,7 @@ class AchievementsDatabaseService {
 
   Future<void> createAchievementHolder(
       String achievementId, AchievementHolder achievementHolder,
-      {WriteBatch batch}) {
+      {WriteBatch batch}) async {
     final docRef = _database
         .collection("$_achievementsCollection/$achievementId/holders")
         .document();
@@ -136,26 +136,24 @@ class AchievementsDatabaseService {
     final holderMap = achievementHolder.toJson();
 
     if (batch == null) {
-      return docRef.setData(holderMap);
+      await docRef.setData(holderMap);
     } else {
       batch.setData(docRef, holderMap);
-      return null;
     }
   }
 
   Future<void> createUserAchievement(
       String recipientId, UserAchievement userAchievement,
-      {WriteBatch batch}) {
+      {WriteBatch batch}) async {
     final docRef = _database
         .collection(
             "$_usersCollection/$recipientId/$_achievementReferencesCollection")
         .document();
 
     if (batch == null) {
-      return docRef.setData(userAchievement.toJson());
+      await docRef.setData(userAchievement.toJson());
     } else {
       batch.setData(docRef, userAchievement.toJson());
-      return null;
     }
   }
 
@@ -205,7 +203,7 @@ class AchievementsDatabaseService {
           .then((value) => Achievement.fromJson(value.data, value.documentID));
     } else {
       batch.setData(docRef, map, merge: true);
-      return null;
+      return Future<Achievement>.value(null);
     }
   }
 

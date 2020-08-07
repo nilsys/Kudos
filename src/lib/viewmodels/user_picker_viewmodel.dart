@@ -73,6 +73,7 @@ class UserPickerViewModel extends BaseViewModel {
           context: context,
           title: localizer().error,
           content: localizer().userPickerEmptyMessage);
+      return;
     }
 
     _navigationService.pop(context, selectedUsers);
