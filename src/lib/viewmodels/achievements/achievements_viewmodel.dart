@@ -14,12 +14,16 @@ import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:sorted_list/sorted_list.dart';
 
 class AchievementsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   StreamSubscription _achievementUpdatedSubscription;
@@ -87,21 +91,25 @@ class AchievementsViewModel extends BaseViewModel {
   ) {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        Navigator.of(context)
-            .push(AchievementDetailsRoute(achievement))
-            .whenComplete(() => notifyListeners());
+        _navigationService
+            .navigateToViewModel(
+              context,
+              AchievementDetailsPage(),
+              AchievementDetailsViewModel(achievement),
+            )
+            .whenComplete(notifyListeners);
         break;
       case SelectionAction.Pop:
-        Navigator.of(context).pop(achievement);
+        _navigationService.pop(context, achievement);
         break;
     }
   }
 
   void createAchievement(BuildContext context) {
-    Navigator.of(context).push(
-      EditAchievementRoute.createUserAchievement(
-        _authService.currentUser,
-      ),
+    _navigationService.navigateToViewModel(
+      context,
+      EditAchievementPage(),
+      EditAchievementViewModel.createUserAchievement(_authService.currentUser),
     );
   }
 

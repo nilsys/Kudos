@@ -10,23 +10,6 @@ import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/groupped_list_widget.dart';
 import 'package:provider/provider.dart';
 
-class AchievementsPageRoute extends MaterialPageRoute<AchievementModel> {
-  AchievementsPageRoute({
-    @required SelectionAction selectionAction,
-    @required bool showAddButton,
-    bool Function(AchievementModel) achievementsFilter,
-    Icon selectorIcon,
-  }) : super(
-          builder: (context) => AchievementsPage(
-            selectionAction: selectionAction,
-            showAddButton: showAddButton,
-            achievementsFilter: achievementsFilter,
-            selectorIcon: selectorIcon,
-          ),
-          fullscreenDialog: true,
-        );
-}
-
 class AchievementsPage extends StatelessWidget {
   final bool Function(AchievementModel) _achievementsFilter;
   final SelectionAction _selectionAction;

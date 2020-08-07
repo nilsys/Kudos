@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/team_member_model.dart';
-import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
-import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
-import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/achievement_list_item_widget.dart';
@@ -16,26 +12,12 @@ import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
 import 'package:provider/provider.dart';
 
-class ManageTeamRoute extends MaterialPageRoute {
-  ManageTeamRoute(TeamModel teamModel)
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<ManageTeamViewModel>(
-              create: (context) {
-                return ManageTeamViewModel(teamModel);
-              },
-              child: _ManageTeamPage(),
-            );
-          },
-        );
-}
-
-class _ManageTeamPage extends StatefulWidget {
+class ManageTeamPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ManageTeamPageState();
 }
 
-class _ManageTeamPageState extends State<_ManageTeamPage> {
+class _ManageTeamPageState extends State<ManageTeamPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ManageTeamViewModel>(
@@ -124,12 +106,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
       children.add(
         Padding(
           padding: EdgeInsets.only(left: 16.0, right: 8.0),
-          child: _buildMembersList(
-            localizer().members,
-            viewModel.members,
-            viewModel.canEdit,
-            () => viewModel.editMembers(context),
-          ),
+          child: _buildMembersList(context, viewModel),
         ),
       );
       children.add(SizedBox(height: 24.0));
@@ -146,7 +123,11 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
           physics: NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             final data = viewModel.achievements[index];
-            return AchievementListItemWidget(data, _achievementTapped, null);
+            return AchievementListItemWidget(
+              data,
+              (a) => viewModel.openAchievementDetails(context, a),
+              null,
+            );
           },
           itemCount: viewModel.achievements?.length ?? 0,
         ),
@@ -171,8 +152,10 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
     });
   }
 
-  Widget _buildMembersList(String title, Iterable<TeamMemberModel> members,
-      bool canEdit, void Function() editUsers) {
+  Widget _buildMembersList(
+    BuildContext context,
+    ManageTeamViewModel viewModel,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -180,7 +163,7 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              title,
+              localizer().members,
               style: KudosTheme.sectionTitleTextStyle,
             ),
             Expanded(
@@ -190,27 +173,27 @@ class _ManageTeamPageState extends State<_ManageTeamPage> {
                   icon: KudosTheme.editIcon,
                   color: KudosTheme.accentColor,
                   disabledColor: Colors.transparent,
-                  onPressed: canEdit ? editUsers : null,
+                  onPressed: () => viewModel.editMembers(context),
                 ),
               ),
             ),
           ],
         ),
         SizedBox(height: 10.0),
-        _TeamMembersListWidget(members),
+        _TeamMembersListWidget(
+          viewModel.members,
+          (tm) => viewModel.openTeamMemberDetails(context, tm),
+        ),
       ],
     );
-  }
-
-  void _achievementTapped(AchievementModel achievement) {
-    Navigator.of(context).push(AchievementDetailsRoute(achievement));
   }
 }
 
 class _TeamMembersListWidget extends StatelessWidget {
   final Iterable<TeamMemberModel> _teamMembers;
+  final void Function(TeamMemberModel) _onTeamMemberClicked;
 
-  _TeamMembersListWidget(this._teamMembers);
+  _TeamMembersListWidget(this._teamMembers, this._onTeamMemberClicked);
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +241,7 @@ class _TeamMembersListWidget extends StatelessWidget {
             ],
           ),
         ),
-        onTap: () => Navigator.of(context).push(ProfileRoute(teamMember.user)),
+        onTap: () => _onTeamMemberClicked?.call(teamMember),
       ),
       decoration: KudosTheme.tooltipDecoration,
       textStyle: KudosTheme.tooltipTextStyle,

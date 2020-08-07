@@ -10,29 +10,14 @@ import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:provider/provider.dart';
 
-class EditTeamRoute extends MaterialPageRoute {
-  EditTeamRoute([TeamModel team])
-      : super(
-          builder: (context) {
-            return ChangeNotifierProvider<EditTeamViewModel>(
-              create: (context) {
-                return EditTeamViewModel(team);
-              },
-              child: _EditTeamPage(),
-            );
-          },
-          fullscreenDialog: true,
-        );
-}
-
-class _EditTeamPage extends StatefulWidget {
+class EditTeamPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _EditTeamPageState();
   }
 }
 
-class _EditTeamPageState extends State<_EditTeamPage> {
+class _EditTeamPageState extends State<EditTeamPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();

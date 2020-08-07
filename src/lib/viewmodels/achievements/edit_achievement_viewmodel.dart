@@ -11,12 +11,16 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
+import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/image_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class EditAchievementViewModel extends BaseViewModel with ImageLoading {
   final _eventBus = locator<EventBus>();
   final _imageService = locator<ImageService>();
+  final _dialogsService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   final AchievementModel _initialAchievement;
@@ -78,34 +82,41 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
     isImageLoading = false;
   }
 
-  Future<void> save() async {
+  Future<void> save(BuildContext context) async {
     AchievementModel updatedAchievement;
+    String errorMessage;
 
     try {
       isBusy = true;
 
       if (name.isEmpty) {
-        throw ArgumentError.notNull("name");
-      }
-
-      if (description.isEmpty) {
-        throw ArgumentError.notNull("description");
-      }
-
-      if (_achievement.id == null) {
-        updatedAchievement =
-            await _achievementsService.createAchievement(_achievement);
+        errorMessage = localizer().fileIsNullErrorMessage;
+      } else if (description.isEmpty) {
+        errorMessage = localizer().descriptionIsNullErrorMessage;
       } else {
-        updatedAchievement =
-            await _achievementsService.updateAchievement(_achievement);
+        if (_achievement.id == null) {
+          updatedAchievement =
+              await _achievementsService.createAchievement(_achievement);
+        } else {
+          updatedAchievement =
+              await _achievementsService.updateAchievement(_achievement);
+        }
       }
+
+      if (updatedAchievement != null) {
+        _initialAchievement?.updateWithModel(updatedAchievement);
+        _eventBus.fire(AchievementUpdatedMessage(updatedAchievement));
+      }
+    } catch (exception) {
+      errorMessage = localizer().generalErrorMessage;
     } finally {
       isBusy = false;
     }
 
-    if (updatedAchievement != null) {
-      _initialAchievement?.updateWithModel(updatedAchievement);
-      _eventBus.fire(AchievementUpdatedMessage(updatedAchievement));
+    if (errorMessage != null) {
+      _dialogsService.showOkDialog(context: context, content: errorMessage);
+    } else {
+      _navigationService.pop(context);
     }
   }
 }

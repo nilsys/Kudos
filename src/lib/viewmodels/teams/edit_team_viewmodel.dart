@@ -13,6 +13,7 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/image_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 
 class EditTeamViewModel extends BaseViewModel with ImageLoading {
@@ -21,11 +22,12 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   final _imageService = locator<ImageService>();
   final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
 
   final TeamModel _initialTeam;
   final TeamModel _team = TeamModel.empty();
 
-  EditTeamViewModel(this._initialTeam) {
+  EditTeamViewModel([this._initialTeam]) {
     if (_initialTeam != null) {
       _team.updateWithModel(_initialTeam);
     } else {
@@ -108,6 +110,6 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
       _eventBus.fire(TeamUpdatedMessage(updatedTeam));
     }
 
-    Navigator.of(context).pop();
+    _navigationService.pop(context);
   }
 }

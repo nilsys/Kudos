@@ -15,6 +15,7 @@ import 'package:kudosapp/models/statistics_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
+import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/pages/people_page.dart';
 import 'package:kudosapp/pages/profile_page.dart';
 import 'package:kudosapp/pages/teams/manage_team_page.dart';
@@ -26,15 +27,21 @@ import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
+import 'package:kudosapp/viewmodels/user_picker_viewmodel.dart';
 import 'package:sprintf/sprintf.dart';
 
 class AchievementDetailsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
-  final _authService = locator<BaseAuthService>();
-  final _peopleService = locator<UsersService>();
   final _teamsService = locator<TeamsService>();
+  final _usersService = locator<UsersService>();
+  final _authService = locator<BaseAuthService>();
   final _dialogsService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   StreamSubscription<AchievementUpdatedMessage> _achievementUpdatedSubscription;
@@ -83,14 +90,13 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Pick user
-    var selectedUsers = await Navigator.of(context).push(
-      UserPickerRoute(
-        allowMultipleSelection: false,
-        allowCurrentUser: false,
-        trailingBuilder: (context) {
-          return KudosTheme.sendSelectorIcon;
-        },
+    var selectedUsers = await _navigationService.navigateToViewModel(
+      context,
+      UserPickerPage(
+        (context) => KudosTheme.sendSelectorIcon,
+        localizer().search,
       ),
+      UserPickerViewModel(null, false, true, false),
     );
 
     if (selectedUsers == null || selectedUsers.isEmpty) {
@@ -125,6 +131,14 @@ class AchievementDetailsViewModel extends BaseViewModel {
     }
   }
 
+  void editAchievement(BuildContext context) {
+    _navigationService.navigateToViewModel(
+      context,
+      EditAchievementPage(),
+      EditAchievementViewModel.editAchievement(achievement),
+    );
+  }
+
   Future<void> transferAchievement(BuildContext context) async {
     var result = await _dialogsService.showThreeButtonsDialog(
       context: context,
@@ -142,11 +156,14 @@ class AchievementDetailsViewModel extends BaseViewModel {
               achievement.owner.type == AchievementOwnerType.user
                   ? {achievement.owner.id}
                   : null;
-          var user = await Navigator.of(context).push(PeoplePageRoute(
-            selectionAction: SelectionAction.Pop,
-            excludedUserIds: excludedUserIds,
-            selectorIcon: KudosTheme.transferSelectorIcon,
-          ));
+          var user = await _navigationService.navigateTo(
+            context,
+            PeoplePage(
+              selectionAction: SelectionAction.Pop,
+              excludedUserIds: excludedUserIds,
+              selectorIcon: KudosTheme.transferSelectorIcon,
+            ),
+          );
           _onUserSelected(context, user);
           break;
         }
@@ -156,12 +173,15 @@ class AchievementDetailsViewModel extends BaseViewModel {
               achievement.owner.type == AchievementOwnerType.team
                   ? {achievement.owner.id}
                   : null;
-          var team = await Navigator.of(context).push(TeamsPageRoute(
-            selectionAction: SelectionAction.Pop,
-            showAddButton: false,
-            excludedTeamIds: excludedTeamIds,
-            selectorIcon: KudosTheme.transferSelectorIcon,
-          ));
+          var team = await _navigationService.navigateTo(
+            context,
+            TeamsPage(
+              selectionAction: SelectionAction.Pop,
+              showAddButton: false,
+              excludedTeamIds: excludedTeamIds,
+              selectorIcon: KudosTheme.transferSelectorIcon,
+            ),
+          );
           _onTeamSelected(context, team);
           break;
         }
@@ -252,23 +272,33 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
     switch (achievement.owner.type) {
       case AchievementOwnerType.user:
-        Navigator.of(context)
-            .push(ProfileRoute(achievement.owner.user))
+        _navigationService
+            .navigateToViewModel(context, ProfilePage(),
+                ProfileViewModel(achievement.owner.user))
             .whenComplete(() => notifyListeners());
         break;
       case AchievementOwnerType.team:
-        Navigator.of(context)
-            .push(ManageTeamRoute(achievement.owner.team))
+        _navigationService
+            .navigateToViewModel(context, ManageTeamPage(),
+                ManageTeamViewModel(achievement.owner.team))
             .whenComplete(() => notifyListeners());
         break;
     }
+  }
+
+  void onHolderClicked(BuildContext context, UserModel user) {
+    _navigationService.navigateToViewModel(
+      context,
+      ProfilePage(),
+      ProfileViewModel(user),
+    );
   }
 
   Future<void> _loadStatistics() async {
     achievementHolders.replace(
         await _achievementsService.getAchievementHolders(achievement.id));
 
-    var allUsersCount = await _peopleService.getUsersCount();
+    var allUsersCount = await _usersService.getUsersCount();
     allUsersStatistics.allUsersCount = allUsersCount;
     allUsersStatistics.positiveUsersCount = achievementHolders.length;
 

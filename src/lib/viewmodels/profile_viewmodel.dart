@@ -16,14 +16,17 @@ import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
+import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
 
 class ProfileViewModel extends BaseViewModel with Disposable {
   final _eventBus = locator<EventBus>();
-  final _authService = locator<BaseAuthService>();
   final _teamsService = locator<TeamsService>();
   final _peopleService = locator<UsersService>();
+  final _authService = locator<BaseAuthService>();
   final _dialogsService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
   final UserModel user;
@@ -53,8 +56,9 @@ class ProfileViewModel extends BaseViewModel with Disposable {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Select achievement
-    var achievement = await Navigator.of(context).push(
-      AchievementsPageRoute(
+    var achievement = await _navigationService.navigateTo(
+      context,
+      AchievementsPage(
         selectionAction: SelectionAction.Pop,
         showAddButton: false,
         selectorIcon: KudosTheme.sendSelectorIcon,
@@ -98,7 +102,8 @@ class ProfileViewModel extends BaseViewModel with Disposable {
         content: localizer().privateTeam,
       );
     } else {
-      Navigator.of(context).push(ManageTeamRoute(team));
+      _navigationService.navigateToViewModel(
+          context, ManageTeamPage(), ManageTeamViewModel(team));
     }
   }
 }
