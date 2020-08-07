@@ -101,6 +101,7 @@ class ManageTeamViewModel extends BaseViewModel {
           context,
           TeamMemberPickerPage(localizer().searchMembers),
           TeamMemberPickerViewModel(_team),
+          fullscreenDialog: true,
         )
         .whenComplete(notifyListeners);
 
