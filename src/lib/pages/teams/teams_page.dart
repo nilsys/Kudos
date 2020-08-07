@@ -15,96 +15,149 @@ import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
 
 class TeamsPage extends StatelessWidget {
-  final Set<String> _excludedTeamIds;
-  final SelectionAction _selectionAction;
-  final Icon _selectorIcon;
-  final bool _showAddButton;
+  final Widget _content;
 
   TeamsPage({
     @required SelectionAction selectionAction,
     @required bool showAddButton,
     Set<String> excludedTeamIds,
     Icon selectorIcon,
-  })  : _excludedTeamIds = excludedTeamIds,
+  }) : _content = _TeamsContentWidget(
+          selectionAction,
+          showAddButton,
+          excludedTeamIds,
+          selectorIcon,
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: GradientAppBar(title: localizer().teams, elevation: 0),
+      body: _content,
+    );
+  }
+}
+
+class TeamsTab extends StatelessWidget {
+  final Widget _content;
+
+  TeamsTab({
+    @required SelectionAction selectionAction,
+    @required bool showAddButton,
+    Set<String> excludedTeamIds,
+    Icon selectorIcon,
+  }) : _content = _TeamsContentWidget(
+          selectionAction,
+          showAddButton,
+          excludedTeamIds,
+          selectorIcon,
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        color: KudosTheme.contentColor,
+        child: _content,
+      ),
+    );
+  }
+}
+
+class _TeamsContentWidget extends StatelessWidget {
+  final Set<String> _excludedTeamIds;
+  final SelectionAction _selectionAction;
+  final Icon _selectorIcon;
+  final bool _showAddButton;
+
+  _TeamsContentWidget(
+    SelectionAction selectionAction,
+    bool showAddButton,
+    Set<String> excludedTeamIds,
+    Icon selectorIcon,
+  )   : _excludedTeamIds = excludedTeamIds,
         _selectorIcon = selectorIcon ?? KudosTheme.defaultSelectorIcon,
         _selectionAction = selectionAction,
         _showAddButton = showAddButton;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: GradientAppBar(title: localizer().teams, elevation: 0),
-      body: ChangeNotifierProvider<SearchInputViewModel>(
-        create: (context) => SearchInputViewModel(),
-        child:
-            ChangeNotifierProxyProvider<SearchInputViewModel, TeamsViewModel>(
-          create: (context) => TeamsViewModel(
-            _selectionAction,
-            excludedTeamIds: _excludedTeamIds,
-          ),
-          update: (context, searchViewModel, teamsViewModel) =>
-              teamsViewModel..filterByName(searchViewModel.query),
-          child: Column(
-            children: <Widget>[
-              _buildSearchBar(),
-              Expanded(
-                child: TopDecorator.buildLayoutWithDecorator(
-                  Stack(
-                    children: <Widget>[
-                      Positioned.fill(
-                        child: Consumer<TeamsViewModel>(
-                          builder: (context, viewModel, child) {
-                            return StreamBuilder<
-                                List<GrouppedListItem<TeamModel>>>(
-                              stream: viewModel.teamsStream,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<
-                                          List<GrouppedListItem<TeamModel>>>
-                                      snapshot) {
-                                if (viewModel.isBusy || snapshot.data == null) {
-                                  return _buildLoading();
-                                }
-                                if (snapshot.data?.isEmpty ?? true) {
-                                  return _buildEmpty(
-                                      viewModel.isAllTeamsListEmpty);
-                                } else {
-                                  return GrouppedListWidget(
-                                    snapshot.data,
-                                    (team) => _buildListItem(
-                                      context,
-                                      viewModel,
-                                      team,
-                                    ),
-                                  );
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      Positioned.directional(
-                        textDirection: TextDirection.ltr,
-                        end: 16.0,
-                        bottom: 32.0,
-                        child: Visibility(
-                          visible: _showAddButton,
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              var viewModel = Provider.of<TeamsViewModel>(
-                                context,
-                                listen: false,
+    return SafeArea(
+      child: Container(
+        color: KudosTheme.contentColor,
+        child: ChangeNotifierProvider<SearchInputViewModel>(
+          create: (context) => SearchInputViewModel(),
+          child:
+              ChangeNotifierProxyProvider<SearchInputViewModel, TeamsViewModel>(
+            create: (context) => TeamsViewModel(
+              _selectionAction,
+              excludedTeamIds: _excludedTeamIds,
+            ),
+            update: (context, searchViewModel, teamsViewModel) =>
+                teamsViewModel..filterByName(searchViewModel.query),
+            child: Column(
+              children: <Widget>[
+                _buildSearchBar(),
+                Expanded(
+                  child: TopDecorator.buildLayoutWithDecorator(
+                    Stack(
+                      children: <Widget>[
+                        Positioned.fill(
+                          child: Consumer<TeamsViewModel>(
+                            builder: (context, viewModel, child) {
+                              return StreamBuilder<
+                                  List<GrouppedListItem<TeamModel>>>(
+                                stream: viewModel.teamsStream,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<
+                                            List<GrouppedListItem<TeamModel>>>
+                                        snapshot) {
+                                  if (viewModel.isBusy ||
+                                      snapshot.data == null) {
+                                    return _buildLoading();
+                                  }
+                                  if (snapshot.data?.isEmpty ?? true) {
+                                    return _buildEmpty(
+                                        viewModel.isAllTeamsListEmpty);
+                                  } else {
+                                    return GrouppedListWidget(
+                                      snapshot.data,
+                                      (team) => _buildListItem(
+                                        context,
+                                        viewModel,
+                                        team,
+                                      ),
+                                    );
+                                  }
+                                },
                               );
-                              viewModel.createTeam(context);
                             },
-                            child: KudosTheme.addIcon,
                           ),
                         ),
-                      ),
-                    ],
+                        Positioned.directional(
+                          textDirection: TextDirection.ltr,
+                          end: 16.0,
+                          bottom: 32.0,
+                          child: Visibility(
+                            visible: _showAddButton,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                var viewModel = Provider.of<TeamsViewModel>(
+                                  context,
+                                  listen: false,
+                                );
+                                viewModel.createTeam(context);
+                              },
+                              child: KudosTheme.addIcon,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

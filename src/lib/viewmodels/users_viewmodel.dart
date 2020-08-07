@@ -10,7 +10,7 @@ import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
 
-class PeopleViewModel extends BaseViewModel {
+class UsersViewModel extends BaseViewModel {
   final _peopleService = locator<UsersService>();
   final _navigationService = locator<NavigationService>();
 
@@ -23,7 +23,7 @@ class PeopleViewModel extends BaseViewModel {
 
   Stream<List<UserModel>> get peopleStream => _peopleStream;
 
-  PeopleViewModel(this._selectionAction, {Set<String> excludedUserIds})
+  UsersViewModel(this._selectionAction, {Set<String> excludedUserIds})
       : _excludedUserIds = excludedUserIds {
     _initFilter();
     _initialize();

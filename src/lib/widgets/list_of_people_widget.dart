@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
@@ -43,8 +44,8 @@ class ListOfPeopleWidget extends StatelessWidget {
 
     return SimpleListItem(
       title: user.name,
-      description: getReceivedAchievementsString(
-          user.receivedAchievementsCount),
+      description:
+          getReceivedAchievementsString(user.receivedAchievementsCount),
       onTap: () => itemSelector?.call(user),
       imageUrl: user.imageUrl,
       selectorIcon: trailingWidget ?? trailingWidgetFunction(user),
