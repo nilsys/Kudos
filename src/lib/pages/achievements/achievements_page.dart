@@ -12,13 +12,7 @@ import 'package:provider/provider.dart';
 class AchievementsPage extends StatelessWidget {
   final Widget _content;
 
-  AchievementsPage({
-    @required bool showAddButton,
-    Icon selectorIcon,
-  }) : _content = _AchievementsContentPage(
-          showAddButton,
-          selectorIcon,
-        );
+  AchievementsPage() : _content = _AchievementsContentPage();
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +29,7 @@ class AchievementsPage extends StatelessWidget {
 class AchievementsTab extends StatelessWidget {
   final Widget _content;
 
-  AchievementsTab({
-    @required bool showAddButton,
-    Icon selectorIcon,
-  }) : _content = _AchievementsContentPage(
-          showAddButton,
-          selectorIcon,
-        );
+  AchievementsTab() : _content = _AchievementsContentPage();
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +64,6 @@ class AchievementsTab extends StatelessWidget {
 }
 
 class _AchievementsContentPage extends StatelessWidget {
-  final Icon _selectorIcon;
-  final bool _showAddButton;
-
-  _AchievementsContentPage(
-    bool showAddButton,
-    Icon selectorIcon,
-  )   : _selectorIcon = selectorIcon,
-        _showAddButton = showAddButton;
-
   @override
   Widget build(BuildContext context) {
     return TopDecorator.buildLayoutWithDecorator(
@@ -128,7 +107,7 @@ class _AchievementsContentPage extends StatelessWidget {
                   end: 16.0,
                   bottom: 32.0,
                   child: Visibility(
-                    visible: _showAddButton,
+                    visible: viewModel.showAddButton,
                     child: FloatingActionButton(
                       onPressed: () => viewModel.createAchievement(context),
                       child: KudosTheme.addIcon,
@@ -151,7 +130,7 @@ class _AchievementsContentPage extends StatelessWidget {
     return AchievementListItemWidget(
       item,
       (achievement) => viewModel.onAchievementClicked(context, achievement),
-      _selectorIcon,
+      viewModel.selectorIcon,
     );
   }
 }

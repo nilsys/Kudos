@@ -7,41 +7,37 @@ import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/messages/team_updated_message.dart';
 import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/pages/teams/edit_team_page.dart';
-import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
-import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/searchable_list_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:sorted_list/sorted_list.dart';
+import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
 
-class TeamsViewModel extends BaseViewModel {
+class TeamsViewModel
+    extends SearchableListViewModel<GrouppedListItem<TeamModel>> {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
   final _authService = locator<BaseAuthService>();
   final _navigationService = locator<NavigationService>();
 
-  final _selectionAction;
-  final _teamsList = new SortedList<GrouppedListItem<TeamModel>>(_sortFunc);
+  final SelectionAction _selectionAction;
   final Set<String> _excludedTeamIds;
 
-  StreamController<String> _streamController;
-  Stream<List<GrouppedListItem<TeamModel>>> _teamsStream;
+  final Icon selectorIcon;
+  final bool showAddButton;
 
-  StreamSubscription _teamUpdatedSubscription;
-  StreamSubscription _teamDeletedSubscription;
+  StreamSubscription<TeamUpdatedMessage> _teamUpdatedSubscription;
+  StreamSubscription<TeamDeletedMessage> _teamDeletedSubscription;
 
-  Stream<List<GrouppedListItem<TeamModel>>> get teamsStream => _teamsStream;
-
-  bool get isAllTeamsListEmpty => _teamsList.isEmpty;
-
-  TeamsViewModel(this._selectionAction, {Set<String> excludedTeamIds})
-      : _excludedTeamIds = excludedTeamIds {
-    _initFilter();
+  TeamsViewModel(
+    this._selectionAction,
+    this.showAddButton, {
+    Set<String> excludedTeamIds,
+    this.selectorIcon,
+  })  : _excludedTeamIds = excludedTeamIds,
+        super(sortFunc: _sortFunc) {
     _initialize();
   }
 
@@ -68,20 +64,27 @@ class TeamsViewModel extends BaseViewModel {
       _teamDeletedSubscription =
           _eventBus.on<TeamDeletedMessage>().listen(_onTeamDeleted);
     } finally {
+      filterByName("");
       isBusy = false;
     }
   }
 
-  void filterByName(String query) => _streamController.add(query);
-
-  Future<TeamModel> loadTeam(String id) {
-    return _teamsService.getTeam(id);
+  Future<void> _loadTeamsList() async {
+    var teams = await _teamsService.getTeams();
+    dataList.clear();
+    if (_excludedTeamIds != null) {
+      var localTeams = teams
+          .where((team) => !_excludedTeamIds.contains(team.id))
+          .map((tm) => _createGrouppedItemFromTeam(tm));
+      dataList.addAll(localTeams);
+    } else {
+      dataList.addAll(teams.map((tm) => _createGrouppedItemFromTeam(tm)));
+    }
   }
 
   void createTeam(BuildContext context) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      EditTeamPage(),
       EditTeamViewModel(),
     );
   }
@@ -89,48 +92,14 @@ class TeamsViewModel extends BaseViewModel {
   void onTeamClicked(BuildContext context, TeamModel team) {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        _navigationService.navigateToViewModel(
-            context, ManageTeamPage(), ManageTeamViewModel(team));
+        _navigationService.navigateTo(
+          context,
+          TeamDetailsViewModel(team),
+        );
         break;
       case SelectionAction.Pop:
         _navigationService.pop(context, team);
         break;
-    }
-  }
-
-  void _initFilter() {
-    _streamController = StreamController<String>();
-
-    _teamsStream = _streamController.stream
-        .debounceTime(Duration(milliseconds: 100))
-        .distinct()
-        .transform(StreamTransformer<String,
-            List<GrouppedListItem<TeamModel>>>.fromHandlers(
-          handleData: (query, sink) => sink.add(_filterByName(query)),
-        ));
-  }
-
-  List<GrouppedListItem> _filterByName(String query) {
-    if (query.isEmpty) {
-      return _teamsList;
-    } else {
-      final filteredTeams = _teamsList
-          .where((x) => x.item.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-      return filteredTeams;
-    }
-  }
-
-  Future<void> _loadTeamsList() async {
-    var teams = await _teamsService.getTeams();
-    _teamsList.clear();
-    if (_excludedTeamIds != null) {
-      var localTeams = teams
-          .where((team) => !_excludedTeamIds.contains(team.id))
-          .map((tm) => _createGrouppedItemFromTeam(tm));
-      _teamsList.addAll(localTeams);
-    } else {
-      _teamsList.addAll(teams.map((tm) => _createGrouppedItemFromTeam(tm)));
     }
   }
 
@@ -152,8 +121,13 @@ class TeamsViewModel extends BaseViewModel {
   }
 
   void _onTeamDeleted(TeamDeletedMessage event) {
-    _teamsList.removeWhere((x) => x.item.id == event.teamId);
+    dataList.removeWhere((x) => x.item.id == event.teamId);
     notifyListeners();
+  }
+
+  @override
+  bool filter(GrouppedListItem<TeamModel> item, String query) {
+    return item.item.name.toLowerCase().contains(query.toLowerCase());
   }
 
   @override

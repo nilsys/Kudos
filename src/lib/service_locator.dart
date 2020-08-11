@@ -9,6 +9,7 @@ import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
 import 'package:kudosapp/services/database/teams_database_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
+import 'package:kudosapp/services/page_mapper_service.dart';
 import 'package:kudosapp/services/session_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
@@ -44,5 +45,6 @@ void setupLocator() {
     ..registerLazySingleton<TeamsDatabaseService>(() => TeamsDatabaseService())
     ..registerLazySingleton<UsersDatabaseService>(() => UsersDatabaseService())
     ..registerLazySingleton<SessionService>(() => SessionService())
-    ..registerLazySingleton<NavigationService>(() => NavigationService());
+    ..registerLazySingleton<NavigationService>(() => NavigationService())
+    ..registerLazySingleton<PageMapperService>(() => PageMapperService());
 }

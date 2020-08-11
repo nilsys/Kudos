@@ -1,55 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/page_mapper_service.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class NavigationService {
-  void pop<T>(BuildContext context, [T result]) =>
-      Navigator.of(context).pop(result);
+  final _pageMapperService = locator<PageMapperService>();
 
-  Future<T> navigateTo<T>(
+  Future<TResult> navigateTo<TViewModel extends BaseViewModel, TResult>(
     BuildContext context,
-    Widget page, {
-    bool fullscreenDialog,
-  }) =>
-      Navigator.of(context).push(_getMaterialPageRoute(
-        page,
-        fullscreenDialog: fullscreenDialog,
-      ));
-
-  Future<TResult>
-      navigateToViewModel<TViewModel extends BaseViewModel, TResult>(
-    BuildContext context,
-    Widget page,
     TViewModel viewModel, {
     bool fullscreenDialog,
   }) {
-    var wrappedPage = ChangeNotifierProvider<TViewModel>(
+    var page = _pageMapperService.getPage(viewModel);
+    var wrappedPage = ChangeNotifierProvider(
       create: (context) => viewModel,
       child: page,
     );
-    return navigateTo(
-      context,
+    var pageName = _pageMapperService.getPageName(viewModel);
+
+    var route = _getMaterialPageRoute<TResult>(
       wrappedPage,
+      pageName,
       fullscreenDialog: fullscreenDialog,
     );
+
+    return Navigator.of(context).push(route);
   }
 
+  void pop<T>(BuildContext context, [T result]) =>
+      Navigator.of(context).pop(result);
+
   MaterialPageRoute<T> _getMaterialPageRoute<T>(
-    Widget page, {
+    Widget page,
+    String pageName, {
     bool fullscreenDialog,
   }) {
-    return MaterialPageRoute(
+    return MaterialPageRoute<T>(
+      settings: RouteSettings(name: pageName),
       builder: (context) => page,
       fullscreenDialog: fullscreenDialog ?? false,
     );
   }
 
   PageRouteBuilder<T> _getPageRouteBuilder<T>(
-    Widget page, {
+    Widget page,
+    String pageName, {
     bool fullscreenDialog,
   }) {
-    return PageRouteBuilder(
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: pageName),
       fullscreenDialog: fullscreenDialog ?? false,
       transitionDuration: Duration(milliseconds: 500),
       pageBuilder: (context, animation, secondaryAnimation) => page,

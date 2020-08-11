@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:provider/provider.dart';
-import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
+import 'package:kudosapp/viewmodels/searchable_list_viewmodel.dart';
 
-class SearchInputWidget extends StatelessWidget {
+class SearchInputWidget<T extends SearchableListViewModel>
+    extends StatelessWidget {
   static const double _leftPadding = 0;
   static const double _rightPadding = 24;
   static const double _topBottomPadding = 4;
 
-  final String hintText;
-  final double iconSize;
+  final T _viewModel;
+  final String _hintText;
+  final double _iconSize;
 
-  SearchInputWidget({this.hintText, this.iconSize});
+  SearchInputWidget(
+    this._viewModel, {
+    String hintText,
+    double iconSize,
+  })  : _hintText = hintText,
+        _iconSize = iconSize;
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<SearchInputViewModel>(context, listen: false);
-
     return Padding(
       padding: EdgeInsets.fromLTRB(
         _leftPadding,
@@ -27,7 +31,7 @@ class SearchInputWidget extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Container(
-            width: iconSize ?? 92,
+            width: _iconSize ?? 92,
             child: Center(
               child: Icon(
                 Icons.search,
@@ -39,13 +43,13 @@ class SearchInputWidget extends StatelessWidget {
             child: TextField(
               style: KudosTheme.searchTextStyle,
               cursorColor: KudosTheme.accentColor,
-              onChanged: (value) => viewModel.query = value,
+              onChanged: (value) => _viewModel.query = value,
               decoration: InputDecoration(
                 enabledBorder:
                     UnderlineInputBorder(borderSide: BorderSide.none),
                 focusedBorder:
                     UnderlineInputBorder(borderSide: BorderSide.none),
-                hintText: hintText,
+                hintText: _hintText,
                 hintStyle: KudosTheme.searchHintStyle,
               ),
             ),

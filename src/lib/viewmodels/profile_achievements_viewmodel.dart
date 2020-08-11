@@ -7,8 +7,6 @@ import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/messages/achievement_viewed_message.dart';
 import 'package:kudosapp/models/user_achievement_collection.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
-import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
-import 'package:kudosapp/pages/profile/received_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
@@ -16,7 +14,7 @@ import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/profile/received_achievement_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/received_achievement_viewmodel.dart';
 import 'package:sortedmap/sortedmap.dart';
 
 class ProfileAchievementsViewModel extends BaseViewModel {
@@ -78,9 +76,8 @@ class ProfileAchievementsViewModel extends BaseViewModel {
         _accessibleAchievementsMap[achievementCollection.relatedAchievement.id];
 
     if (isMyProfile) {
-      _navigationService.navigateToViewModel(
+      _navigationService.navigateTo(
         context,
-        ReceivedAchievementPage(),
         ReceivedAchievementViewModel(achievementCollection),
       );
     } else if (achievement == null) {
@@ -91,9 +88,8 @@ class ProfileAchievementsViewModel extends BaseViewModel {
       );
     } else {
       final achievement = achievementCollection.relatedAchievement;
-      _navigationService.navigateToViewModel(
+      _navigationService.navigateTo(
         context,
-        AchievementDetailsPage(),
         AchievementDetailsViewModel(achievement),
       );
     }
