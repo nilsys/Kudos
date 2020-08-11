@@ -46,6 +46,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
   final achievementHolders = new ListNotifier<UserModel>();
   final allUsersStatistics = StatisticsModel.empty(localizer().softeq);
 
+  Map<String, TeamModel> _teamsMap;
   StatisticsModel _teamUsersStatistics;
 
   StatisticsModel get teamUsersStatistics => _teamUsersStatistics;
@@ -61,6 +62,8 @@ class AchievementDetailsViewModel extends BaseViewModel {
       var loadedAchievement =
           await _achievementsService.getAchievement(achievement.id);
       achievement.updateWithModel(loadedAchievement);
+
+      _teamsMap = await _teamsService.getTeamsMap();
 
       _achievementReceivedSubscription?.cancel();
       _achievementReceivedSubscription =
@@ -255,8 +258,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
   void onOwnerClicked(BuildContext context) {
     if (achievement.owner.type == AchievementOwnerType.team &&
-        !achievement.owner.team
-            .canBeViewedByUser(_authService.currentUser.id)) {
+        !_teamsMap.containsKey(achievement.owner.id)) {
       _dialogsService.showOkDialog(
         context: context,
         title: localizer().accessDenied,

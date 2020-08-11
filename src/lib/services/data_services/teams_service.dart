@@ -32,6 +32,11 @@ class TeamsService extends CachedDataService<Team, TeamModel> {
     return cachedData.values;
   }
 
+  Future<Map<String, TeamModel>> getTeamsMap() async {
+    await loadData();
+    return cachedData;
+  }
+
   Future<List<TeamModel>> getUserTeams(String userId) async {
     var userTeams = await _teamsDatabaseService.getUserTeams(userId);
     return userTeams.map((t) => TeamModel.fromTeam(t)).toList();
