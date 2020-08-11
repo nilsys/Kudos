@@ -4,20 +4,20 @@ import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/snack_bar_notifier_service.dart';
-import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/profile_achievement_list_widget.dart';
 import 'package:kudosapp/widgets/common/fancy_list_widget.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
 import 'package:kudosapp/widgets/sliver_gradient_app_bar.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class UserDetailsPage extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _snackBarNotifier = locator<SnackBarNotifierService>();
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileViewModel>(
+    return Consumer<UserDetailsViewModel>(
       builder: (context, viewModel, child) {
         return Scaffold(
           key: _scaffoldKey,
@@ -35,7 +35,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  void _sendTapped(BuildContext context, ProfileViewModel viewModel) async {
+  void _sendTapped(BuildContext context, UserDetailsViewModel viewModel) async {
     try {
       await viewModel.sendAchievement(context);
     } catch (error) {
@@ -55,7 +55,7 @@ class ProfilePage extends StatelessWidget {
 
   Iterable<Widget> _buildSlivers(
     BuildContext context,
-    ProfileViewModel viewModel,
+    UserDetailsViewModel viewModel,
   ) sync* {
     yield SliverGradientAppBar(
       context: context,

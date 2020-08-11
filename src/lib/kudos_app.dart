@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,6 +14,8 @@ import 'package:kudosapp/viewmodels/auth_viewmodel.dart';
 class KudosApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var analytics = FirebaseAnalytics();
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -50,6 +54,9 @@ class KudosApp extends StatelessWidget {
           builder: (context, viewModel, child) => _buildHome(viewModel),
         ),
       ),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 

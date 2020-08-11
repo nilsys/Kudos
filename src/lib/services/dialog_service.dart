@@ -12,6 +12,7 @@ class DialogService {
   }) {
     buttonColor = buttonColor ?? KudosTheme.mainGradientStartColor;
     return showDialog(
+        routeSettings: RouteSettings(name: "1-button Dialog"),
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
@@ -45,6 +46,7 @@ class DialogService {
     firstButtonColor = firstButtonColor ?? KudosTheme.mainGradientStartColor;
     secondButtonColor = secondButtonColor ?? KudosTheme.mainGradientStartColor;
     await showDialog(
+        routeSettings: RouteSettings(name: "2-buttons Dialog"),
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
@@ -94,6 +96,7 @@ class DialogService {
     secondButtonColor = secondButtonColor ?? KudosTheme.mainGradientStartColor;
     thirdButtonColor = thirdButtonColor ?? KudosTheme.mainGradientStartColor;
     await showDialog(
+        routeSettings: RouteSettings(name: "3-buttons Dialog"),
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
@@ -185,54 +188,56 @@ class DialogService {
     var inputController = new TextEditingController();
 
     await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            content: TextField(
-              controller: inputController,
-              autofocus: true,
-              style: KudosTheme.descriptionTextStyle,
-              cursorColor: KudosTheme.accentColor,
-              decoration: InputDecoration(
-                labelText: localizer().writeAComment,
-                labelStyle: TextStyle(
-                  color: KudosTheme.mainGradientEndColor,
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: KudosTheme.accentColor),
-                ),
+      routeSettings: RouteSettings(name: "Comment Dialog"),
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: TextField(
+            controller: inputController,
+            autofocus: true,
+            style: KudosTheme.descriptionTextStyle,
+            cursorColor: KudosTheme.accentColor,
+            decoration: InputDecoration(
+              labelText: localizer().writeAComment,
+              labelStyle: TextStyle(
+                color: KudosTheme.mainGradientEndColor,
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: KudosTheme.accentColor),
               ),
             ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  localizer().cancel,
-                  style: TextStyle(
-                    color: KudosTheme.mainGradientStartColor,
-                  ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                localizer().cancel,
+                style: TextStyle(
+                  color: KudosTheme.mainGradientStartColor,
                 ),
-                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
               ),
-              FlatButton(
-                child: Text(
-                  localizer().send,
-                  style: TextStyle(
-                    color: KudosTheme.mainGradientStartColor,
-                  ),
+              splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                localizer().send,
+                style: TextStyle(
+                  color: KudosTheme.mainGradientStartColor,
                 ),
-                splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
-                onPressed: () {
-                  accepted = true;
-                  Navigator.of(context).pop();
-                },
               ),
-            ],
-          );
-        });
+              splashColor: KudosTheme.mainGradientStartColor.withAlpha(30),
+              onPressed: () {
+                accepted = true;
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
 
     var result = accepted ? inputController.text : null;
     inputController.dispose();

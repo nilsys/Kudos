@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/groupped_list_item.dart';
-import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/search_input_viewmodel.dart';
+import 'package:kudosapp/viewmodels/searchable_list_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
@@ -15,19 +14,7 @@ import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:provider/provider.dart';
 
 class TeamsPage extends StatelessWidget {
-  final Widget _content;
-
-  TeamsPage({
-    @required SelectionAction selectionAction,
-    @required bool showAddButton,
-    Set<String> excludedTeamIds,
-    Icon selectorIcon,
-  }) : _content = _TeamsContentWidget(
-          selectionAction,
-          showAddButton,
-          excludedTeamIds,
-          selectorIcon,
-        );
+  final Widget _content = _TeamsContentWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +26,7 @@ class TeamsPage extends StatelessWidget {
 }
 
 class TeamsTab extends StatelessWidget {
-  final Widget _content;
-
-  TeamsTab({
-    @required SelectionAction selectionAction,
-    @required bool showAddButton,
-    Set<String> excludedTeamIds,
-    Icon selectorIcon,
-  }) : _content = _TeamsContentWidget(
-          selectionAction,
-          showAddButton,
-          excludedTeamIds,
-          selectorIcon,
-        );
+  final Widget _content = _TeamsContentWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -65,102 +40,76 @@ class TeamsTab extends StatelessWidget {
 }
 
 class _TeamsContentWidget extends StatelessWidget {
-  final Set<String> _excludedTeamIds;
-  final SelectionAction _selectionAction;
-  final Icon _selectorIcon;
-  final bool _showAddButton;
-
-  _TeamsContentWidget(
-    SelectionAction selectionAction,
-    bool showAddButton,
-    Set<String> excludedTeamIds,
-    Icon selectorIcon,
-  )   : _excludedTeamIds = excludedTeamIds,
-        _selectorIcon = selectorIcon ?? KudosTheme.defaultSelectorIcon,
-        _selectionAction = selectionAction,
-        _showAddButton = showAddButton;
-
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        color: KudosTheme.contentColor,
-        child: ChangeNotifierProvider<SearchInputViewModel>(
-          create: (context) => SearchInputViewModel(),
-          child:
-              ChangeNotifierProxyProvider<SearchInputViewModel, TeamsViewModel>(
-            create: (context) => TeamsViewModel(
-              _selectionAction,
-              excludedTeamIds: _excludedTeamIds,
-            ),
-            update: (context, searchViewModel, teamsViewModel) =>
-                teamsViewModel..filterByName(searchViewModel.query),
+    return Consumer<TeamsViewModel>(
+      builder: (context, viewModel, child) {
+        return SafeArea(
+          child: Container(
+            color: KudosTheme.contentColor,
             child: Column(
               children: <Widget>[
-                _buildSearchBar(),
+                _buildSearchBar(viewModel),
                 Expanded(
-                  child: Consumer<TeamsViewModel>(
-                      builder: (context, viewModel, child) {
-                    return TopDecorator.buildLayoutWithDecorator(
-                      Stack(
-                        children: <Widget>[
-                          Positioned.fill(
-                            child: StreamBuilder<
-                                List<GrouppedListItem<TeamModel>>>(
-                              stream: viewModel.teamsStream,
-                              builder: (
-                                BuildContext context,
-                                AsyncSnapshot<List<GrouppedListItem<TeamModel>>>
-                                    snapshot,
-                              ) {
-                                if (viewModel.isBusy || snapshot.data == null) {
-                                  return _buildLoading();
-                                }
-                                if (snapshot.data?.isEmpty ?? true) {
-                                  return _buildEmpty(
-                                      viewModel.isAllTeamsListEmpty);
-                                } else {
-                                  return GrouppedListWidget(
-                                    snapshot.data,
-                                    (team) => _buildListItem(
-                                      context,
-                                      viewModel,
-                                      team,
-                                    ),
-                                  );
-                                }
-                              },
+                  child: TopDecorator.buildLayoutWithDecorator(
+                    Stack(
+                      children: <Widget>[
+                        Positioned.fill(
+                          child: StreamBuilder(
+                            stream: viewModel.dataStream,
+                            builder: (
+                              BuildContext context,
+                              AsyncSnapshot<
+                                      Iterable<GrouppedListItem<TeamModel>>>
+                                  snapshot,
+                            ) {
+                              if (viewModel.isBusy || snapshot.data == null) {
+                                return _buildLoading();
+                              }
+                              if (snapshot.data?.isEmpty ?? true) {
+                                return _buildEmpty(viewModel.isDataListEmpty);
+                              } else {
+                                return GrouppedListWidget<TeamModel>(
+                                  snapshot.data,
+                                  (team) => _buildListItem(
+                                    context,
+                                    viewModel,
+                                    team,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        Positioned.directional(
+                          textDirection: TextDirection.ltr,
+                          end: 16.0,
+                          bottom: 32.0,
+                          child: Visibility(
+                            visible: viewModel.showAddButton,
+                            child: FloatingActionButton(
+                              onPressed: () => viewModel.createTeam(context),
+                              child: KudosTheme.addIcon,
                             ),
                           ),
-                          Positioned.directional(
-                            textDirection: TextDirection.ltr,
-                            end: 16.0,
-                            bottom: 32.0,
-                            child: Visibility(
-                              visible: _showAddButton,
-                              child: FloatingActionButton(
-                                onPressed: () => viewModel.createTeam(context),
-                                child: KudosTheme.addIcon,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar<T>(SearchableListViewModel<T> viewModel) {
     return Container(
       decoration: BoxDecoration(gradient: KudosTheme.mainGradient),
       child: SearchInputWidget(
+        viewModel,
         hintText: localizer().enterName,
         iconSize: 82,
       ),
@@ -178,11 +127,12 @@ class _TeamsContentWidget extends StatelessWidget {
       child: FractionallySizedBox(
         widthFactor: 0.7,
         child: Text(
-            isAllTeamsListEmpty
-                ? localizer().createYourOwnTeams
-                : localizer().searchEmptyPlaceholder,
-            textAlign: TextAlign.center,
-            style: KudosTheme.sectionEmptyTextStyle),
+          isAllTeamsListEmpty
+              ? localizer().createYourOwnTeams
+              : localizer().searchEmptyPlaceholder,
+          textAlign: TextAlign.center,
+          style: KudosTheme.sectionEmptyTextStyle,
+        ),
       ),
     );
   }
@@ -196,7 +146,7 @@ class _TeamsContentWidget extends StatelessWidget {
       title: team.name,
       description: AccessLevelUtils.getString(team.accessLevel),
       onTap: () => viewModel.onTeamClicked(context, team),
-      selectorIcon: _selectorIcon,
+      selectorIcon: viewModel.selectorIcon,
       imageShape: ImageShape.square(56, 4),
       imageUrl: team.imageUrl,
       useTextPlaceholder: true,

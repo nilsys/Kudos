@@ -9,7 +9,7 @@ class GrouppedListWidget<T> extends StatelessWidget {
   final Widget Function(T) _itemBuilder;
 
   GrouppedListWidget(
-    List<GrouppedListItem<T>> items,
+    Iterable<GrouppedListItem<T>> items,
     this._itemBuilder,
   ) {
     String groupName;

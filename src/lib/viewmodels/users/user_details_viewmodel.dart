@@ -8,8 +8,6 @@ import 'package:kudosapp/models/selection_action.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
-import 'package:kudosapp/pages/achievements/achievements_page.dart';
-import 'package:kudosapp/pages/teams/manage_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
@@ -19,9 +17,9 @@ import 'package:kudosapp/services/data_services/teams_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievements_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
 
-class ProfileViewModel extends BaseViewModel with Disposable {
+class UserDetailsViewModel extends BaseViewModel with Disposable {
   final _eventBus = locator<EventBus>();
   final _teamsService = locator<TeamsService>();
   final _peopleService = locator<UsersService>();
@@ -38,7 +36,7 @@ class ProfileViewModel extends BaseViewModel with Disposable {
   bool get showSendButton =>
       user != null && user.id != _authService.currentUser.id;
 
-  ProfileViewModel(this.user) {
+  UserDetailsViewModel(this.user) {
     _initialize();
   }
 
@@ -57,14 +55,12 @@ class ProfileViewModel extends BaseViewModel with Disposable {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Select achievement
-    var achievement = await _navigationService.navigateToViewModel(
+    var achievement = await _navigationService.navigateTo(
       context,
-      AchievementsPage(
-        showAddButton: false,
-        selectorIcon: KudosTheme.sendSelectorIcon,
-      ),
       AchievementsViewModel(
         SelectionAction.Pop,
+        false,
+        selectorIcon: KudosTheme.sendSelectorIcon,
         achievementsFilter: (achievement) =>
             achievement.canBeSentByUser(_authService.currentUser.id),
       ),
@@ -105,8 +101,10 @@ class ProfileViewModel extends BaseViewModel with Disposable {
         content: localizer().privateTeam,
       );
     } else {
-      _navigationService.navigateToViewModel(
-          context, ManageTeamPage(), ManageTeamViewModel(team));
+      _navigationService.navigateTo(
+        context,
+        TeamDetailsViewModel(team),
+      );
     }
   }
 }

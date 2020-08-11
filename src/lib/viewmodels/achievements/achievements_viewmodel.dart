@@ -9,8 +9,6 @@ import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
 import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/selection_action.dart';
-import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
-import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
@@ -35,9 +33,15 @@ class AchievementsViewModel extends BaseViewModel {
       SortedList<GrouppedListItem<AchievementModel>>(_sortFunc);
   final bool Function(AchievementModel) _achievementFilter;
 
-  AchievementsViewModel(this._selectionAction,
-      {bool Function(AchievementModel) achievementsFilter})
-      : _achievementFilter = achievementsFilter {
+  final Icon selectorIcon;
+  final bool showAddButton;
+
+  AchievementsViewModel(
+    this._selectionAction,
+    this.showAddButton, {
+    this.selectorIcon,
+    bool Function(AchievementModel) achievementsFilter,
+  }) : _achievementFilter = achievementsFilter {
     _initialize();
   }
 
@@ -92,9 +96,8 @@ class AchievementsViewModel extends BaseViewModel {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
         _navigationService
-            .navigateToViewModel(
+            .navigateTo(
               context,
-              AchievementDetailsPage(),
               AchievementDetailsViewModel(achievement),
             )
             .whenComplete(notifyListeners);
@@ -106,9 +109,8 @@ class AchievementsViewModel extends BaseViewModel {
   }
 
   void createAchievement(BuildContext context) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      EditAchievementPage(),
       EditAchievementViewModel.createUserAchievement(_authService.currentUser),
     );
   }

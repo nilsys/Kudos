@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
@@ -48,7 +47,7 @@ class ListOfPeopleWidget extends StatelessWidget {
           getReceivedAchievementsString(user.receivedAchievementsCount),
       onTap: () => itemSelector?.call(user),
       imageUrl: user.imageUrl,
-      selectorIcon: trailingWidget ?? trailingWidgetFunction(user),
+      selectorIcon: trailingWidget ?? trailingWidgetFunction?.call(user),
       imageShape: ImageShape.circle(50),
       useTextPlaceholder: true,
       addHeroAnimation: true,

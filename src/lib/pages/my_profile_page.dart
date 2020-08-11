@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudosapp/kudos_theme.dart';
-import 'package:kudosapp/viewmodels/profile/my_profile_viewmodel.dart';
+import 'package:kudosapp/viewmodels/my_profile_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/profile_achievement_list_widget.dart';
 import 'package:kudosapp/widgets/decorations/top_decorator.dart';
 import 'package:provider/provider.dart';
@@ -10,37 +10,38 @@ import 'package:provider/provider.dart';
 class MyProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<MyProfileViewModel>(context, listen: false);
-    final user = viewModel.user;
-
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          SizedBox(height: 4.0),
-          _buildTopBar(context, viewModel),
-          SizedBox(height: 4.0),
-          Expanded(
-            child: TopDecorator.buildLayoutWithDecorator(
-              Stack(
-                alignment: Alignment.topLeft,
-                children: <Widget>[
-                  Positioned.fill(
-                    top: -.5,
-                    child: Container(
-                      color: KudosTheme.contentColor,
-                      child: ProfileAchievementsListWidget(
-                        user.id,
-                        false,
+    return Consumer<MyProfileViewModel>(
+      builder: (context, viewModel, child) {
+        return SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              SizedBox(height: 4.0),
+              _buildTopBar(context, viewModel),
+              SizedBox(height: 4.0),
+              Expanded(
+                child: TopDecorator.buildLayoutWithDecorator(
+                  Stack(
+                    alignment: Alignment.topLeft,
+                    children: <Widget>[
+                      Positioned.fill(
+                        top: -.5,
+                        child: Container(
+                          color: KudosTheme.contentColor,
+                          child: ProfileAchievementsListWidget(
+                            viewModel.user.id,
+                            false,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

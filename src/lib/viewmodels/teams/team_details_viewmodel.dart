@@ -10,11 +10,6 @@ import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
-import 'package:kudosapp/pages/achievements/achievement_details_page.dart';
-import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
-import 'package:kudosapp/pages/profile_page.dart';
-import 'package:kudosapp/pages/team_member_picker_page.dart';
-import 'package:kudosapp/pages/teams/edit_team_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
@@ -24,11 +19,11 @@ import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
-import 'package:kudosapp/viewmodels/team_member_picker_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_member_picker_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 
-class ManageTeamViewModel extends BaseViewModel {
+class TeamDetailsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
   final _authService = locator<BaseAuthService>();
   final _teamsService = locator<TeamsService>();
@@ -58,7 +53,7 @@ class ManageTeamViewModel extends BaseViewModel {
       ? false
       : _team.canBeModifiedByUser(_authService.currentUser.id);
 
-  ManageTeamViewModel(this._team) {
+  TeamDetailsViewModel(this._team) {
     _initialize();
   }
 
@@ -97,9 +92,8 @@ class ManageTeamViewModel extends BaseViewModel {
     }
 
     await _navigationService
-        .navigateToViewModel(
+        .navigateTo(
           context,
-          TeamMemberPickerPage(localizer().searchMembers),
           TeamMemberPickerViewModel(_team),
           fullscreenDialog: true,
         )
@@ -110,15 +104,17 @@ class ManageTeamViewModel extends BaseViewModel {
 
   void editTeam(BuildContext context) {
     _navigationService
-        .navigateToViewModel(context, EditTeamPage(), EditTeamViewModel(_team))
+        .navigateTo(
+          context,
+          EditTeamViewModel(_team),
+        )
         .whenComplete(notifyListeners);
   }
 
   void openTeamMemberDetails(BuildContext context, TeamMemberModel teamMember) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      ProfilePage(),
-      ProfileViewModel(teamMember.user),
+      UserDetailsViewModel(teamMember.user),
     );
   }
 
@@ -126,17 +122,15 @@ class ManageTeamViewModel extends BaseViewModel {
     BuildContext context,
     AchievementModel achievement,
   ) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      AchievementDetailsPage(),
       AchievementDetailsViewModel(achievement),
     );
   }
 
   void createAchievement(BuildContext context) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      EditAchievementPage(),
       EditAchievementViewModel.createTeamAchievement(_team),
     );
   }

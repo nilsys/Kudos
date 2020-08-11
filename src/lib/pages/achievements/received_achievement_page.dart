@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/profile/received_achievement_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/received_achievement_viewmodel.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:kudosapp/widgets/sliver_gradient_app_bar.dart';
 import 'package:provider/provider.dart';

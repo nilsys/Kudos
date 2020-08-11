@@ -15,12 +15,6 @@ import 'package:kudosapp/models/statistics_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
-import 'package:kudosapp/pages/achievements/edit_achievement_page.dart';
-import 'package:kudosapp/pages/users_page.dart';
-import 'package:kudosapp/pages/profile_page.dart';
-import 'package:kudosapp/pages/teams/manage_team_page.dart';
-import 'package:kudosapp/pages/teams/teams_page.dart';
-import 'package:kudosapp/pages/user_picker_page.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
@@ -30,9 +24,10 @@ import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/profile_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
-import 'package:kudosapp/viewmodels/user_picker_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/users_viewmodel.dart';
 import 'package:sprintf/sprintf.dart';
 
 class AchievementDetailsViewModel extends BaseViewModel {
@@ -90,16 +85,16 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Pick user
-    var selectedUsers = await _navigationService.navigateToViewModel(
+    var selectedUser = await _navigationService.navigateTo(
       context,
-      UserPickerPage(
-        (context) => KudosTheme.sendSelectorIcon,
-        localizer().search,
+      UsersViewModel(
+        SelectionAction.Pop,
+        selectorIcon: KudosTheme.sendSelectorIcon,
+        excludedUserIds: {_authService.currentUser.id},
       ),
-      UserPickerViewModel(null, false, true, false),
     );
 
-    if (selectedUsers == null || selectedUsers.isEmpty) {
+    if (selectedUser == null) {
       return;
     }
 
@@ -120,21 +115,19 @@ class AchievementDetailsViewModel extends BaseViewModel {
       );
 
       await _achievementsService.sendAchievement(
-        selectedUsers.first,
+        selectedUser,
         userAchievement,
       );
 
-      _eventBus
-          .fire(AchievementSentMessage(selectedUsers.first, userAchievement));
+      _eventBus.fire(AchievementSentMessage(selectedUser, userAchievement));
     } finally {
       isBusy = false;
     }
   }
 
   void editAchievement(BuildContext context) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      EditAchievementPage(),
       EditAchievementViewModel.editAchievement(achievement),
     );
   }
@@ -158,8 +151,8 @@ class AchievementDetailsViewModel extends BaseViewModel {
                   : null;
           var user = await _navigationService.navigateTo(
             context,
-            UsersPage(
-              selectionAction: SelectionAction.Pop,
+            UsersViewModel(
+              SelectionAction.Pop,
               excludedUserIds: excludedUserIds,
               selectorIcon: KudosTheme.transferSelectorIcon,
             ),
@@ -176,9 +169,9 @@ class AchievementDetailsViewModel extends BaseViewModel {
                   : null;
           var team = await _navigationService.navigateTo(
             context,
-            TeamsPage(
-              selectionAction: SelectionAction.Pop,
-              showAddButton: false,
+            TeamsViewModel(
+              SelectionAction.Pop,
+              false,
               excludedTeamIds: excludedTeamIds,
               selectorIcon: KudosTheme.transferSelectorIcon,
             ),
@@ -275,24 +268,27 @@ class AchievementDetailsViewModel extends BaseViewModel {
     switch (achievement.owner.type) {
       case AchievementOwnerType.user:
         _navigationService
-            .navigateToViewModel(context, ProfilePage(),
-                ProfileViewModel(achievement.owner.user))
+            .navigateTo(
+              context,
+              UserDetailsViewModel(achievement.owner.user),
+            )
             .whenComplete(() => notifyListeners());
         break;
       case AchievementOwnerType.team:
         _navigationService
-            .navigateToViewModel(context, ManageTeamPage(),
-                ManageTeamViewModel(achievement.owner.team))
+            .navigateTo(
+              context,
+              TeamDetailsViewModel(achievement.owner.team),
+            )
             .whenComplete(() => notifyListeners());
         break;
     }
   }
 
   void onHolderClicked(BuildContext context, UserModel user) {
-    _navigationService.navigateToViewModel(
+    _navigationService.navigateTo(
       context,
-      ProfilePage(),
-      ProfileViewModel(user),
+      UserDetailsViewModel(user),
     );
   }
 

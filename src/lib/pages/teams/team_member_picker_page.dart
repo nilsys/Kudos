@@ -4,16 +4,12 @@ import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/team_member_picker_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_member_picker_viewmodel.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/list_of_people_widget.dart';
 import 'package:provider/provider.dart';
 
 class TeamMemberPickerPage extends StatefulWidget {
-  final String _searchHint;
-
-  TeamMemberPickerPage(this._searchHint);
-
   @override
   State<StatefulWidget> createState() {
     return _TeamMemberPickerPageState();
@@ -47,7 +43,7 @@ class _TeamMemberPickerPageState extends State<TeamMemberPickerPage> {
             cursorColor: KudosTheme.accentColor,
             controller: _textEditingController,
             decoration: InputDecoration.collapsed(
-              hintText: widget._searchHint,
+              hintText: localizer().searchMembers,
               hintStyle: KudosTheme.searchHintStyle,
             ),
             onChanged: (x) => viewModel.requestSearch(x),

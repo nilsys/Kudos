@@ -5,22 +5,22 @@ import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/service_locator.dart';
-import 'package:kudosapp/viewmodels/teams/manage_team_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
 import 'package:kudosapp/widgets/achievements/achievement_list_item_widget.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
 import 'package:kudosapp/widgets/gradient_app_bar.dart';
 import 'package:kudosapp/widgets/section_header_widget.dart';
 import 'package:provider/provider.dart';
 
-class ManageTeamPage extends StatefulWidget {
+class TeamDetailsPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _ManageTeamPageState();
+  State<StatefulWidget> createState() => _TeamDetailsPageState();
 }
 
-class _ManageTeamPageState extends State<ManageTeamPage> {
+class _TeamDetailsPageState extends State<TeamDetailsPage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<ManageTeamViewModel>(
+    return Consumer<TeamDetailsViewModel>(
       builder: (context, viewModel, child) {
         return Scaffold(
           appBar: GradientAppBar(
@@ -52,7 +52,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
     );
   }
 
-  Widget _buildBody(ManageTeamViewModel viewModel) {
+  Widget _buildBody(TeamDetailsViewModel viewModel) {
     var children = <Widget>[
       viewModel.imageUrl == null
           ? Container()
@@ -154,7 +154,7 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
 
   Widget _buildMembersList(
     BuildContext context,
-    ManageTeamViewModel viewModel,
+    TeamDetailsViewModel viewModel,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
