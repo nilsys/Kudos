@@ -128,7 +128,7 @@ class _UsersContentWidget extends StatelessWidget {
       ),
       itemSelector: (user) => viewModel.onItemClicked(context, user),
       users: users,
-      trailingWidget: viewModel.selectorIcon ?? KudosTheme.defaultSelectorIcon,
+      trailingWidget: viewModel.selectorIcon,
     );
   }
 }

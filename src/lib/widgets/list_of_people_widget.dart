@@ -47,7 +47,7 @@ class ListOfPeopleWidget extends StatelessWidget {
           getReceivedAchievementsString(user.receivedAchievementsCount),
       onTap: () => itemSelector?.call(user),
       imageUrl: user.imageUrl,
-      selectorIcon: trailingWidget ?? trailingWidgetFunction(user),
+      selectorIcon: trailingWidget ?? trailingWidgetFunction?.call(user),
       imageShape: ImageShape.circle(50),
       useTextPlaceholder: true,
       addHeroAnimation: true,
