@@ -902,6 +902,16 @@ class S {
       args: [],
     );
   }
+
+  /// `(you)`
+  String get youLabel {
+    return Intl.message(
+      '(you)',
+      name: 'youLabel',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

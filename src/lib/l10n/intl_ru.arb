@@ -85,5 +85,6 @@
     "accessLevelPrivate": "Частная",
     "accessLevelPublicDescription": "Все пользователи могут видеть и дарить награды публичных команд",
     "accessLevelProtectedDescription": "Награды защищенных команд видны всем пользователям, но они не могут их дарить",
-    "accessLevelPrivateDescription": "Награды частных команд видны только участникам этой команды"
+    "accessLevelPrivateDescription": "Награды частных команд видны только участникам этой команды",
+    "youLabel": "(вы)"
 }

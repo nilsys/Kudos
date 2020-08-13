@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/widgets/simple_list_item.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -38,11 +39,20 @@ class ListOfPeopleWidget extends StatelessWidget {
     }
   }
 
+  String getItemTitle(UserModel user) {
+    final authService = locator<BaseAuthService>();
+
+    if (user.id == authService.currentUser.id) {
+      return "${user.name} ${localizer().youLabel}";
+    } else
+      return user.name;
+  }
+
   Widget _buildItem(context, index) {
     final user = users[index];
 
     return SimpleListItem(
-      title: user.name,
+      title: getItemTitle(user),
       description:
           getReceivedAchievementsString(user.receivedAchievementsCount),
       onTap: () => itemSelector?.call(user),
