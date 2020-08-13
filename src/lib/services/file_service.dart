@@ -1,11 +1,10 @@
 import 'dart:io';
 
 class FileService {
-  static const fileSizeLimit = 0.5 * 1024 * 1024; // 0.5 Mb
+  static const fileSizeLimit = 1 * 1024 * 1024; // 1 Mb
 
   Future<bool> isFileSizeValid(File file) async {
-    if (file == null)
-    {
+    if (file == null) {
       return false;
     }
     var fileSize = await file.length();

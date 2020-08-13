@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kudosapp/models/errors/upload_file_error.dart';
 import 'package:kudosapp/models/image_data.dart';
 import 'package:kudosapp/service_locator.dart';
@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 
 class ImageService {
   static const kudosFolder = "kudos";
+  static const maxImageSize = 200.0;
 
   final _fileService = locator<FileService>();
   final _dialogService = locator<DialogService>();
@@ -39,7 +40,14 @@ class ImageService {
   }
 
   Future<File> pickImage(BuildContext context) async {
-    var file = await FilePicker.getFile(type: FileType.image);
+    final imagePicker = ImagePicker();
+    var pickedFile = await imagePicker.getImage(
+      source: ImageSource.gallery,
+      maxWidth: maxImageSize,
+      maxHeight: maxImageSize,
+    );
+    final file = pickedFile == null ? null : File(pickedFile.path);
+
     var isValid = file == null || await _fileService.isFileSizeValid(file);
 
     if (!isValid) {
