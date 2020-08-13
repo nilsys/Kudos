@@ -85,5 +85,6 @@
     "accessLevelPrivate": "Private",
     "accessLevelPublicDescription": "Everyone can view and send this team's achievements",
     "accessLevelProtectedDescription": "Everyone can view this team's achievements, but only team members can send them",
-    "accessLevelPrivateDescription": "Only team members can view and send this team's achievements"
+    "accessLevelPrivateDescription": "Only team members can view and send this team's achievements",
+    "youLabel": "(you)"
 }

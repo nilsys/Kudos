@@ -107,6 +107,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "userPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Please select at least one user"),
     "userTeamsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("This user is not part of any team yet"),
     "warning" : MessageLookupByLibrary.simpleMessage("Warning"),
-    "writeAComment" : MessageLookupByLibrary.simpleMessage("Your comment")
+    "writeAComment" : MessageLookupByLibrary.simpleMessage("Your comment"),
+    "youLabel" : MessageLookupByLibrary.simpleMessage("(you)")
   };
 }

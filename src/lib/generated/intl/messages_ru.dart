@@ -106,6 +106,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "userPickerEmptyMessage" : MessageLookupByLibrary.simpleMessage("Выберите хотя бы одного пользователя"),
     "userTeamsEmptyPlaceholder" : MessageLookupByLibrary.simpleMessage("Этот пользователь пока не состоит ни в одной команде"),
     "warning" : MessageLookupByLibrary.simpleMessage("Внимание"),
-    "writeAComment" : MessageLookupByLibrary.simpleMessage("Ваш комментарий")
+    "writeAComment" : MessageLookupByLibrary.simpleMessage("Ваш комментарий"),
+    "youLabel" : MessageLookupByLibrary.simpleMessage("(вы)")
   };
 }
