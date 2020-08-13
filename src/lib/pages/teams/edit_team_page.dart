@@ -3,7 +3,6 @@ import 'package:kudosapp/helpers/access_level_utils.dart';
 import 'package:kudosapp/helpers/text_editing_value_helper.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/access_level.dart';
-import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 import 'package:kudosapp/widgets/common/rounded_image_widget.dart';
