@@ -25,7 +25,7 @@ import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/viewmodels/users/users_viewmodel.dart';
 
 class PageMapperService {
-  Widget getPage<T>(T viewModel) {
+  Widget getPage<T>() {
     switch (T) {
       case LoginViewModel:
         return LoginPage();
@@ -59,7 +59,7 @@ class PageMapperService {
     return null;
   }
 
-  String getPageName<T>(T viewModel) {
+  String getPageName<T>() {
     switch (T) {
       case LoginViewModel:
         return "Login";
@@ -90,6 +90,36 @@ class PageMapperService {
       case UserDetailsViewModel:
         return "User Details";
     }
+    return null;
+  }
+
+  Widget getTab<T>() {
+    switch (T) {
+      case MyProfileViewModel:
+        return MyProfilePage();
+      case TeamsViewModel:
+        return TeamsTab();
+      case UsersViewModel:
+        return UsersTab();
+      case AchievementsViewModel:
+        return AchievementsTab();
+    }
+
+    return null;
+  }
+
+  String getTabName<T>() {
+    switch (T) {
+      case MyProfileViewModel:
+        return "My Profile Tab";
+      case TeamsViewModel:
+        return "Teams Tab";
+      case UsersViewModel:
+        return "Users Tab";
+      case AchievementsViewModel:
+        return "Achievements Tab";
+    }
+
     return null;
   }
 }

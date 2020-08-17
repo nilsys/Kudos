@@ -13,12 +13,12 @@ class NavigationService {
     TViewModel viewModel, {
     bool fullscreenDialog,
   }) {
-    var page = _pageMapperService.getPage(viewModel);
+    var page = _pageMapperService.getPage<TViewModel>();
     var wrappedPage = ChangeNotifierProvider(
       create: (context) => viewModel,
       child: page,
     );
-    var pageName = _pageMapperService.getPageName(viewModel);
+    var pageName = _pageMapperService.getPageName<TViewModel>();
 
     var route = _getMaterialPageRoute<TResult>(
       wrappedPage,
@@ -31,6 +31,17 @@ class NavigationService {
 
   void pop<T>(BuildContext context, [T result]) =>
       Navigator.of(context).pop(result);
+
+  Widget getTab<TViewModel extends BaseViewModel>(
+    TViewModel Function() createViewModel,
+  ) {
+    var tab = _pageMapperService.getTab<TViewModel>();
+    var wrappedTab = ChangeNotifierProvider(
+      create: (context) => createViewModel?.call(),
+      child: tab,
+    );
+    return wrappedTab;
+  }
 
   MaterialPageRoute<T> _getMaterialPageRoute<T>(
     Widget page,

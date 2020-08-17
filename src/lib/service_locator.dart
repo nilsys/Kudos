@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:kudosapp/generated/l10n.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/auth_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
@@ -46,5 +47,6 @@ void setupLocator() {
     ..registerLazySingleton<UsersDatabaseService>(() => UsersDatabaseService())
     ..registerLazySingleton<SessionService>(() => SessionService())
     ..registerLazySingleton<NavigationService>(() => NavigationService())
-    ..registerLazySingleton<PageMapperService>(() => PageMapperService());
+    ..registerLazySingleton<PageMapperService>(() => PageMapperService())
+    ..registerLazySingleton<AnalyticsService>(() => AnalyticsService());
 }

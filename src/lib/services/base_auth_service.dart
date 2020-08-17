@@ -3,7 +3,7 @@ import 'package:kudosapp/models/user_model.dart';
 abstract class BaseAuthService {
   UserModel get currentUser;
 
-  void silentInit(Function(UserModel) userChangedHandler);
+  void silentInit(void Function(UserModel) userChangedHandler);
 
   Future<void> signIn();
 

@@ -1,21 +1,22 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:kudosapp/generated/l10n.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
+import 'package:kudosapp/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:kudosapp/pages/login_page.dart';
 import 'package:kudosapp/pages/home_page.dart';
 import 'package:kudosapp/viewmodels/auth_viewmodel.dart';
 
 class KudosApp extends StatelessWidget {
+  final _analyticsService = locator<AnalyticsService>();
+
   @override
   Widget build(BuildContext context) {
-    var analytics = FirebaseAnalytics();
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -51,19 +52,23 @@ class KudosApp extends StatelessWidget {
           ChangeNotifierProvider(create: (context) => AuthViewModel()),
         ],
         child: Consumer<AuthViewModel>(
-          builder: (context, viewModel, child) => _buildHome(viewModel),
+          builder: (context, viewModel, child) =>
+              _buildHome(context, viewModel),
         ),
       ),
       navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
+        _analyticsService.observer,
       ],
     );
   }
 
-  Widget _buildHome(AuthViewModel viewModel) {
+  Widget _buildHome(BuildContext context, AuthViewModel viewModel) {
     switch (viewModel.authState) {
       case AuthViewModelState.loggedIn:
-        return HomePage();
+        return ChangeNotifierProvider(
+          create: (context) => HomeViewModel(context),
+          child: HomePage(),
+        );
       case AuthViewModelState.loggedOut:
         return LoginPage();
       case AuthViewModelState.unknown:
