@@ -27,7 +27,7 @@ class MyProfileViewModel extends BaseViewModel {
     );
     if (signOutConfirmed) {
       await _sessionService.closeSession();
-      _analyticsService.logLogout();
+      _analyticsService.logSignOut();
     }
   }
 }

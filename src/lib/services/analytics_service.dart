@@ -13,7 +13,7 @@ class AnalyticsService {
 
   void logAppOpened() => _analytics.logAppOpen();
   void logSignIn() => _analytics.logLogin();
-  void logLogout() => _analytics.logEvent(name: "Logout");
+  void logSignOut() => _analytics.logEvent(name: "Logout");
 
   void logAchievementSent() => _analytics.logEvent(name: "Achievement sent");
   void logAchievementCreated() =>
