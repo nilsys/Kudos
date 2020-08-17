@@ -9,6 +9,7 @@ import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
@@ -22,6 +23,7 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
   final _imageService = locator<ImageService>();
   final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
   final _navigationService = locator<NavigationService>();
 
   final TeamModel _initialTeam;
@@ -94,12 +96,14 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
 
       if (isNewTeam) {
         updatedTeam = await _teamsService.createTeam(_team);
+        _analyticsService.logTeamCreated();
       } else {
         updatedTeam = await _teamsService.editTeam(_team);
         if (accessLevel != _initialTeam.accessLevel) {
           await _teamsService.setTeamAccessLevel(_initialTeam, accessLevel);
           updatedTeam.accessLevel = _team.accessLevel;
         }
+        _analyticsService.logTeamUpdated();
       }
     } finally {
       isBusy = false;

@@ -10,6 +10,7 @@ import 'package:kudosapp/models/messages/achievement_updated_message.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/image_service.dart';
@@ -20,6 +21,7 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
   final _eventBus = locator<EventBus>();
   final _imageService = locator<ImageService>();
   final _dialogsService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
   final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
@@ -97,9 +99,11 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
         if (_achievement.id == null) {
           updatedAchievement =
               await _achievementsService.createAchievement(_achievement);
+          _analyticsService.logAchievementCreated();
         } else {
           updatedAchievement =
               await _achievementsService.updateAchievement(_achievement);
+          _analyticsService.logAchievementUpdated();
         }
       }
 

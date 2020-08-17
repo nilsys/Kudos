@@ -22,6 +22,8 @@ class KudosApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
+    _analyticsService.logAppOpened();
+
     return GetMaterialApp(
       localizationsDelegates: [
         S.delegate,

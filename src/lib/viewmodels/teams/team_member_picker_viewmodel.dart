@@ -6,6 +6,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_access_level.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
@@ -20,8 +21,9 @@ enum UserState {
 
 class TeamMemberPickerViewModel extends BaseViewModel {
   final _usersService = locator<UsersService>();
-  final _dialogService = locator<DialogService>();
   final _teamsService = locator<TeamsService>();
+  final _dialogService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
   final _navigationService = locator<NavigationService>();
 
   final Map<String, TeamMemberModel> _teamMembers;
@@ -93,6 +95,7 @@ class TeamMemberPickerViewModel extends BaseViewModel {
         _team,
         _teamMembers.values.toList(),
       );
+      _analyticsService.logTeamMembersUpdated();
 
       _team.members.clear();
       _team.members.addEntries(_teamMembers.entries);

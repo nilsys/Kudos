@@ -16,6 +16,7 @@ import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/data_services/users_service.dart';
@@ -36,6 +37,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
   final _usersService = locator<UsersService>();
   final _authService = locator<BaseAuthService>();
   final _dialogsService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
   final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
@@ -121,6 +123,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
         selectedUser,
         userAchievement,
       );
+      _analyticsService.logAchievementSent();
 
       _eventBus.fire(AchievementSentMessage(selectedUser, userAchievement));
     } finally {
@@ -201,6 +204,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
           achievement,
           AchievementOwnerModel.fromUser(user),
         );
+        _analyticsService.logAchievementTransferred();
         _eventBus
             .fire(AchievementTransferredMessage.single(updatedAchievement));
         Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -225,6 +229,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
           achievement,
           AchievementOwnerModel.fromTeam(team),
         );
+        _analyticsService.logAchievementTransferred();
         _eventBus
             .fire(AchievementTransferredMessage.single(updatedAchievement));
         Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -248,6 +253,7 @@ class AchievementDetailsViewModel extends BaseViewModel {
           achievement,
           holdersCount: achievementHolders.length,
         );
+        _analyticsService.logAchievementDeleted();
         _eventBus.fire(AchievementDeletedMessage.single(achievement.id));
         Navigator.popUntil(context, ModalRoute.withName('/'));
       } finally {
