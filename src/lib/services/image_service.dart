@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kudosapp/models/errors/upload_file_error.dart';
 import 'package:kudosapp/models/image_data.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/file_service.dart';
 import 'package:path/path.dart' as path;
@@ -17,6 +18,7 @@ class ImageService {
 
   final _fileService = locator<FileService>();
   final _dialogService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
 
   Future<ImageData> uploadImage(File file) async {
     if (file == null) {
@@ -51,6 +53,7 @@ class ImageService {
     var isValid = file == null || await _fileService.isFileSizeValid(file);
 
     if (!isValid) {
+      _analyticsService.logImageSizeTooLarge();
       _dialogService.showOkDialog(
           context: context,
           title: localizer().error,

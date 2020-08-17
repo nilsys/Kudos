@@ -11,6 +11,7 @@ import 'package:kudosapp/models/messages/team_deleted_message.dart';
 import 'package:kudosapp/models/team_member_model.dart';
 import 'package:kudosapp/models/team_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
@@ -25,9 +26,10 @@ import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 
 class TeamDetailsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
-  final _authService = locator<BaseAuthService>();
   final _teamsService = locator<TeamsService>();
+  final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
+  final _analyticsService = locator<AnalyticsService>();
   final _navigationService = locator<NavigationService>();
   final _achievementsService = locator<AchievementsService>();
 
@@ -144,6 +146,7 @@ class TeamDetailsViewModel extends BaseViewModel {
         isBusy = true;
 
         await _teamsService.deleteTeam(_team, achievements);
+        _analyticsService.logTeamDeleted();
         _eventBus.fire(TeamDeletedMessage(_team.id));
         _eventBus.fire(AchievementDeletedMessage.multiple(
             achievements.map((x) => x.id).toSet()));

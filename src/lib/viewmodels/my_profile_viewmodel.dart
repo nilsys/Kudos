@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:kudosapp/kudos_theme.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
+import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/session_service.dart';
@@ -11,6 +12,7 @@ class MyProfileViewModel extends BaseViewModel {
   final _authService = locator<BaseAuthService>();
   final _dialogService = locator<DialogService>();
   final _sessionService = locator<SessionService>();
+  final _analyticsService = locator<AnalyticsService>();
 
   UserModel get user => _authService.currentUser;
 
@@ -25,6 +27,7 @@ class MyProfileViewModel extends BaseViewModel {
     );
     if (signOutConfirmed) {
       await _sessionService.closeSession();
+      _analyticsService.logSignOut();
     }
   }
 }
