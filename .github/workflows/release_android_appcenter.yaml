@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'releases/**'
+      - 'releases-android/**'
     tags:
       - release_**
 

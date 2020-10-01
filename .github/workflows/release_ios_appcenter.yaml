@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'releases/**'
+      - 'releases-ios/**'
     tags:
       - release_**
 
