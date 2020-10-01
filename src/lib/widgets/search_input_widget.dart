@@ -11,8 +11,6 @@ class SearchInputWidget<T extends SearchableListViewModel>
   final T _viewModel;
   final String _hintText;
   final double _iconSize;
-  // This is needed to remove focus when view is dismissed
-  final FocusNode _focusNode = new FocusNode();
 
   SearchInputWidget(
     this._viewModel, {
@@ -43,7 +41,6 @@ class SearchInputWidget<T extends SearchableListViewModel>
           ),
           Expanded(
             child: TextField(
-              focusNode: _focusNode,
               style: KudosTheme.searchTextStyle,
               cursorColor: KudosTheme.accentColor,
               onChanged: (value) => _viewModel.query = value,

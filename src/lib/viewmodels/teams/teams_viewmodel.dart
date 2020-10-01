@@ -97,13 +97,12 @@ class TeamsViewModel
           context,
           TeamDetailsViewModel(team),
         );
-        // This is required to hide the keyboard
-        notifyListeners();
         break;
       case SelectionAction.Pop:
         _navigationService.pop(context, team);
         break;
     }
+    clearFocus(context);
   }
 
   GrouppedListItem<TeamModel> _createGrouppedItemFromTeam(TeamModel team) {
