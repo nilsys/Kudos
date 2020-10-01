@@ -14,6 +14,7 @@ import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/searchable_list_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
 
 class TeamsViewModel
     extends SearchableListViewModel<GrouppedListItem<TeamModel>> {
@@ -89,13 +90,15 @@ class TeamsViewModel
     );
   }
 
-  void onTeamClicked(BuildContext context, TeamModel team) {
+  void onTeamClicked(BuildContext context, TeamModel team) async {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        _navigationService.navigateTo(
+        await _navigationService.navigateTo(
           context,
           TeamDetailsViewModel(team),
         );
+        // This is required to hide the keyboard
+        notifyListeners();
         break;
       case SelectionAction.Pop:
         _navigationService.pop(context, team);
