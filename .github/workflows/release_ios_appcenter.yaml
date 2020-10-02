@@ -82,7 +82,7 @@ jobs:
         echo "Configure keychain & import"
         security create-keychain -p "" "$KEYCHAIN"
         security list-keychains -d user -s login.keychain "$KEYCHAIN"
-        security set-keychain-settings -lut 2000 "$KEYCHAIN"
+        security set-keychain-settings "$KEYCHAIN"
         security import dev.p12 -k "$KEYCHAIN" -P "$IOS_PASSPHRASE" -T /usr/bin/codesign -T /usr/bin/security
         security set-key-partition-list -S apple-tool:,apple: -s -k "" $KEYCHAIN
         security default-keychain -d user -s "$KEYCHAIN"
