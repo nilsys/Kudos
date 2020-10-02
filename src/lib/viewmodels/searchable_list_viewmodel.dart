@@ -53,6 +53,10 @@ abstract class SearchableListViewModel<T> extends BaseViewModel {
         : dataList.where((x) => filter(x, query)).toList();
   }
 
+  void clearFocus(BuildContext context) {
+    FocusScope.of(context).requestFocus(new FocusNode());
+  }
+
   bool filter(T item, String query);
 
   void filterByName(String query) => _streamController.add(query);

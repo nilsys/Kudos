@@ -27,9 +27,7 @@ class GrouppedListWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemBuilder: (context, index) {
-        return _items[index];
-      },
+      itemBuilder: (context, index) => _items[index],
       itemCount: _items.length,
       padding: EdgeInsets.only(
         top: TopDecorator.height,
