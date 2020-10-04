@@ -76,8 +76,8 @@ jobs:
 
         echo "Install profiles..."
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-        UUID=`/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./dev.mobileprovision)`
-        cp dev.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+        UUID=`/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i ./prod.mobileprovision)`
+        cp prod.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
         ls ~/Library/MobileDevice/Provisioning\ Profiles
         echo "Done."
 
@@ -85,7 +85,7 @@ jobs:
         security create-keychain -p "" "$KEYCHAIN"
         security set-keychain-settings "$KEYCHAIN"
         security unlock-keychain -p "" "$KEYCHAIN"
-        security import dev.p12 -k "$KEYCHAIN" -P "$IOS_PASSPHRASE" -T /usr/bin/codesign -T /usr/bin/security
+        security import prod.p12 -k "$KEYCHAIN" -P "$IOS_PASSPHRASE" -T /usr/bin/codesign -T /usr/bin/security
 
         curl https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer --output AppleWWDRCA.cer
         security import AppleWWDRCA.cer -k "$KEYCHAIN" -P "" -t cert -A
