@@ -50,7 +50,6 @@ jobs:
           ${{ runner.OS }}-pods-
 
     - name: Install app dependencies
-      if: ${{ false }} # disabled
       run: flutter pub get
 
     - name: Add GoogleService-Info.plist
@@ -60,7 +59,6 @@ jobs:
         FIREBASE_CONFIG: ${{ secrets.ios_google_services }}
 
     - name: Build app
-      if: ${{ false }} # disabled
       run: flutter build ios --release --no-codesign
 
     - name: Decrypt
@@ -101,7 +99,6 @@ jobs:
         IOS_PASSPHRASE: ${{ secrets.ios_passphrase }}
 
     - name: Archive
-      if: ${{ false }} # disabled
       run: |
         xcodebuild \
           -workspace ios/Runner.xcworkspace \
@@ -112,7 +109,6 @@ jobs:
           -archivePath "$XC_ARCHIVE_PATH"
 
     - name: Export for distribution
-      if: ${{ false }} # disabled
       run: |
         xcodebuild \
           -exportArchive \
@@ -129,7 +125,6 @@ jobs:
           ${{ runner.OS }}-npm-
 
     - name: Deploy to App Center
-      if: ${{ false }} # disabled
       run: |
         npm install appcenter-cli@${{ env.appcenter_cli_version}}
         npx appcenter distribute release \
