@@ -105,6 +105,7 @@ jobs:
           -scheme Runner \
           -sdk iphoneos \
           -configuration Release \
+          OTHER_CODE_SIGN_FLAGS="--keychain=$KEYCHAIN" \
           archive \
           -archivePath "$XC_ARCHIVE_PATH"
 
