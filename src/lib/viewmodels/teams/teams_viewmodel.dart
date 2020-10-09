@@ -14,7 +14,6 @@ import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/searchable_list_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
-import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
 
 class TeamsViewModel
     extends SearchableListViewModel<GrouppedListItem<TeamModel>> {

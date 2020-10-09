@@ -9,14 +9,14 @@ import 'package:kudosapp/helpers/firestore_helpers.dart';
 class TeamsDatabaseService {
   static const _teamsCollection = "teams";
 
-  final _database = Firestore.instance;
+  final _database = FirebaseFirestore.instance;
 
   final _streamTransformer =
       StreamTransformer<QuerySnapshot, Iterable<ItemChange<Team>>>.fromHandlers(
     handleData: (querySnapshot, sink) {
-      var teamsChanges = querySnapshot.documentChanges.map(
+      var teamsChanges = querySnapshot.docChanges.map(
         (dc) => ItemChange<Team>(
-          Team.fromJson(dc.document.data, dc.document.documentID),
+          Team.fromJson(dc.doc.data(), dc.doc.id),
           dc.type.toItemChangeType(),
         ),
       );
@@ -33,10 +33,12 @@ class TeamsDatabaseService {
   }) {
     return _database
         .collection(_teamsCollection)
-        .where(field,
-            isEqualTo: isEqualTo,
-            isLessThan: isLessThan,
-            arrayContains: arrayContains)
+        .where(
+          field,
+          isEqualTo: isEqualTo,
+          isLessThan: isLessThan,
+          arrayContains: arrayContains,
+        )
         .where("is_active", isEqualTo: true);
   }
 
@@ -65,8 +67,9 @@ class TeamsDatabaseService {
       isEqualTo: isEqualTo,
       isLessThan: isLessThan,
       arrayContains: arrayContains,
-    ).getDocuments().then((value) =>
-        value.documents.map((d) => Team.fromJson(d.data, d.documentID)));
+    )
+        .get()
+        .then((value) => value.docs.map((d) => Team.fromJson(d.data(), d.id)));
   }
 
   Stream<Iterable<ItemChange<Team>>> getUserTeamsStream(String userId) {
@@ -89,9 +92,9 @@ class TeamsDatabaseService {
   Future<Team> getTeam(String teamId) {
     return _database
         .collection(_teamsCollection)
-        .document(teamId)
+        .doc(teamId)
         .get()
-        .then((value) => Team.fromJson(value.data, value.documentID));
+        .then((value) => Team.fromJson(value.data(), value.id));
   }
 
   Future<Iterable<String>> findTeamIdsByName(String name) {
@@ -104,7 +107,7 @@ class TeamsDatabaseService {
         .collection(_teamsCollection)
         .add(team.toJson(addAll: true))
         .then((value) => value.get())
-        .then((value) => Team.fromJson(value.data, value.documentID));
+        .then((value) => Team.fromJson(value.data(), value.id));
   }
 
   Future<Team> updateTeam(
@@ -116,7 +119,7 @@ class TeamsDatabaseService {
     bool updateIsActive = false,
     WriteBatch batch,
   }) {
-    final docRef = _database.collection(_teamsCollection).document(team.id);
+    final docRef = _database.collection(_teamsCollection).doc(team.id);
     final map = team.toJson(
       addMetadata: updateMetadata,
       addImage: updateImage,
@@ -126,16 +129,16 @@ class TeamsDatabaseService {
     );
     if (batch == null) {
       return docRef
-          .setData(map, merge: true)
+          .set(map, SetOptions(merge: true))
           .then((value) => docRef.get())
-          .then((value) => Team.fromJson(value.data, value.documentID));
+          .then((value) => Team.fromJson(value.data(), value.id));
     } else {
-      batch.setData(docRef, map, merge: true);
+      batch.set(docRef, map, SetOptions(merge: true));
       return Future<Team>.value(null);
     }
   }
 
   Future<void> deleteTeam(String teamId) {
-    return _database.collection(_teamsCollection).document(teamId).delete();
+    return _database.collection(_teamsCollection).doc(teamId).delete();
   }
 }

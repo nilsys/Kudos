@@ -16,13 +16,13 @@ class AuthService extends BaseAuthService {
 
   @override
   void silentInit(Function(UserModel) userChangedHandler) {
-    _firebaseAuth.onAuthStateChanged.listen((FirebaseUser firebaseUser) {
+    _firebaseAuth.authStateChanges().listen((User firebaseUser) {
       _currentUser = firebaseUser == null
           ? null
           : UserModel.createNew(
               firebaseUser.displayName,
               firebaseUser.email,
-              firebaseUser.photoUrl,
+              firebaseUser.photoURL,
             );
       userChangedHandler(_currentUser);
     });
@@ -41,7 +41,7 @@ class AuthService extends BaseAuthService {
       }
 
       final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.getCredential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
