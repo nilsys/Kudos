@@ -13,40 +13,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  # core
-  provider: ^4.1.3
-
-  get: ^2.5.7
-
-  get_it: ^4.0.2
-
-  cloud_firestore: ^0.13.7
-
-  firebase_storage: ^3.1.5
-
-  flutter_svg: ^0.18.1
-
-  flutter_cache_manager: ^1.2.2
-
-  image_picker: ^0.6.7+4
+  # system
 
   uuid: ^2.0.4
 
   path: ^1.6.4
-
-  cached_network_image: ^2.2.0+1
 
   semaphore: ^0.1.4
 
   rxdart: ^0.24.0
 
   event_bus: ^1.1.1
-
-  firebase_messaging: ^6.0.16
-
-  firebase_crashlytics: ^0.1.3+3
-
-  intl: ^0.16.1
 
   sprintf: ^4.0.0
 
@@ -58,12 +35,46 @@ dependencies:
 
   equatable: ^1.1.1
 
-  # auth
-  google_sign_in: ^4.4.4
+  # core
+
+  provider: ^4.1.3
+
+  get: ^2.5.7
+
+  get_it: ^4.0.2
+
+  # firebase
+
+  cloud_firestore: ^0.13.7
+
+  firebase_storage: ^3.1.5
+
+  firebase_messaging: ^6.0.16
+
+  firebase_crashlytics: ^0.1.3+3
+
+  firebase_analytics: ^5.0.16
 
   firebase_auth: ^0.16.0
 
-  firebase_analytics: ^5.0.16
+  # auth
+
+  google_sign_in: ^4.4.4
+
+  # images
+
+  flutter_svg: ^0.18.1
+
+  flutter_cache_manager: ^1.2.2
+
+  image_picker: ^0.6.7+4
+
+  cached_network_image: ^2.2.0+1
+
+  # localization
+
+  intl: ^0.16.1
+
 
 dev_dependencies:
   flutter_test:
