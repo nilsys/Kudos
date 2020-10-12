@@ -10,8 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # localization
+
   flutter_localizations:
     sdk: flutter
+
+  intl: ^0.16.1
 
   # system
 
@@ -57,25 +61,21 @@ dependencies:
 
   firebase_analytics: ^6.0.2
 
-  firebase_auth: ^0.18.1+2
-
   # auth
+
+  firebase_auth: ^0.18.1+2
 
   google_sign_in: ^4.5.4
 
   # images
 
-  flutter_svg: ^0.18.1
-
-  flutter_cache_manager: ^1.2.2
+  cached_network_image: ^2.2.0+1
 
   image_picker: ^0.6.7+4
 
-  cached_network_image: ^2.2.0+1
+  flutter_svg: ^0.18.1
 
-  # localization
-
-  intl: ^0.16.1
+  flutter_cache_manager: ^1.2.2
 
 
 dev_dependencies:
