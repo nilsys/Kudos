@@ -14,14 +14,14 @@ class AchievementsDatabaseService {
   static const _achievementReferencesCollection = "achievement_references";
   static const _achievementHoldersCollection = "holders";
 
-  final _database = Firestore.instance;
+  final _database = FirebaseFirestore.instance;
 
   final _streamTransformer = StreamTransformer<QuerySnapshot,
       Iterable<ItemChange<Achievement>>>.fromHandlers(
     handleData: (querySnapshot, sink) {
-      var achievementsChanges = querySnapshot.documentChanges.map(
+      var achievementsChanges = querySnapshot.docChanges.map(
         (dc) => ItemChange<Achievement>(
-          Achievement.fromJson(dc.document.data, dc.document.documentID),
+          Achievement.fromJson(dc.doc.data(), dc.doc.id),
           dc.type.toItemChangeType(),
         ),
       );
@@ -38,10 +38,12 @@ class AchievementsDatabaseService {
   }) {
     return _database
         .collection(_achievementsCollection)
-        .where(field,
-            isEqualTo: isEqualTo,
-            isLessThan: isLessThan,
-            arrayContains: arrayContains)
+        .where(
+          field,
+          isEqualTo: isEqualTo,
+          isLessThan: isLessThan,
+          arrayContains: arrayContains,
+        )
         .where("is_active", isEqualTo: true);
   }
 
@@ -70,8 +72,8 @@ class AchievementsDatabaseService {
       isEqualTo: isEqualTo,
       isLessThan: isLessThan,
       arrayContains: arrayContains,
-    ).getDocuments().then((value) =>
-        value.documents.map((d) => Achievement.fromJson(d.data, d.documentID)));
+    ).get().then(
+        (value) => value.docs.map((d) => Achievement.fromJson(d.data(), d.id)));
   }
 
   Stream<Iterable<ItemChange<Achievement>>> getUserAchievementsStream(
@@ -111,9 +113,9 @@ class AchievementsDatabaseService {
   Future<Achievement> getAchievement(String achivementId) {
     return _database
         .collection(_achievementsCollection)
-        .document(achivementId)
+        .doc(achivementId)
         .get()
-        .then((value) => Achievement.fromJson(value.data, value.documentID));
+        .then((value) => Achievement.fromJson(value.data(), value.id));
   }
 
   Future<Iterable<AchievementHolder>> getAchievementHolders(
@@ -121,9 +123,9 @@ class AchievementsDatabaseService {
     return _database
         .collection(
             "$_achievementsCollection/$achievementId/$_achievementHoldersCollection")
-        .getDocuments()
+        .get()
         .then((value) =>
-            value.documents.map((d) => AchievementHolder.fromJson(d.data)));
+            value.docs.map((d) => AchievementHolder.fromJson(d.data())));
   }
 
   Future<void> createAchievementHolder(
@@ -131,14 +133,14 @@ class AchievementsDatabaseService {
       {WriteBatch batch}) async {
     final docRef = _database
         .collection("$_achievementsCollection/$achievementId/holders")
-        .document();
+        .doc();
 
     final holderMap = achievementHolder.toJson();
 
     if (batch == null) {
-      await docRef.setData(holderMap);
+      await docRef.set(holderMap);
     } else {
-      batch.setData(docRef, holderMap);
+      batch.set(docRef, holderMap);
     }
   }
 
@@ -148,12 +150,12 @@ class AchievementsDatabaseService {
     final docRef = _database
         .collection(
             "$_usersCollection/$recipientId/$_achievementReferencesCollection")
-        .document();
+        .doc();
 
     if (batch == null) {
-      await docRef.setData(userAchievement.toJson());
+      await docRef.set(userAchievement.toJson());
     } else {
-      batch.setData(docRef, userAchievement.toJson());
+      batch.set(docRef, userAchievement.toJson());
     }
   }
 
@@ -162,7 +164,7 @@ class AchievementsDatabaseService {
         .collection(_achievementsCollection)
         .add(achievement.toJson(addAll: true))
         .then((value) => value.get())
-        .then((value) => Achievement.fromJson(value.data, value.documentID));
+        .then((value) => Achievement.fromJson(value.data(), value.id));
   }
 
   Future<Iterable<UserAchievement>> getReceivedAchievements(
@@ -171,9 +173,9 @@ class AchievementsDatabaseService {
     return _database
         .collection(
             "$_usersCollection/$userId/$_achievementReferencesCollection")
-        .getDocuments()
-        .then((value) => value.documents
-            .map((d) => UserAchievement.fromJson(d.data, d.documentID)));
+        .get()
+        .then((value) =>
+            value.docs.map((d) => UserAchievement.fromJson(d.data(), d.id)));
   }
 
   Future<Achievement> updateAchievement(
@@ -187,7 +189,7 @@ class AchievementsDatabaseService {
     WriteBatch batch,
   }) {
     final docRef =
-        _database.collection(_achievementsCollection).document(achievement.id);
+        _database.collection(_achievementsCollection).doc(achievement.id);
     final map = achievement.toJson(
       addMetadata: updateMetadata,
       addImage: updateImage,
@@ -198,11 +200,11 @@ class AchievementsDatabaseService {
     );
     if (batch == null) {
       return docRef
-          .setData(map, merge: true)
+          .set(map, SetOptions(merge: true))
           .then((value) => docRef.get())
-          .then((value) => Achievement.fromJson(value.data, value.documentID));
+          .then((value) => Achievement.fromJson(value.data(), value.id));
     } else {
-      batch.setData(docRef, map, merge: true);
+      batch.set(docRef, map, SetOptions(merge: true));
       return Future<Achievement>.value(null);
     }
   }
@@ -215,10 +217,10 @@ class AchievementsDatabaseService {
     return _database
         .collection(path)
         .where("achievement.id", isEqualTo: achievementId)
-        .getDocuments()
+        .get()
         .then(
-          (snapshots) => snapshots.documents.forEach((document) {
-            document.reference.updateData({"viewed": true});
+          (snapshots) => snapshots.docs.forEach((document) {
+            document.reference.update({"viewed": true});
           }),
         );
   }
@@ -226,7 +228,7 @@ class AchievementsDatabaseService {
   Future<void> deleteAchievement(String achievementId) {
     return _database
         .collection(_achievementsCollection)
-        .document(achievementId)
+        .doc(achievementId)
         .delete();
   }
 }

@@ -42,6 +42,7 @@ class UsersViewModel extends SearchableListViewModel<UserModel> {
         _navigationService.pop(context, user);
         break;
     }
+    clearFocus(context);
   }
 
   void _initialize() async {

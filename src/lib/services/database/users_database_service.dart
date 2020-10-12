@@ -10,14 +10,14 @@ class UsersDatabaseService {
   static const _usersCollection = "users";
   static const _pushTokenCollection = "push_tokens";
 
-  final _database = Firestore.instance;
+  final _database = FirebaseFirestore.instance;
 
   final _streamTransformer =
       StreamTransformer<QuerySnapshot, Iterable<ItemChange<User>>>.fromHandlers(
     handleData: (querySnapshot, sink) {
-      var usersChanges = querySnapshot.documentChanges.map(
+      var usersChanges = querySnapshot.docChanges.map(
         (dc) => ItemChange<User>(
-          User.fromJson(dc.document.data, dc.document.documentID),
+          User.fromJson(dc.doc.data(), dc.doc.id),
           dc.type.toItemChangeType(),
         ),
       );
@@ -35,8 +35,9 @@ class UsersDatabaseService {
   }
 
   Future<Iterable<User>> getUsers() async {
-    return _getUsersQuery().getDocuments().then((value) =>
-        value.documents.map((d) => User.fromJson(d.data, d.documentID)));
+    return _getUsersQuery()
+        .get()
+        .then((value) => value.docs.map((d) => User.fromJson(d.data(), d.id)));
   }
 
   Future<void> registerUser(
@@ -46,13 +47,13 @@ class UsersDatabaseService {
   ) async {
     await _database
         .collection(_usersCollection)
-        .document(userId)
-        .setData(userRegistration.toJson(), merge: true);
+        .doc(userId)
+        .set(userRegistration.toJson(), SetOptions(merge: true));
 
     if (pushToken != null) {
       await _database
           .collection(_usersCollection)
-          .document(userId)
+          .doc(userId)
           .collection(_pushTokenCollection)
           .add({"token": pushToken});
     }
@@ -60,14 +61,19 @@ class UsersDatabaseService {
 
   Future<void> incrementRecievedAchievementsCount(String userId,
       {WriteBatch batch}) async {
-    var docRef = _database.collection(_usersCollection).document(userId);
+    var docRef = _database.collection(_usersCollection).doc(userId);
 
     if (batch != null) {
-      batch.updateData(
-          docRef, {"received_achievements_count": FieldValue.increment(1)});
+      batch.update(
+        docRef,
+        {
+          "received_achievements_count": FieldValue.increment(1),
+        },
+      );
     } else {
-      return docRef
-          .updateData({"received_achievements_count": FieldValue.increment(1)});
+      return docRef.update({
+        "received_achievements_count": FieldValue.increment(1),
+      });
     }
   }
 }

@@ -89,10 +89,10 @@ class TeamsViewModel
     );
   }
 
-  void onTeamClicked(BuildContext context, TeamModel team) {
+  void onTeamClicked(BuildContext context, TeamModel team) async {
     switch (_selectionAction) {
       case SelectionAction.OpenDetails:
-        _navigationService.navigateTo(
+        await _navigationService.navigateTo(
           context,
           TeamDetailsViewModel(team),
         );
@@ -101,6 +101,7 @@ class TeamsViewModel
         _navigationService.pop(context, team);
         break;
     }
+    clearFocus(context);
   }
 
   GrouppedListItem<TeamModel> _createGrouppedItemFromTeam(TeamModel team) {

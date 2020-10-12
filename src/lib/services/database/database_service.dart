@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-  final _database = Firestore.instance;
+  final _database = FirebaseFirestore.instance;
 
   Future<void> batchUpdate(List<void Function(WriteBatch)> functions) async {
     if (functions == null || functions.isEmpty) {
