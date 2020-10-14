@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
-import admin = require('firebase-admin');
-import notifications = require('./services/user_notifications');
+import * as admin from 'firebase-admin';
+import * as notifications from './services/user_notifications';
+import { isEqual, sortBy } from 'lodash';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -37,9 +38,11 @@ export const updateTeam = functions.firestore.document('teams/{teamId}').onUpdat
     const oldAccessLevel: number = oldData.access_level;
     const newAccessLevel: number = newData.access_level;
 
+    const isMapsEqual = (a: any, b: any) : boolean => isEqual(sortBy(a, 'id'), sortBy(b, 'id'));
+
     if ((oldName !== newName)
         || (oldAccessLevel !== newAccessLevel)
-        || (!mapArraysEquals(oldMembers, newMembers))) {
+        || (!isMapsEqual(oldMembers, newMembers))) {
         const data = {
             team: {
                 id: teamId,
@@ -278,52 +281,6 @@ export const updateUser = functions.firestore.document('users/{userId}').onUpdat
 
     await batch.commit();
 });
-
-function mapArraysEquals(array1: Array<Map<string, any>>, array2: Array<Map<string, any>>): boolean {
-    if (array1.length !== array2.length) {
-        return false;
-    }
-
-    const sortedArray1 = array1.sort(mapComparer);
-    const sortedArray2 = array2.sort(mapComparer);
-
-    for (let i = 0; i < sortedArray1.length; i++) {
-        if (!mapEquals(sortedArray1[i], sortedArray2[i]))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function mapEquals(map1: Map<string, any>, map2: Map<string, any>): boolean {
-    if (map1.size !== map2.size)
-    {
-        return false;
-    }
-
-    for (const key in map1.keys) {
-        if (!map2.has(key) || map1.get(key) !== map2.get(key))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function mapComparer(map1: Map<string, any>, map2: Map<string, any>) {
-    if (map1.get("id") > map2.get("id")) {
-        return 1;
-    }
-
-    if (map1.get("id") < map2.get("id")) {
-        return -1;
-    }
-
-    return 0;
-}
 
 class User {
     name: string;
