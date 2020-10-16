@@ -4,7 +4,7 @@ const db = admin.firestore();
 const fcm = admin.messaging();
 const log = console.log;
 
-export const sendToUser = async (userId: string, payload: admin.messaging.MessagingPayload) => {
+export const sendPushToUser = async (userId: string, payload: admin.messaging.MessagingPayload) => {
 
     // get user's push tokens
     const pushTokensSnapshot = await db.collection(`/users/${userId}/push_tokens`).get();
@@ -29,8 +29,15 @@ export const sendToUser = async (userId: string, payload: admin.messaging.Messag
 
     log(`Message to user ${userId} successfully sent`);
 
+    // https://firebase.google.com/docs/cloud-messaging/send-message#admin
+    const errorCodes : Array<string> = [
+        'messaging/invalid-registration-token',
+        'messaging/registration-token-not-registered'
+    ];
+
+    // https://github.com/firebase/functions-samples/blob/077952f5dd4a368e031600b36ae43f5385687350/fcm-notifications/functions/index.js#L77
     const invalidTokenIndexes = response.results
-        .filter(result => result.error && result.error.code === 'messaging/registration-token-not-registered')
+        .filter(result => result.error && errorCodes.includes(result.error.code))
         .map((_, index) => index);
 
     if (invalidTokenIndexes.length === 0) {
