@@ -17,7 +17,7 @@ This is a serverless application that uses Firestore Cloud Database and Firebase
 ## About
 
 This project is maintained by [Softeq Development Corp.](https://www.softeq.com/)
-We specialize in .NET core applications.
+We specialize in cross-platform application development.
 
  - [Facebook](https://web.facebook.com/Softeq.by/)
  - [Instagram](https://www.instagram.com/softeq/)
