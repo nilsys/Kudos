@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "softeq-kudos"
+    "default": "softeq-kudos",
+    "dev": "kudos-dev-f88da"
   }
 }
