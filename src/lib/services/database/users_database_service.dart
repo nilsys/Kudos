@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/user.dart';
 import 'package:kudosapp/dto/user_registration.dart';
-import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
 import 'package:kudosapp/helpers/firestore_helpers.dart';
 
 class UsersDatabaseService {

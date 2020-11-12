@@ -71,7 +71,7 @@ class Achievement extends Equatable {
       team = newOwner.team;
       teamMembers = newOwner.team?.members?.values;
       accessLevel = newOwner.type == AchievementOwnerType.user
-          ? AccessLevel.private
+          ? AccessLevel.protected
           : newOwner.team.accessLevel;
     } else {
       user = model.owner.user;
@@ -100,8 +100,6 @@ class Achievement extends Equatable {
     bool addMetadata = false,
     bool addImage = false,
     bool addOwner = false,
-    bool addTeamMembers = false,
-    bool addAccessLevel = false,
     bool addIsActive = false,
   }) {
     final map = new Map<String, Object>();
@@ -120,20 +118,18 @@ class Achievement extends Equatable {
     if (addAll || addOwner) {
       map["team"] = team == null ? null : team.toJson();
       map["user"] = user == null ? null : user.toJson();
-    }
 
-    if (addAll || addOwner || addTeamMembers) {
       map["team_members"] =
           this.teamMembers?.map((tm) => tm.toJson())?.toList();
-      if (this.teamMembers != null) {
+
+      map["access_level"] = this.accessLevel;
+
+      if (this.teamMembers != null &&
+          this.accessLevel == AccessLevel.private.index) {
         visibleFor.addAll(this.teamMembers.map((x) => x.id));
       }
-      visibleFor = visibleFor.toSet().toList();
-      map["visible_for"] = visibleFor.isNotEmpty ? visibleFor : null;
-    }
 
-    if (addAll || addAccessLevel) {
-      map["access_level"] = this.accessLevel;
+      map["visible_for"] = visibleFor.isNotEmpty ? visibleFor : null;
     }
 
     if (addAll || addIsActive) {

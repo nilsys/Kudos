@@ -33,6 +33,7 @@ class ProfileAchievementsViewModel extends BaseViewModel {
   StreamSubscription<AchievementViewedMessage> _achievementViewedSubscription;
 
   bool get hasAchievements => _receivedAchievements.isNotEmpty;
+
   bool get isMyProfile => _userId == _authService.currentUser.id;
 
   ProfileAchievementsViewModel(this._userId) {
@@ -103,6 +104,13 @@ class ProfileAchievementsViewModel extends BaseViewModel {
     } else {
       _receivedAchievements[id] =
           UserAchievementCollection.single(userAchievement);
+    }
+
+    if (isMyProfile) {
+      _receivedAchievements[id].isAccessible = true;
+    } else {
+      final accessibleAchievement = _accessibleAchievementsMap[id];
+      _receivedAchievements[id].isAccessible = accessibleAchievement != null;
     }
   }
 

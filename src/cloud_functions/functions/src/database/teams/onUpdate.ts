@@ -25,11 +25,15 @@ export const updateTeam = functions.firestore
         const oldMembers: Array<any> = oldData.members;
         const newMembers: Array<any> = newData.members;
 
+        const oldIsActive: boolean = oldData.is_active;
+        const newIsActive: boolean = newData.is_active;
+
         const isMapsEqual = (a: any, b: any) : boolean => isEqual(sortBy(a, 'id'), sortBy(b, 'id'));
 
         if (oldName === newName
             && oldAccessLevel === newAccessLevel
-            && isMapsEqual(oldMembers, newMembers)) {
+            && isMapsEqual(oldMembers, newMembers)
+            && oldIsActive === newIsActive) {
                 log('The data hasn\'t been modified!');
                 return;
             }
@@ -51,7 +55,9 @@ export const updateTeam = functions.firestore
                 name: newName,
             },
             access_level: newAccessLevel,
-            team_members: newMembers
+            team_members: newMembers,
+            visible_for: newData.visible_for,
+            is_active: newData.is_active,
         };
 
         const batch = db.batch();

@@ -8,6 +8,7 @@ class UserAchievementCollection implements Comparable {
   final DateTime latestDateTime;
 
   bool hasNew = false;
+  bool isAccessible = false;
 
   int get count => userAchievements.length;
 

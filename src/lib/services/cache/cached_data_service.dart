@@ -1,49 +1,46 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:kudosapp/models/entry_counter.dart';
-import 'package:kudosapp/models/item_change.dart';
-import 'package:kudosapp/models/item_change_type.dart';
-import 'package:mutex/mutex.dart';
+import 'package:kudosapp/services/cache/entry_counter.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
+import 'package:kudosapp/services/cache/item_change_type.dart';
+import 'package:semaphore/semaphore.dart';
 
 abstract class CachedDataService<TDto, TModel> {
   final int _inputStreamsCount;
-  final _itemCounts = new Map<String, EntryCounter>();
   final List<StreamSubscription> _streamSubscriptions;
-  final _dataStreamUpdatedMutex = Mutex();
-
-  @protected
-  final cachedData = new Map<String, TModel>();
-
+  final _itemCounts = Map<String, EntryCounter>();
+  final _semaphore = LocalSemaphore(1);
   bool _dataLoaded = false;
 
+  final Map<String, TModel> cachedData = Map<String, TModel>();
+
   CachedDataService(this._inputStreamsCount)
-      : _streamSubscriptions = new List(_inputStreamsCount);
+      : _streamSubscriptions = List(_inputStreamsCount);
 
   void _onDataStreamUpdated(
     Iterable<ItemChange<TDto>> dataChanges,
     int streamId,
   ) async {
-    await _dataStreamUpdatedMutex.protect(
-      () {
-        for (var achievementChange in dataChanges) {
-          var model = convert(achievementChange.item);
+    await _semaphore.acquire();
 
-          switch (achievementChange.changeType) {
-            case ItemChangeType.remove:
-              _decrementItemCount(model, streamId);
-              break;
-            case ItemChangeType.add:
-              _incrementItemCount(model, streamId);
-              break;
-            case ItemChangeType.change:
-            default:
-              cachedData[getItemId(model)] = model;
-              break;
-          }
-        }
-      },
-    );
+    for (var change in dataChanges) {
+      var model = convert(change.item);
+
+      switch (change.changeType) {
+        case ItemChangeType.remove:
+          _decrementItemCount(model, streamId);
+          break;
+        case ItemChangeType.add:
+          _incrementItemCount(model, streamId);
+          break;
+        case ItemChangeType.change:
+        default:
+          cachedData[getItemId(model)] = model;
+          break;
+      }
+    }
+
+    _semaphore.release();
   }
 
   void _decrementItemCount(
@@ -66,7 +63,7 @@ abstract class CachedDataService<TDto, TModel> {
   ) {
     var key = getItemId(item);
     if (!_itemCounts.containsKey(key)) {
-      _itemCounts[key] = new EntryCounter(_inputStreamsCount);
+      _itemCounts[key] = EntryCounter.from(_inputStreamsCount);
     }
     _itemCounts[key].addEntry(streamIndex);
     cachedData[key] = item;
@@ -76,12 +73,11 @@ abstract class CachedDataService<TDto, TModel> {
     for (int i = 0; i < _inputStreamsCount; i++) {
       if (_streamSubscriptions[i] == null) {
         _streamSubscriptions[i] =
-            getInputStream(i).listen((data) => _onDataStreamUpdated(data, 0));
+            getInputStream(i).listen((data) => _onDataStreamUpdated(data, i));
       }
     }
   }
 
-  @protected
   Future<void> loadData() async {
     _updateSubscriptions();
 
@@ -89,23 +85,19 @@ abstract class CachedDataService<TDto, TModel> {
       for (int i = 0; i < _inputStreamsCount; i++) {
         var data = await getDataFromInputStream(i);
         for (var item in data) {
-          _incrementItemCount(convert(item), 0);
+          _incrementItemCount(convert(item), i);
         }
       }
       _dataLoaded = true;
     }
   }
 
-  @protected
   TModel convert(TDto item);
 
-  @protected
   String getItemId(TModel item);
 
-  @protected
   Stream<Iterable<ItemChange<TDto>>> getInputStream(int index);
 
-  @protected
   Future<Iterable<TDto>> getDataFromInputStream(int index);
 
   void closeSubscriptions() {

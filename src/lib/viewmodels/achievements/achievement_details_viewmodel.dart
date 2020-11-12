@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/kudos_theme.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
-import 'package:kudosapp/helpers/list_notifier.dart';
 import 'package:kudosapp/models/messages/achievement_deleted_message.dart';
 import 'package:kudosapp/models/messages/achievement_sent_message.dart';
 import 'package:kudosapp/models/messages/achievement_transferred_message.dart';
@@ -19,15 +20,15 @@ import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/analytics_service.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
 import 'package:kudosapp/services/data_services/achievements_service.dart';
-import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/data_services/teams_service.dart';
+import 'package:kudosapp/services/data_services/users_service.dart';
 import 'package:kudosapp/services/dialog_service.dart';
 import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/teams_viewmodel.dart';
 import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/team_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/users/users_viewmodel.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -90,12 +91,26 @@ class AchievementDetailsViewModel extends BaseViewModel {
 
   Future<void> sendAchievement(BuildContext context) async {
     // Pick user
-    var selectedUser = await _navigationService.navigateTo(
+    final allowedUsers = achievement.accessLevel == AccessLevel.private
+        ? achievement.teamMembers.values.map((x) => x.user).toList()
+        : null;
+
+    if (allowedUsers != null && allowedUsers.length == 1) {
+      await _dialogsService.showOkDialog(
+        context: context,
+        title: localizer().cannotBeSentTitle,
+        content: localizer().cannotBeSentMessage,
+      );
+      return;
+    }
+
+    final selectedUser = await _navigationService.navigateTo(
       context,
       UsersViewModel(
         SelectionAction.Pop,
         selectorIcon: KudosTheme.sendSelectorIcon,
         excludedUserIds: {_authService.currentUser.id},
+        allowedMembers: allowedUsers,
       ),
     );
 

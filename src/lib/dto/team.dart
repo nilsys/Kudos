@@ -72,15 +72,18 @@ class Team extends Equatable {
     bool addMetadata = false,
     bool addImage = false,
     bool addMembers = false,
-    bool addAccessLevel = false,
-    bool addIsActive = false,
   }) {
     final map = new Map<String, Object>();
-    var visibleFor = List<String>();
+    final visibleFor = this.accessLevel == AccessLevel.private.index
+        ? this.members.map((x) => x.id).toList()
+        : null;
 
     if (addAll || addMetadata) {
       map["name"] = this.name;
       map["description"] = this.description;
+      map["access_level"] = this.accessLevel;
+      map["is_active"] = this.isActive;
+      map["visible_for"] = visibleFor;
     }
 
     if (addAll || addImage) {
@@ -90,19 +93,7 @@ class Team extends Equatable {
 
     if (addAll || addMembers) {
       map["members"] = this.members?.map((tm) => tm.toJson())?.toList();
-      if (this.members != null) {
-        visibleFor.addAll(this.members.map((x) => x.id));
-      }
-      visibleFor = visibleFor.toSet().toList();
-      map["visible_for"] = visibleFor.isNotEmpty ? visibleFor : null;
-    }
-
-    if (addAll || addAccessLevel) {
-      map["access_level"] = this.accessLevel;
-    }
-
-    if (addAll || addIsActive) {
-      map["is_active"] = this.isActive;
+      map["visible_for"] = visibleFor;
     }
 
     return map;
