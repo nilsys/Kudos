@@ -62,7 +62,7 @@ class UserDetailsViewModel extends BaseViewModel with Disposable {
         false,
         selectorIcon: KudosTheme.sendSelectorIcon,
         achievementsFilter: (achievement) =>
-            achievement.canBeSentByUser(_authService.currentUser.id),
+            achievement.canBeSentToUser(_authService.currentUser.id, user.id),
       ),
     );
     if (achievement == null) {

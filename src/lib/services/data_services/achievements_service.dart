@@ -1,23 +1,26 @@
 import 'dart:async';
+
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/achievement_holder.dart';
 import 'package:kudosapp/dto/user_achievement.dart';
+import 'package:kudosapp/models/access_level.dart';
 import 'package:kudosapp/models/achievement_model.dart';
 import 'package:kudosapp/models/achievement_owner_model.dart';
-import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/models/errors/wrong_user_error.dart';
 import 'package:kudosapp/models/user_achievement_model.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
+import 'package:kudosapp/services/cache/cached_data_service.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
 import 'package:kudosapp/services/database/achievements_database_service.dart';
 import 'package:kudosapp/services/database/database_service.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
 import 'package:kudosapp/services/image_service.dart';
-import 'package:kudosapp/services/data_services/cached_data_service.dart';
 
 class AchievementsService
     extends CachedDataService<Achievement, AchievementModel> {
-  static const int InputStreamsCount = 3;
+  static const int InputStreamsCount = 2;
 
   final _imageService = locator<ImageService>();
   final _authService = locator<BaseAuthService>();
@@ -37,20 +40,21 @@ class AchievementsService
     return cachedData;
   }
 
-  Future<AchievementModel> getAchievement(String achivementId) async {
+  Future<AchievementModel> getAchievement(String achievementId) async {
     await loadData();
-    if (cachedData.containsKey(achivementId)) {
-      return cachedData[achivementId];
+
+    if (cachedData.containsKey(achievementId)) {
+      return cachedData[achievementId];
     }
 
     return _achievementsDatabaseService
-        .getAchievement(achivementId)
+        .getAchievement(achievementId)
         .then((a) => AchievementModel.fromAchievement(a));
   }
 
-  Future<Iterable<AchievementModel>> getTeamAchievements(String teamId) async {
+  Future<List<AchievementModel>> getTeamAchievements(String teamId) async {
     await loadData();
-    return cachedData.values.where((a) => a.owner.id == teamId);
+    return cachedData.values.where((a) => a.owner.id == teamId).toList();
   }
 
   Future<List<UserAchievementModel>> getReceivedAchievements(String userId) {
@@ -60,9 +64,9 @@ class AchievementsService
             .toList());
   }
 
-  Future<List<UserModel>> getAchievementHolders(String achivementId) async {
+  Future<List<UserModel>> getAchievementHolders(String achievementId) async {
     return _achievementsDatabaseService
-        .getAchievementHolders(achivementId)
+        .getAchievementHolders(achievementId)
         .then((list) => list
             .toSet()
             .map((h) => UserModel.fromUserReference(h.recipient))
@@ -104,9 +108,14 @@ class AchievementsService
 
   Future<void> sendAchievement(
     UserModel recipient,
-    UserAchievementModel userAcheivementModel,
+    UserAchievementModel userAchievementModel,
   ) {
-    final userAchievement = UserAchievement.fromModel(userAcheivementModel);
+    if (userAchievementModel.achievement.accessLevel == AccessLevel.private &&
+        userAchievementModel.achievement.teamMembers[recipient.id] == null) {
+      throw WrongUserError();
+    }
+
+    final userAchievement = UserAchievement.fromModel(userAchievementModel);
 
     return _databaseService.batchUpdate(
       [
@@ -119,7 +128,7 @@ class AchievementsService
         // TODO YP: move to cloud functions:
         // add a user to achievements
         (batch) => _achievementsDatabaseService.createAchievementHolder(
-              userAcheivementModel.achievement.id,
+              userAchievementModel.achievement.id,
               AchievementHolder.fromModel(recipient),
               batch: batch,
             ),
@@ -144,7 +153,6 @@ class AchievementsService
     return _achievementsDatabaseService
         .updateAchievement(
           achievement,
-          updateAccessLevel: true,
           updateOwner: true,
         )
         .then((a) => AchievementModel.fromAchievement(a));
@@ -185,15 +193,16 @@ class AchievementsService
   @override
   Future<Iterable<Achievement>> getDataFromInputStream(int index) {
     switch (index) {
+      // My teams achievements
       case 0:
-        return _achievementsDatabaseService
-            .getUserAchievements(_authService.currentUser.id);
+        return _achievementsDatabaseService.getUserTeamsAchievements(
+          _authService.currentUser.id,
+        );
+      // Accessible achievements (public and protected)
       case 1:
-        return _achievementsDatabaseService
-            .getUserTeamsAchievements(_authService.currentUser.id);
-      case 2:
-      default:
         return _achievementsDatabaseService.getAccessibleAchievements();
+      default:
+        throw ("Index out of range");
     }
   }
 
@@ -203,18 +212,16 @@ class AchievementsService
   @override
   Stream<Iterable<ItemChange<Achievement>>> getInputStream(int index) {
     switch (index) {
-      // My achievements
-      case 0:
-        return _achievementsDatabaseService
-            .getUserAchievementsStream(_authService.currentUser.id);
       // My teams achievements
-      case 1:
-        return _achievementsDatabaseService
-            .getUserTeamsAchievementsStream(_authService.currentUser.id);
+      case 0:
+        return _achievementsDatabaseService.getUserTeamsAchievementsStream(
+          _authService.currentUser.id,
+        );
       // Accessible achievements (public and protected)
-      case 2:
-      default:
+      case 1:
         return _achievementsDatabaseService.getAccessibleAchievementsStream();
+      default:
+        throw ("Index out of range");
     }
   }
 }

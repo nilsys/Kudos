@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kudosapp/models/item_change_type.dart';
+import 'package:kudosapp/services/cache/item_change_type.dart';
 
 @immutable
 class ItemChange<T> {

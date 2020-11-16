@@ -59,7 +59,7 @@ class EditAchievementViewModel extends BaseViewModel with ImageLoading {
       _achievement.accessLevel = team.accessLevel;
     } else if (user != null) {
       _achievement.owner = AchievementOwnerModel.fromUser(user);
-      _achievement.accessLevel = AccessLevel.private;
+      _achievement.accessLevel = AccessLevel.protected;
     }
   }
 

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/team.dart';
 import 'package:kudosapp/models/access_level.dart';
-import 'package:kudosapp/models/item_change.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
 import 'package:kudosapp/helpers/firestore_helpers.dart';
 
 class TeamsDatabaseService {
@@ -115,27 +115,18 @@ class TeamsDatabaseService {
     bool updateMetadata = false,
     bool updateImage = false,
     bool updateMembers = false,
-    bool updateAccessLevel = false,
-    bool updateIsActive = false,
-    WriteBatch batch,
   }) {
     final docRef = _database.collection(_teamsCollection).doc(team.id);
     final map = team.toJson(
       addMetadata: updateMetadata,
       addImage: updateImage,
       addMembers: updateMembers,
-      addAccessLevel: updateAccessLevel,
-      addIsActive: updateIsActive,
     );
-    if (batch == null) {
-      return docRef
-          .set(map, SetOptions(merge: true))
-          .then((value) => docRef.get())
-          .then((value) => Team.fromJson(value.data(), value.id));
-    } else {
-      batch.set(docRef, map, SetOptions(merge: true));
-      return Future<Team>.value(null);
-    }
+
+    return docRef
+        .set(map, SetOptions(merge: true))
+        .then((value) => docRef.get())
+        .then((value) => Team.fromJson(value.data(), value.id));
   }
 
   Future<void> deleteTeam(String teamId) {

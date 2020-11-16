@@ -86,5 +86,7 @@
     "accessLevelPublicDescription": "Everyone can view and send this team's achievements",
     "accessLevelProtectedDescription": "Everyone can view this team's achievements, but only team members can send them",
     "accessLevelPrivateDescription": "Only team members can view and send this team's achievements",
-    "youLabel": "(you)"
+    "youLabel": "(you)",
+    "cannotBeSentTitle": "Oops, the Kudos cannot be sent",
+    "cannotBeSentMessage": "Kudos of the private team can be granted only to its members.\n\nPlease add someone to the team and try again."
 }

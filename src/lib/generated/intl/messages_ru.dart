@@ -39,6 +39,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "admins" : MessageLookupByLibrary.simpleMessage("Администраторы"),
     "appName" : MessageLookupByLibrary.simpleMessage("Kudos"),
     "cancel" : MessageLookupByLibrary.simpleMessage("Отмена"),
+    "cannotBeSentMessage" : MessageLookupByLibrary.simpleMessage("Кудос из приватной команды может быть послан только членам этой команды.\n\nДобавьте людей в команду и повторите попытку снова."),
+    "cannotBeSentTitle" : MessageLookupByLibrary.simpleMessage("Кудос не может быть отправлен"),
     "create" : MessageLookupByLibrary.simpleMessage("Создать"),
     "createTeam" : MessageLookupByLibrary.simpleMessage("Создать команду"),
     "createYourOwnAchievements" : MessageLookupByLibrary.simpleMessage("Создавайте свои собственные награды и дарите их своим коллегам!"),

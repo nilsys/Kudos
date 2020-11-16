@@ -1,12 +1,13 @@
 import 'dart:async';
+
 import 'package:kudosapp/dto/user.dart';
 import 'package:kudosapp/dto/user_registration.dart';
-import 'package:kudosapp/models/item_change.dart';
 import 'package:kudosapp/models/user_model.dart';
 import 'package:kudosapp/service_locator.dart';
 import 'package:kudosapp/services/base_auth_service.dart';
+import 'package:kudosapp/services/cache/cached_data_service.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
 import 'package:kudosapp/services/database/users_database_service.dart';
-import 'package:kudosapp/services/data_services/cached_data_service.dart';
 
 class UsersService extends CachedDataService<User, UserModel> {
   static const int InputStreamsCount = 1;
@@ -16,9 +17,9 @@ class UsersService extends CachedDataService<User, UserModel> {
 
   UsersService() : super(InputStreamsCount);
 
-  Future<Iterable<UserModel>> getAllUsers() async {
+  Future<List<UserModel>> getAllUsers() async {
     await loadData();
-    return cachedData.values;
+    return cachedData.values.toList();
   }
 
   Future<int> getUsersCount() async {
@@ -37,13 +38,9 @@ class UsersService extends CachedDataService<User, UserModel> {
 
   Future<List<UserModel>> getUsersByIds(List<String> userIds) async {
     await loadData();
-    return _getUsersByIdsFromCache(userIds);
-  }
-
-  Iterable<UserModel> _getUsersByIdsFromCache(List<String> userIds) sync* {
-    for (var id in userIds) {
-      yield cachedData[id];
-    }
+    final users =
+        cachedData.values.where((x) => userIds.contains(x.id)).toList();
+    return users;
   }
 
   Future<void> tryRegisterCurrentUser(String pushToken) async {
@@ -63,8 +60,7 @@ class UsersService extends CachedDataService<User, UserModel> {
       _allowCurrentUser,
       request,
     );
-    final users =
-        cachedData.values.where((x) => userFilter._filter(x)).toList();
+    final users = cachedData.values.where((x) => userFilter._filter(x)).toList();
     return users;
   }
 

@@ -13,6 +13,7 @@ class UsersViewModel extends SearchableListViewModel<UserModel> {
 
   final Set<String> _excludedUserIds;
   final SelectionAction _selectionAction;
+  final List<UserModel> _allowedMembers;
 
   final Icon selectorIcon;
 
@@ -20,7 +21,9 @@ class UsersViewModel extends SearchableListViewModel<UserModel> {
     this._selectionAction, {
     Set<String> excludedUserIds,
     this.selectorIcon,
+    List<UserModel> allowedMembers,
   })  : _excludedUserIds = excludedUserIds,
+        _allowedMembers = allowedMembers,
         super(sortFunc: _sortFunc) {
     _initialize();
   }
@@ -48,9 +51,14 @@ class UsersViewModel extends SearchableListViewModel<UserModel> {
   void _initialize() async {
     try {
       isBusy = true;
-      var loadedUsers = await _peopleService.getAllUsers();
 
-      dataList.addAll(loadedUsers);
+      if (_allowedMembers != null) {
+        dataList.addAll(_allowedMembers);
+      } else {
+        final loadedUsers = await _peopleService.getAllUsers();
+        dataList.addAll(loadedUsers);
+      }
+
       if (_excludedUserIds != null && _excludedUserIds.isNotEmpty) {
         dataList.removeWhere((x) => _excludedUserIds.contains(x.id));
       }

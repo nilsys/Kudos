@@ -99,10 +99,6 @@ class EditTeamViewModel extends BaseViewModel with ImageLoading {
         _analyticsService.logTeamCreated();
       } else {
         updatedTeam = await _teamsService.editTeam(_team);
-        if (accessLevel != _initialTeam.accessLevel) {
-          await _teamsService.setTeamAccessLevel(_initialTeam, accessLevel);
-          updatedTeam.accessLevel = _team.accessLevel;
-        }
         _analyticsService.logTeamUpdated();
       }
     } finally {

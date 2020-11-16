@@ -2,9 +2,14 @@ class EntryCounter {
   final List<bool> _entries;
 
   int _addedEntriesCount = 0;
+
+  EntryCounter._(this._entries);
+
   bool get hasEntries => _addedEntriesCount > 0;
 
-  EntryCounter(int count) : _entries = new List<bool>(count);
+  factory EntryCounter.from(int count) {
+    return EntryCounter._(List.filled(count, false));
+  }
 
   void addEntry(int index) {
     if (_entries[index] == false) {

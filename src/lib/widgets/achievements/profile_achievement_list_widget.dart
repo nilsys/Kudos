@@ -142,6 +142,7 @@ class ProfileAchievementsListWidget extends StatelessWidget {
               imageUrl: achievementCollection.imageUrl,
               size: width - 5,
               addHeroAnimation: true,
+              isPrivate: !achievementCollection.isAccessible,
             ),
           ),
         );

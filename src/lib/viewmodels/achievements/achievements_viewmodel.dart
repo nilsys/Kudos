@@ -63,11 +63,10 @@ class AchievementsViewModel extends BaseViewModel {
       final loadedAchievements = await _achievementsService.getAchievements();
 
       achievements.clear();
-      achievements.addAll(_achievementFilter == null
-          ? loadedAchievements.map((a) => _createGrouppedItemFromAchievement(a))
-          : loadedAchievements
-              .where(_achievementFilter)
-              .map((a) => _createGrouppedItemFromAchievement(a)));
+      achievements.addAll(loadedAchievements
+          .where(
+              _achievementFilter == null ? _defaultFilter : _achievementFilter)
+          .map((a) => _createGrouppedItemFromAchievement(a)));
       notifyListeners();
 
       _achievementUpdatedSubscription?.cancel();
@@ -86,6 +85,14 @@ class AchievementsViewModel extends BaseViewModel {
           .listen(_onAchievementTransferred);
     } finally {
       isBusy = false;
+    }
+  }
+
+  bool _defaultFilter(AchievementModel a) {
+    if (a.owner.type == AchievementOwnerType.user) {
+      return a.owner.id == _authService.currentUser.id;
+    } else {
+      return a.canBeViewedByUser(_authService.currentUser.id);
     }
   }
 

@@ -16,6 +16,7 @@ class RoundedImageWidget extends StatefulWidget {
   final File _file;
   final Color _placeholderColor;
   final bool _addHeroAnimation;
+  final bool _isPrivate;
 
   RoundedImageWidget._(
     this._imageUrl,
@@ -25,6 +26,7 @@ class RoundedImageWidget extends StatefulWidget {
     this._file,
     this._placeholderColor,
     this._addHeroAnimation,
+    this._isPrivate,
   );
 
   factory RoundedImageWidget.circular({
@@ -34,6 +36,7 @@ class RoundedImageWidget extends StatefulWidget {
     File file,
     Color placeholderColor,
     bool addHeroAnimation,
+    bool isPrivate = false,
   }) {
     return RoundedImageWidget._(
       imageUrl,
@@ -43,6 +46,7 @@ class RoundedImageWidget extends StatefulWidget {
       file,
       placeholderColor,
       addHeroAnimation,
+      isPrivate,
     );
   }
 
@@ -54,6 +58,7 @@ class RoundedImageWidget extends StatefulWidget {
     File file,
     Color placeholderColor,
     bool addHeroAnimation,
+    bool isPrivate = false,
   }) {
     return RoundedImageWidget._(
       imageUrl,
@@ -63,6 +68,7 @@ class RoundedImageWidget extends StatefulWidget {
       file,
       placeholderColor,
       addHeroAnimation,
+      isPrivate,
     );
   }
 
@@ -86,6 +92,10 @@ class _RoundedImageWidgetState extends State<RoundedImageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget._isPrivate) {
+      return _buildPlaceholderWidget();
+    }
+
     if (_url != widget._imageUrl) {
       _file = null;
       _url = widget._imageUrl;
@@ -148,7 +158,12 @@ class _RoundedImageWidgetState extends State<RoundedImageWidget> {
                 child: Container(
                   width: widget._size * 0.6,
                   height: widget._size * 0.6,
-                  child: SvgPicture.asset("assets/icons/image_placeholder.svg"),
+                  child: widget._isPrivate
+                      ? SvgPicture.asset(
+                          "assets/icons/privacy-private.svg",
+                          color: KudosTheme.accentColor,
+                        )
+                      : SvgPicture.asset("assets/icons/image_placeholder.svg"),
                 ),
               ),
             )

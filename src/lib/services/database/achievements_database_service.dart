@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kudosapp/dto/achievement.dart';
 import 'package:kudosapp/dto/achievement_holder.dart';
 import 'package:kudosapp/dto/user_achievement.dart';
-import 'package:kudosapp/models/access_level.dart';
-import 'package:kudosapp/models/item_change.dart';
 import 'package:kudosapp/helpers/firestore_helpers.dart';
+import 'package:kudosapp/models/access_level.dart';
+import 'package:kudosapp/services/cache/item_change.dart';
 
 class AchievementsDatabaseService {
   static const _usersCollection = "users";
@@ -76,11 +76,6 @@ class AchievementsDatabaseService {
         (value) => value.docs.map((d) => Achievement.fromJson(d.data(), d.id)));
   }
 
-  Stream<Iterable<ItemChange<Achievement>>> getUserAchievementsStream(
-      String userId) {
-    return _getAchievementsStream("user.id", isEqualTo: userId);
-  }
-
   Stream<Iterable<ItemChange<Achievement>>> getUserTeamsAchievementsStream(
       String userId) {
     return _getAchievementsStream("visible_for", arrayContains: userId);
@@ -102,18 +97,10 @@ class AchievementsDatabaseService {
         isLessThan: AccessLevel.private.index);
   }
 
-  Future<Iterable<Achievement>> getTeamAchievements(String teamId) {
-    return _getAchievements("team.id", isEqualTo: teamId);
-  }
-
-  Future<Iterable<Achievement>> getUserAchievements(String userId) {
-    return _getAchievements("user.id", isEqualTo: userId);
-  }
-
-  Future<Achievement> getAchievement(String achivementId) {
+  Future<Achievement> getAchievement(String achievementId) {
     return _database
         .collection(_achievementsCollection)
-        .doc(achivementId)
+        .doc(achievementId)
         .get()
         .then((value) => Achievement.fromJson(value.data(), value.id));
   }
@@ -183,10 +170,7 @@ class AchievementsDatabaseService {
     bool updateMetadata = false,
     bool updateImage = false,
     bool updateOwner = false,
-    bool updateTeamMembers = false,
-    bool updateAccessLevel = false,
     bool updateIsActive = false,
-    WriteBatch batch,
   }) {
     final docRef =
         _database.collection(_achievementsCollection).doc(achievement.id);
@@ -194,19 +178,12 @@ class AchievementsDatabaseService {
       addMetadata: updateMetadata,
       addImage: updateImage,
       addOwner: updateOwner,
-      addTeamMembers: updateTeamMembers,
-      addAccessLevel: updateAccessLevel,
       addIsActive: updateIsActive,
     );
-    if (batch == null) {
-      return docRef
-          .set(map, SetOptions(merge: true))
-          .then((value) => docRef.get())
-          .then((value) => Achievement.fromJson(value.data(), value.id));
-    } else {
-      batch.set(docRef, map, SetOptions(merge: true));
-      return Future<Achievement>.value(null);
-    }
+    return docRef
+        .set(map, SetOptions(merge: true))
+        .then((value) => docRef.get())
+        .then((value) => Achievement.fromJson(value.data(), value.id));
   }
 
   Future<void> markUserAchievementAsViewed(

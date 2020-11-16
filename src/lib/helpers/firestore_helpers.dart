@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:kudosapp/models/item_change_type.dart';
+import 'package:kudosapp/services/cache/item_change_type.dart';
 
 extension DocumentChangeTypeParser on DocumentChangeType {
   ItemChangeType toItemChangeType() {

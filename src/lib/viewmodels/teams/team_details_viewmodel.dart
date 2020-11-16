@@ -20,9 +20,9 @@ import 'package:kudosapp/services/navigation_service.dart';
 import 'package:kudosapp/viewmodels/achievements/achievement_details_viewmodel.dart';
 import 'package:kudosapp/viewmodels/achievements/edit_achievement_viewmodel.dart';
 import 'package:kudosapp/viewmodels/base_viewmodel.dart';
-import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
-import 'package:kudosapp/viewmodels/teams/team_member_picker_viewmodel.dart';
 import 'package:kudosapp/viewmodels/teams/edit_team_viewmodel.dart';
+import 'package:kudosapp/viewmodels/teams/team_member_picker_viewmodel.dart';
+import 'package:kudosapp/viewmodels/users/user_details_viewmodel.dart';
 
 class TeamDetailsViewModel extends BaseViewModel {
   final _eventBus = locator<EventBus>();
@@ -51,9 +51,10 @@ class TeamDetailsViewModel extends BaseViewModel {
 
   Iterable<TeamMemberModel> get members => _team.members.values;
 
-  bool get canEdit => _team.members == null
-      ? false
-      : _team.canBeModifiedByUser(_authService.currentUser.id);
+  bool get canEdit =>
+      _team.members == null
+          ? false
+          : _team.canBeModifiedByUser(_authService.currentUser.id);
 
   TeamDetailsViewModel(this._team) {
     _initialize();
@@ -95,10 +96,10 @@ class TeamDetailsViewModel extends BaseViewModel {
 
     await _navigationService
         .navigateTo(
-          context,
-          TeamMemberPickerViewModel(_team),
-          fullscreenDialog: true,
-        )
+      context,
+      TeamMemberPickerViewModel(_team),
+      fullscreenDialog: true,
+    )
         .whenComplete(notifyListeners);
 
     notifyListeners();
@@ -106,10 +107,7 @@ class TeamDetailsViewModel extends BaseViewModel {
 
   void editTeam(BuildContext context) {
     _navigationService
-        .navigateTo(
-          context,
-          EditTeamViewModel(_team),
-        )
+        .navigateTo(context, EditTeamViewModel(_team))
         .whenComplete(notifyListeners);
   }
 
@@ -120,10 +118,8 @@ class TeamDetailsViewModel extends BaseViewModel {
     );
   }
 
-  void openAchievementDetails(
-    BuildContext context,
-    AchievementModel achievement,
-  ) {
+  void openAchievementDetails(BuildContext context,
+      AchievementModel achievement,) {
     _navigationService.navigateTo(
       context,
       AchievementDetailsViewModel(achievement),
@@ -145,11 +141,15 @@ class TeamDetailsViewModel extends BaseViewModel {
       try {
         isBusy = true;
 
-        await _teamsService.deleteTeam(_team, achievements);
+        await _teamsService.deleteTeam(_team);
+
         _analyticsService.logTeamDeleted();
         _eventBus.fire(TeamDeletedMessage(_team.id));
-        _eventBus.fire(AchievementDeletedMessage.multiple(
-            achievements.map((x) => x.id).toSet()));
+        _eventBus.fire(
+          AchievementDeletedMessage.multiple(
+            achievements.map((x) => x.id).toSet(),
+          ),
+        );
         Navigator.popUntil(context, ModalRoute.withName('/'));
       } finally {
         isBusy = false;
@@ -163,7 +163,7 @@ class TeamDetailsViewModel extends BaseViewModel {
     }
 
     final index = achievements.indexWhere(
-      (x) => x.id == event.achievement.id,
+          (x) => x.id == event.achievement.id,
     );
     if (index != -1) {
       achievements.removeAt(index);

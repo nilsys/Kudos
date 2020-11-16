@@ -914,6 +914,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Oops, the Kudos cannot be sent`
+  String get cannotBeSentTitle {
+    return Intl.message(
+      'Oops, the Kudos cannot be sent',
+      name: 'cannotBeSentTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Kudos of the private team can be granted only to its members.\n\nPlease add someone to the team and try again.`
+  String get cannotBeSentMessage {
+    return Intl.message(
+      'Kudos of the private team can be granted only to its members.\n\nPlease add someone to the team and try again.',
+      name: 'cannotBeSentMessage',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
